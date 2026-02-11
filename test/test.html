@@ -361,6 +361,12 @@
       testHistoryClear();
       log('', 'info');
 
+      testMultipleSets();
+      log('', 'info');
+
+      testSetCountInHistory();
+      log('', 'info');
+
       // 요약
       const passCount = testResults.filter(r => r.type === 'pass').length;
       const failCount = testResults.filter(r => r.type === 'fail').length;
@@ -507,6 +513,84 @@
         log('✅ PASS: 삭제 후 빈 배열 반환', 'pass');
       } else {
         log(`❌ FAIL: 삭제 실패 (${afterClear.length}개 남음)`, 'fail');
+      }
+    }
+
+    // Test 11: 여러 세트 생성
+    function testMultipleSets() {
+      log('═══ Test 11: 여러 세트 생성 ═══', 'info');
+
+      // 3개 세트 생성
+      const sets = generateMultipleSets(3);
+
+      if (sets.length === 3) {
+        log('✅ PASS: 3개 세트 생성됨', 'pass');
+      } else {
+        log(`❌ FAIL: 세트 개수 오류 (${sets.length})`, 'fail');
+      }
+
+      // 각 세트가 6개 숫자인지 확인
+      const allSixNumbers = sets.every(set => set.length === 6);
+      if (allSixNumbers) {
+        log('✅ PASS: 모든 세트가 6개 숫자', 'pass');
+      } else {
+        log('❌ FAIL: 세트 내 숫자 개수 오류', 'fail');
+      }
+
+      // 각 세트가 정렬되어 있는지 확인
+      const allSorted = sets.every(set =>
+        set.every((n, i, arr) => i === 0 || arr[i - 1] < n)
+      );
+      if (allSorted) {
+        log('✅ PASS: 모든 세트가 오름차순 정렬', 'pass');
+      } else {
+        log('❌ FAIL: 정렬 오류', 'fail');
+      }
+
+      // 각 세트 내 중복 없는지 확인
+      const noDuplicates = sets.every(set =>
+        new Set(set).size === 6
+      );
+      if (noDuplicates) {
+        log('✅ PASS: 각 세트 내 중복 없음', 'pass');
+      } else {
+        log('❌ FAIL: 세트 내 중복 발견', 'fail');
+      }
+    }
+
+    // Test 12: setCount 이력 저장
+    function testSetCountInHistory() {
+      log('═══ Test 12: setCount 이력 저장 ═══', 'info');
+
+      // LocalStorage 초기화
+      localStorage.removeItem('lotto_history');
+
+      // 3세트로 저장
+      const testNumbers = [1, 2, 3, 4, 5, 6];
+      saveToHistory(testNumbers, 3);
+
+      const history = loadHistory();
+
+      if (history.length === 1) {
+        log('✅ PASS: 이력 1개 저장됨', 'pass');
+      } else {
+        log(`❌ FAIL: 이력 개수 오류 (${history.length})`, 'fail');
+      }
+
+      if (history[0].setCount === 3) {
+        log('✅ PASS: setCount=3 저장됨', 'pass');
+      } else {
+        log(`❌ FAIL: setCount 오류 (${history[0].setCount})`, 'fail');
+      }
+
+      // 기본값 테스트 (setCount 미지정)
+      saveToHistory(testNumbers);
+      const history2 = loadHistory();
+
+      if (history2[0].setCount === 1) {
+        log('✅ PASS: setCount 기본값=1', 'pass');
+      } else {
+        log(`❌ FAIL: setCount 기본값 오류 (${history2[0].setCount})`, 'fail');
       }
     }
 

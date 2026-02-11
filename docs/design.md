@@ -521,6 +521,131 @@ Primary Gradient:  [████████████] #667eea → #764ba2
 
 ## 🎨 Phase 3 컴포넌트 디자인
 
+### 여러 세트 추첨 (Multiple Sets)
+
+#### 레이아웃
+```
+┌─────────────────────────────────────┐
+│  세트 수: [▼ 3개]    [추첨하기]     │
+│                                     │
+│  ┌───────────────┐  ┌─────────────┐ │
+│  │  1회차        │  │  2회차      │ │
+│  │  ○ ○ ○ ○ ○ ○ │  │  ○ ○ ○ ○ ○ ○│ │
+│  └───────────────┘  └─────────────┘ │
+│  ┌───────────────┐                  │
+│  │  3회차        │                  │
+│  │  ○ ○ ○ ○ ○ ○ │                  │
+│  └───────────────┘                  │
+└─────────────────────────────────────┘
+```
+
+#### CSS 클래스
+
+**`.set-selector`** - 세트 수 선택 영역
+```css
+.set-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.set-selector label {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
+.set-selector select {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+```
+
+**`.sets-container`** - 여러 세트 컨테이너
+```css
+.sets-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin: 30px 0;
+}
+```
+
+**`.set-card`** - 개별 세트 카드
+```css
+.set-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.set-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+  transition: all 0.2s;
+}
+```
+
+**`.set-label`** - 세트 번호 라벨
+```css
+.set-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 15px;
+  text-align: center;
+}
+```
+
+**`.set-numbers`** - 세트 내 숫자 컨테이너
+```css
+.set-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.set-numbers .number {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+}
+```
+
+#### 반응형 (모바일)
+```css
+@media (max-width: 480px) {
+  .sets-container {
+    grid-template-columns: 1fr;
+  }
+
+  .set-selector {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .set-numbers .number {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+}
+```
+
+#### 애니메이션
+- 각 세트 카드: fade-in (0.3초, 순차 딜레이)
+- 세트 내 숫자: 기존 pop 애니메이션 재사용
+
+---
+
 ### 이력 섹션 (History Section)
 
 #### 레이아웃

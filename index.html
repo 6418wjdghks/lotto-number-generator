@@ -9,11 +9,24 @@
 <body>
   <div class="container">
     <h1>🎰 로또번호 추첨기</h1>
-    <div class="numbers-container" id="numbersContainer">
-      <p style="color: #999;">추첨하기 버튼을 눌러주세요!</p>
+
+    <!-- Set Selector -->
+    <div class="set-selector">
+      <label for="setCount">세트 수:</label>
+      <select id="setCount">
+        <option value="1" selected>1개</option>
+        <option value="2">2개</option>
+        <option value="3">3개</option>
+        <option value="4">4개</option>
+        <option value="5">5개</option>
+      </select>
     </div>
+
     <button onclick="generateLottoNumbers()">추첨하기</button>
     <p class="info">1부터 45까지의 숫자 중 6개를 무작위로 추첨합니다.</p>
+
+    <!-- Sets Container -->
+    <div class="sets-container" id="setsContainer"></div>
 
     <!-- History Section -->
     <div class="history-section">

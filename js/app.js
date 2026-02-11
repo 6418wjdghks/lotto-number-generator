@@ -1,7 +1,7 @@
 /**
  * 로또번호 추첨기 - 메인 애플리케이션
  * 1-45 범위의 숫자 중 6개를 무작위로 추첨합니다.
- * Phase 3: 추첨 이력 저장 및 관리
+ * Phase 3: 추첨 이력 저장 및 관리, 여러 세트 동시 추첨
  */
 
 // LocalStorage 키
@@ -9,10 +9,26 @@ const STORAGE_KEY = 'lotto_history';
 const MAX_HISTORY = 20;
 
 /**
- * 로또번호 생성 함수
- * Fisher-Yates 셔플 알고리즘을 사용하여 무작위 숫자를 생성합니다.
+ * 로또번호 생성 함수 (메인)
+ * 선택된 세트 수만큼 로또번호를 생성합니다.
  */
 function generateLottoNumbers() {
+  const setCount = getSelectedSetCount();
+  const sets = generateMultipleSets(setCount);
+  displayMultipleSets(sets);
+
+  // 각 세트를 이력에 저장
+  sets.forEach(numbers => {
+    saveToHistory(numbers, setCount);
+  });
+}
+
+/**
+ * 단일 로또번호 생성 (내부 함수)
+ * Fisher-Yates 셔플 알고리즘을 사용하여 무작위 숫자를 생성합니다.
+ * @returns {number[]} 6개의 정렬된 숫자 배열
+ */
+function generateSingleSet() {
   // 1부터 45까지의 숫자 배열 생성
   const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
 
@@ -23,29 +39,66 @@ function generateLottoNumbers() {
   }
 
   // 앞의 6개 숫자 선택 후 정렬
-  const lottoNumbers = numbers.slice(0, 6).sort((a, b) => a - b);
-
-  // 화면에 표시
-  displayNumbers(lottoNumbers);
-
-  // 이력에 저장
-  saveToHistory(lottoNumbers);
+  return numbers.slice(0, 6).sort((a, b) => a - b);
 }
 
 /**
- * 숫자를 화면에 표시하는 함수
- * @param {number[]} numbers - 표시할 숫자 배열 (길이: 6)
+ * 여러 세트 생성
+ * @param {number} count - 생성할 세트 수 (1~5)
+ * @returns {Array<number[]>} 세트 배열
  */
-function displayNumbers(numbers) {
-  const container = document.getElementById('numbersContainer');
+function generateMultipleSets(count) {
+  const sets = [];
+  for (let i = 0; i < count; i++) {
+    sets.push(generateSingleSet());
+  }
+  return sets;
+}
+
+/**
+ * 선택된 세트 수 조회
+ * @returns {number} 세트 수 (1~5)
+ */
+function getSelectedSetCount() {
+  const select = document.getElementById('setCount');
+  return parseInt(select.value, 10);
+}
+
+/**
+ * 여러 세트를 화면에 표시
+ * @param {Array<number[]>} sets - 세트 배열
+ */
+function displayMultipleSets(sets) {
+  const container = document.getElementById('setsContainer');
   container.innerHTML = '';
 
-  numbers.forEach((num, index) => {
-    const numberDiv = document.createElement('div');
-    numberDiv.className = 'number';
-    numberDiv.textContent = num;
-    numberDiv.style.animationDelay = `${index * 0.1}s`;
-    container.appendChild(numberDiv);
+  sets.forEach((numbers, setIndex) => {
+    // 세트 카드 생성
+    const setCard = document.createElement('div');
+    setCard.className = 'set-card';
+    setCard.style.animationDelay = `${setIndex * 0.1}s`;
+
+    // 세트 라벨 생성
+    const setLabel = document.createElement('div');
+    setLabel.className = 'set-label';
+    setLabel.textContent = `${setIndex + 1}회차`;
+
+    // 숫자 컨테이너 생성
+    const numbersContainer = document.createElement('div');
+    numbersContainer.className = 'set-numbers';
+
+    // 숫자 뱃지 생성
+    numbers.forEach((num, numIndex) => {
+      const numberDiv = document.createElement('div');
+      numberDiv.className = 'number';
+      numberDiv.textContent = num;
+      numberDiv.style.animationDelay = `${(setIndex * 0.1) + (numIndex * 0.05)}s`;
+      numbersContainer.appendChild(numberDiv);
+    });
+
+    setCard.appendChild(setLabel);
+    setCard.appendChild(numbersContainer);
+    container.appendChild(setCard);
   });
 }
 
@@ -63,8 +116,9 @@ function generateUUID() {
 /**
  * 추첨 결과를 이력에 저장
  * @param {number[]} numbers - 추첨된 숫자 배열
+ * @param {number} setCount - 동시 추첨 세트 수 (기본값: 1)
  */
-function saveToHistory(numbers) {
+function saveToHistory(numbers, setCount = 1) {
   try {
     // 기존 이력 로드
     const history = loadHistory();
@@ -74,7 +128,7 @@ function saveToHistory(numbers) {
       id: generateUUID(),
       numbers: numbers,
       timestamp: new Date().toISOString(),
-      setCount: 1
+      setCount: setCount
     };
 
     // 배열 맨 앞에 추가 (최신순)
@@ -151,7 +205,8 @@ function displayHistory() {
     timeDiv.className = 'history-time';
     const date = new Date(item.timestamp);
     const timeString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-    timeDiv.textContent = timeString;
+    const setInfo = item.setCount > 1 ? ` (${item.setCount}세트 중)` : '';
+    timeDiv.textContent = timeString + setInfo;
 
     // 숫자 표시
     const numbersDiv = document.createElement('div');
