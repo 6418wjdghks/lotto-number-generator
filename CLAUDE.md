@@ -43,7 +43,8 @@ HelloClaude/
 │   ├── decisions.md       # 설계 결정 기록 (ADR)
 │   └── phase4-architecture.md  # Phase 4 기술 설계 (아키텍처, DB, API)
 ├── test/
-│   ├── test.html          # 자동 테스트 (27개, 100% 커버리지)
+│   ├── test.html          # 브라우저 DOM/UI 테스트 (27개)
+│   ├── test-logic.js      # Node.js CLI 순수 로직 테스트 (22개)
 │   └── README.md          # 테스트 상세 문서
 └── .claude/plugins/local/git-helper/  # Git 검증 스킬
 ```
@@ -87,7 +88,7 @@ HelloClaude/
 
 **2단계: 구현**
 1. 기능 구현
-2. 테스트 (`test/test.html` 업데이트 또는 수동 테스트)
+2. 테스트 (순수 로직: `node --test test/test-logic.js`, DOM/UI: `test/test.html`)
 
 **3단계: 마무리**
 1. 문서 업데이트 (아래 매트릭스에 따라, ADR 포함)
@@ -102,7 +103,7 @@ HelloClaude/
 | UI/디자인 변경 | design.md | design.md |
 | 아키텍처/기술 변경 | tech.md | tech.md |
 | 설계 결정 (대안 비교) | decisions.md | decisions.md (새 ADR) |
-| 테스트 추가 | test/README.md | test/README.md |
+| 테스트 추가 | test/README.md | test/README.md, test-logic.js 또는 test.html |
 | Phase/Step 완료 | plan.md | plan.md, CLAUDE.md (상태 바) |
 
 ### ADR 작성 기준 (`decisions.md`)

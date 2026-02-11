@@ -2,17 +2,30 @@
 
 로또번호 추첨기의 자동 테스트 도구입니다.
 
-## 파일
+## 테스트 2계층 구조
 
-### test.html (v2)
-자동화된 기능 테스트 페이지 - **27개 테스트, ~90개 검증 항목**
+| 계층 | 파일 | 실행 환경 | 대상 |
+|------|------|----------|------|
+| **순수 로직** | `test-logic.js` | Node.js (CLI) | 순수 함수, localStorage 로직 |
+| **DOM/UI** | `test.html` | 브라우저 | DOM 렌더링, 토스트, 클립보드 등 전체 |
 
-**실행 방법**:
+## 실행 방법
+
+### CLI 자동 테스트 (Node.js 18+)
+```bash
+node --test test/test-logic.js
+```
+- 외부 의존성 없음 (Node.js 내장 `node:test` 사용)
+- exit code 0/1로 CI 연동 가능
+- 22개 테스트 (5 suites)
+
+### 브라우저 전체 테스트
 ```bash
 start test/test.html  # Windows
 open test/test.html   # macOS
 ```
-페이지 로드 시 자동 실행됩니다.
+- 페이지 로드 시 자동 실행
+- 27개 테스트, ~90개 검증 항목
 
 ---
 

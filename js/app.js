@@ -414,3 +414,16 @@ function showToast(message, type = 'success', duration = 2000) {
     }, 300);
   }, duration);
 }
+
+// Node.js 환경에서 테스트를 위한 모듈 내보내기
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    STORAGE_KEY,
+    MAX_HISTORY,
+    generateSingleSet,
+    generateMultipleSets,
+    generateUUID,
+    loadHistory,
+    saveToHistory,
+  };
+}
