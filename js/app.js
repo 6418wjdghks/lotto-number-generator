@@ -255,40 +255,27 @@ async function loadHistory() {
  * 전체 이력 삭제 (듀얼 모드)
  */
 async function clearHistory() {
-  if (typeof window !== 'undefined' && window.supabase && window.supabase.isLoggedIn()) {
-    const history = await loadHistory();
-    if (history.length === 0) {
-      alert('삭제할 이력이 없습니다.');
-      return;
-    }
+  const history = await loadHistory();
+  if (history.length === 0) {
+    alert('삭제할 이력이 없습니다.');
+    return;
+  }
 
-    if (confirm('모든 추첨 이력을 삭제하시겠습니까?')) {
-      try {
-        await window.supabase.deleteAllHistory();
-        await displayHistory();
-        alert('이력이 삭제되었습니다.');
-      } catch (error) {
-        console.error('이력 삭제 실패:', error);
-        alert('이력 삭제에 실패했습니다.');
-      }
-    }
-  } else {
-    const history = loadHistoryLocal();
-    if (history.length === 0) {
-      alert('삭제할 이력이 없습니다.');
-      return;
-    }
+  if (!confirm('모든 추첨 이력을 삭제하시겠습니까?')) {
+    return;
+  }
 
-    if (confirm('모든 추첨 이력을 삭제하시겠습니까?')) {
-      try {
-        clearHistoryLocal();
-        displayHistory();
-        alert('이력이 삭제되었습니다.');
-      } catch (error) {
-        console.error('이력 삭제 실패:', error);
-        alert('이력 삭제에 실패했습니다.');
-      }
+  try {
+    if (typeof window !== 'undefined' && window.supabase && window.supabase.isLoggedIn()) {
+      await window.supabase.deleteAllHistory();
+    } else {
+      clearHistoryLocal();
     }
+    await displayHistory();
+    alert('이력이 삭제되었습니다.');
+  } catch (error) {
+    console.error('이력 삭제 실패:', error);
+    alert('이력 삭제에 실패했습니다.');
   }
 }
 
@@ -508,6 +495,11 @@ function toggleAuthForm() {
  * 로그인 처리
  */
 async function handleSignIn() {
+  if (!window.supabase) {
+    showToast('인증 서비스에 연결할 수 없습니다.', 'error');
+    return;
+  }
+
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
 
@@ -535,6 +527,11 @@ async function handleSignIn() {
  * 회원가입 처리
  */
 async function handleSignUp() {
+  if (!window.supabase) {
+    showToast('인증 서비스에 연결할 수 없습니다.', 'error');
+    return;
+  }
+
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
 
@@ -566,6 +563,11 @@ async function handleSignUp() {
  * 로그아웃 처리
  */
 async function handleSignOut() {
+  if (!window.supabase) {
+    showToast('인증 서비스에 연결할 수 없습니다.', 'error');
+    return;
+  }
+
   await window.supabase.signOut();
   showToast('로그아웃 되었습니다.', 'success');
   updateAuthUI();
