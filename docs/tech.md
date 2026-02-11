@@ -6,7 +6,7 @@
 
 ## 기술 스택
 
-- **Frontend**: HTML5, CSS3 (Flexbox + Grid), Vanilla JavaScript (ES6+)
+- **Frontend**: HTML5, CSS3 (Custom Properties + Flexbox + Grid), Vanilla JavaScript (ES6+)
 - **백엔드 (Phase 4)**: Supabase REST API 직접 호출 (SDK 미사용, ADR-016)
 - **배포**: GitHub Pages (`[username].github.io/[repo-name]`)
 - **의존성**: 외부 없음. Supabase REST API만 사용
@@ -44,6 +44,56 @@ HelloClaude/
 **패턴**: 관심사 분리 (HTML/CSS/JS 파일 분리)
 - 구조(HTML), 표현(CSS), 동작(JS) 독립 수정 가능
 - CSS/JS 별도 캐시, 협업 충돌 최소화
+
+---
+
+## CSS 구조 (`css/style.css`)
+
+### 디자인 토큰 (CSS 변수)
+
+`:root` 블록에서 CSS 커스텀 프로퍼티로 디자인 토큰을 관리. 색상, 간격, 폰트, 테두리, 그림자 값을 변수화하여 일관성 유지 및 유지보수 용이.
+
+| 카테고리 | 주요 변수 | 예시 |
+|----------|----------|------|
+| 색상 | `--primary-start`, `--primary-end`, `--text-primary` 등 | `#667eea`, `#764ba2` |
+| 번호 뱃지 | `--number-1` ~ `--number-6` | 각 번호 위치별 색상 |
+| 간격 | `--space-xs` ~ `--space-lg` | `10px` ~ `40px` |
+| 폰트 | `--font-family`, `--font-size-*` | `'Segoe UI'`, `2em` ~ `14px` |
+| 테두리 | `--radius-full`, `--radius-large`, `--radius-medium` | `50%`, `50px`, `20px` |
+| 그림자 | `--shadow-high`, `--shadow-medium` | 고/중 강도 box-shadow |
+
+### 버튼 클래스 체계
+
+범용 `button` 선택자 대신 용도별 클래스로 스타일 분리. `index.html`에서 추첨 버튼에 `class="btn-primary"` 지정.
+
+| 클래스 | 용도 |
+|--------|------|
+| `.btn-primary` | 추첨 버튼 (그라데이션 배경, 굵은 글씨) |
+| `.btn-secondary` | 이력 토글/삭제 등 보조 버튼 (아웃라인 스타일) |
+| `.btn-auth` / `.btn-auth-secondary` | 인증 관련 버튼 |
+| `.copy-btn` | 번호 복사 버튼 |
+| `.exclude-btn` / `.exclude-reset-btn` | 제외 기능 버튼 |
+
+### 접근성: 포커스 스타일
+
+모든 인터랙티브 버튼에 `:focus-visible` 아웃라인 스타일 적용. 키보드 탐색 시 3px solid 아웃라인으로 포커스 상태 표시 (마우스 클릭 시에는 미표시).
+
+### 파일 구성
+
+```
+css/style.css
+├── Reset & Base Styles       /* 전역 리셋 */
+├── Design Tokens (:root)     /* CSS 변수 정의 */
+├── Layout                    /* body, .container */
+├── Typography                /* h1, .info */
+├── Components                /* 번호 뱃지, 버튼, 카드, 토스트 등 */
+├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
+├── Focus Styles              /* :focus-visible (접근성) */
+├── Section Styles            /* 인증, 제외, 이력 */
+└── Responsive (@media)       /* 480px 이하 — 단일 미디어쿼리 블록 */
+```
+
+**미디어쿼리 통합**: 분산되어 있던 복수의 `@media` 블록을 파일 하단 단일 블록으로 통합. 반응형 스타일을 한 곳에서 관리.
 
 ---
 
@@ -209,7 +259,7 @@ function shuffleArray(array) {
 
 **지원**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (데스크톱/모바일)
 
-**필수 API**: ES6 (Arrow, Template Literals, Destructuring, Array.from), LocalStorage, Clipboard, Fetch, Flexbox, Grid, CSS Animations
+**필수 API**: ES6 (Arrow, Template Literals, Destructuring, Array.from), LocalStorage, Clipboard, Fetch, CSS Custom Properties, Flexbox, Grid, CSS Animations, `:focus-visible`
 
 **폴리필 불필요**: 모든 기능이 대상 브라우저에서 네이티브 지원
 
