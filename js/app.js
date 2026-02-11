@@ -648,6 +648,18 @@ function updateAuthUI() {
  * 페이지 로드 시 세션 확인 및 UI 초기화
  */
 function initApp() {
+  // 이벤트 바인딩
+  document.getElementById('btnGenerate').addEventListener('click', generateLottoNumbers);
+  document.getElementById('btnToggleAuth').addEventListener('click', toggleAuthForm);
+  document.getElementById('btnSignIn').addEventListener('click', handleSignIn);
+  document.getElementById('btnSignUp').addEventListener('click', handleSignUp);
+  document.getElementById('btnSignOut').addEventListener('click', handleSignOut);
+  document.getElementById('btnToggleExclude').addEventListener('click', toggleExcludeView);
+  document.getElementById('btnResetExclude').addEventListener('click', resetExcludedNumbers);
+  document.getElementById('btnToggleHistory').addEventListener('click', toggleHistoryView);
+  document.getElementById('btnClearHistory').addEventListener('click', clearHistory);
+
+  // 인증 상태 확인
   if (typeof window !== 'undefined' && window.supabase) {
     updateAuthUI();
   }
