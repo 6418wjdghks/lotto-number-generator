@@ -67,7 +67,7 @@ HelloClaude/
 │   ├── spec.md            # 기능 명세서
 │   ├── design.md          # 디자인 명세서
 │   ├── tech.md            # 기술 명세서 (본 문서)
-│   └── phase4-plan.md     # Phase 4 백엔드 확장 계획
+│   └── phase4-architecture.md  # Phase 4 기술 설계
 ├── test/
 │   ├── test.html          # 자동 테스트 (21개, 100% 커버리지)
 │   └── README.md          # 테스트 문서

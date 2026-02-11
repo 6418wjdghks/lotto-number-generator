@@ -41,7 +41,7 @@
     ├── spec.md         # 기능 명세서
     ├── design.md       # 디자인 명세서
     ├── tech.md         # 기술 명세서
-    └── phase4-plan.md  # Phase 4 백엔드 확장 계획
+    └── phase4-architecture.md  # Phase 4 기술 설계
 ```
 
 ## 기술 스택

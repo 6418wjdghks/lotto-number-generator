@@ -41,7 +41,7 @@ HelloClaude/
 │   ├── design.md          # 디자인 시스템, CSS 명세
 │   ├── tech.md            # 기술 스택, 아키텍처, 성능
 │   ├── decisions.md       # 설계 결정 기록 (ADR)
-│   └── phase4-plan.md     # Phase 4 백엔드 확장 계획
+│   └── phase4-architecture.md  # Phase 4 기술 설계 (아키텍처, DB, API)
 ├── test/
 │   ├── test.html          # 자동 테스트 (21개, 100% 커버리지)
 │   └── README.md          # 테스트 상세 문서
@@ -155,4 +155,4 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 | 기술 스택, 브라우저 호환성, 성능 목표, 아키텍처 | `docs/tech.md` |
 | 테스트 항목, 커버리지, 실행 방법 | `test/README.md` |
 | 설계 결정 사유 (왜 이렇게 했는지) | `docs/decisions.md` |
-| Phase 4 백엔드 확장 계획 | `docs/phase4-plan.md` |
+| Phase 4 기술 설계 (아키텍처, DB, API) | `docs/phase4-architecture.md` |
