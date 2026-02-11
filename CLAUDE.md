@@ -185,16 +185,28 @@ HelloClaude/
 
 ### 3. 개발 워크플로우
 
-```bash
-# 1. 기능 구현
-# 2. 테스트 (test/test.html 업데이트 또는 수동 테스트)
-# 3. 문서 업데이트 (spec.md, plan.md)
-# 4. 커밋
-git add .
-git commit -m "feat: [기능명]"
-git push
+**작업 프로세스**:
+1. 기능 구현
+2. 테스트 (test/test.html 업데이트 또는 수동 테스트)
+3. 문서 업데이트 (spec.md, plan.md)
+4. **작업 결과 요약 및 검토**
+5. 사용자 승인 후 커밋 & 푸시
 
-# 5. 다음 기능으로
+**Git 커밋 정책**:
+- ⚠️ **중요**: 작업 완료 후 바로 커밋하지 않음
+- 모든 작업을 완료하고 결과를 요약한 후
+- "커밋 및 푸시할까요?" 라고 물어보기
+- 사용자 승인 후에만 git 명령어 실행
+
+**커밋 메시지 형식**:
+```bash
+git add .
+git commit -m "feat: [기능명]
+
+[상세 설명]
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+git push
 ```
 
 ---
