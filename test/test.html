@@ -349,12 +349,165 @@
       testDistribution();
       log('', 'info');
 
+      testHistorySave();
+      log('', 'info');
+
+      testHistoryLoad();
+      log('', 'info');
+
+      testHistoryMaxLimit();
+      log('', 'info');
+
+      testHistoryClear();
+      log('', 'info');
+
       // 요약
       const passCount = testResults.filter(r => r.type === 'pass').length;
       const failCount = testResults.filter(r => r.type === 'fail').length;
 
       log('═══════════════════════════════', 'info');
       log(`테스트 완료: ${passCount} 통과, ${failCount} 실패`, passCount > failCount ? 'pass' : 'fail');
+    }
+
+    // Test 7: 이력 저장 기능
+    function testHistorySave() {
+      log('═══ Test 7: 이력 저장 기능 ═══', 'info');
+
+      // LocalStorage 초기화
+      localStorage.removeItem('lotto_history');
+
+      const testNumbers = [3, 12, 19, 27, 38, 42];
+      saveToHistory(testNumbers);
+
+      const saved = JSON.parse(localStorage.getItem('lotto_history'));
+
+      if (saved && saved.version === '1.0') {
+        log('✅ PASS: 버전 정보 저장됨', 'pass');
+      } else {
+        log('❌ FAIL: 버전 정보 누락', 'fail');
+      }
+
+      if (saved && saved.history && saved.history.length === 1) {
+        log('✅ PASS: 이력 1개 저장됨', 'pass');
+      } else {
+        log(`❌ FAIL: 이력 개수 오류 (${saved?.history?.length})`, 'fail');
+      }
+
+      if (saved && saved.history[0].numbers.join(',') === testNumbers.join(',')) {
+        log('✅ PASS: 숫자 배열 저장 정상', 'pass');
+      } else {
+        log('❌ FAIL: 숫자 배열 불일치', 'fail');
+      }
+
+      if (saved && saved.history[0].id && saved.history[0].timestamp) {
+        log('✅ PASS: id, timestamp 자동 생성', 'pass');
+      } else {
+        log('❌ FAIL: id 또는 timestamp 누락', 'fail');
+      }
+    }
+
+    // Test 8: 이력 로드 기능
+    function testHistoryLoad() {
+      log('═══ Test 8: 이력 로드 기능 ═══', 'info');
+
+      // 테스트 데이터 직접 저장
+      const testData = {
+        version: '1.0',
+        history: [
+          { id: 'test-1', numbers: [1, 2, 3, 4, 5, 6], timestamp: new Date().toISOString(), setCount: 1 },
+          { id: 'test-2', numbers: [7, 8, 9, 10, 11, 12], timestamp: new Date().toISOString(), setCount: 1 }
+        ]
+      };
+      localStorage.setItem('lotto_history', JSON.stringify(testData));
+
+      const loaded = loadHistory();
+
+      if (loaded.length === 2) {
+        log('✅ PASS: 이력 2개 로드됨', 'pass');
+      } else {
+        log(`❌ FAIL: 로드 개수 오류 (${loaded.length})`, 'fail');
+      }
+
+      if (loaded[0].id === 'test-1' && loaded[1].id === 'test-2') {
+        log('✅ PASS: 이력 순서 유지', 'pass');
+      } else {
+        log('❌ FAIL: 이력 순서 오류', 'fail');
+      }
+
+      // 잘못된 데이터 테스트
+      localStorage.setItem('lotto_history', 'invalid json');
+      const loadedInvalid = loadHistory();
+
+      if (loadedInvalid.length === 0) {
+        log('✅ PASS: 잘못된 JSON 처리 (빈 배열 반환)', 'pass');
+      } else {
+        log('❌ FAIL: 에러 처리 실패', 'fail');
+      }
+    }
+
+    // Test 9: 최대 20개 제한
+    function testHistoryMaxLimit() {
+      log('═══ Test 9: 최대 20개 제한 ═══', 'info');
+
+      // LocalStorage 초기화
+      localStorage.removeItem('lotto_history');
+
+      // 25개 저장 시도
+      for (let i = 0; i < 25; i++) {
+        const numbers = generateTestNumbers();
+        saveToHistory(numbers);
+      }
+
+      const history = loadHistory();
+
+      if (history.length === 20) {
+        log('✅ PASS: 최대 20개 제한 정상', 'pass');
+      } else {
+        log(`❌ FAIL: 저장 개수 오류 (${history.length}개)`, 'fail');
+      }
+
+      // 가장 최근 항목 확인 (첫 번째)
+      const timestamps = history.map(h => new Date(h.timestamp).getTime());
+      const isSorted = timestamps.every((t, i, arr) => i === 0 || arr[i - 1] >= t);
+
+      if (isSorted) {
+        log('✅ PASS: 최신순 정렬 정상', 'pass');
+      } else {
+        log('❌ FAIL: 정렬 순서 오류', 'fail');
+      }
+    }
+
+    // Test 10: 전체 삭제
+    function testHistoryClear() {
+      log('═══ Test 10: 전체 삭제 ═══', 'info');
+
+      // 테스트 데이터 저장
+      const testData = {
+        version: '1.0',
+        history: [
+          { id: 'test-1', numbers: [1, 2, 3, 4, 5, 6], timestamp: new Date().toISOString(), setCount: 1 }
+        ]
+      };
+      localStorage.setItem('lotto_history', JSON.stringify(testData));
+
+      // 삭제 전 확인
+      const beforeClear = loadHistory();
+      if (beforeClear.length > 0) {
+        log('✅ PASS: 삭제 전 이력 존재', 'pass');
+      } else {
+        log('❌ FAIL: 삭제 전 이력 없음', 'fail');
+      }
+
+      // 삭제
+      localStorage.removeItem('lotto_history');
+
+      // 삭제 후 확인
+      const afterClear = loadHistory();
+      if (afterClear.length === 0) {
+        log('✅ PASS: 삭제 후 빈 배열 반환', 'pass');
+      } else {
+        log(`❌ FAIL: 삭제 실패 (${afterClear.length}개 남음)`, 'fail');
+      }
     }
 
     // 페이지 로드 시 자동 실행

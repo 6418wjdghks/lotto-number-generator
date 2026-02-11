@@ -519,10 +519,157 @@ Primary Gradient:  [████████████] #667eea → #764ba2
 
 ---
 
+## 🎨 Phase 3 컴포넌트 디자인
+
+### 이력 섹션 (History Section)
+
+#### 레이아웃
+```
+┌─────────────────────────────────┐
+│     [이력 보기 ▼]  [전체 삭제]  │
+│                                 │
+│   ┌─────────────────────────┐   │
+│   │   2026-02-11 10:30      │   │
+│   │   3, 12, 19, 27, 38, 42 │   │
+│   ├─────────────────────────┤   │
+│   │   2026-02-11 09:15      │   │
+│   │   8, 15, 23, 31, 40, 44 │   │
+│   └─────────────────────────┘   │
+└─────────────────────────────────┘
+```
+
+#### CSS 클래스
+
+**`.history-section`** - 이력 섹션 컨테이너
+```css
+.history-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+```
+
+**`.history-controls`** - 버튼 영역
+```css
+.history-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+```
+
+**`.history-list`** - 이력 목록
+```css
+.history-list {
+  max-height: 300px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 15px;
+}
+```
+
+**`.history-item`** - 개별 이력 항목
+```css
+.history-item {
+  background: white;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  font-size: 14px;
+}
+```
+
+**`.history-time`** - 시간 표시
+```css
+.history-time {
+  color: #999;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+```
+
+**`.history-numbers`** - 번호 표시
+```css
+.history-numbers {
+  color: #333;
+  font-weight: bold;
+  font-size: 15px;
+}
+```
+
+**`.history-empty`** - 빈 상태
+```css
+.history-empty {
+  text-align: center;
+  color: #999;
+  padding: 30px;
+  font-size: 14px;
+}
+```
+
+**`.btn-secondary`** - 보조 버튼 (이력 보기, 전체 삭제)
+```css
+.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #667eea;
+  color: white;
+}
+```
+
+**`.hidden`** - 숨김 클래스
+```css
+.hidden {
+  display: none;
+}
+```
+
+#### 색상
+- 이력 항목 배경: `#ffffff`
+- 이력 영역 배경: `#f9f9f9`
+- 테두리: `#e0e0e0`
+- 강조 테두리: `#667eea` (Primary)
+
+#### 타이포그래피
+- 시간: 12px, `#999999`
+- 번호: 15px, Bold, `#333333`
+
+#### 반응형 (모바일)
+```css
+@media (max-width: 480px) {
+  .history-controls {
+    flex-direction: column;
+  }
+
+  .history-item {
+    padding: 10px 12px;
+  }
+
+  .history-numbers {
+    font-size: 14px;
+  }
+}
+```
+
+---
+
 ## 🔄 변경 이력
 
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|-----------|--------|
+| 2.0.0 | 2026-02-11 | Phase 3 - 이력 섹션 디자인 추가 | - |
 | 1.0.0 | 2026-02-11 | 초기 디자인 시스템 정의 | - |
 
 ---
