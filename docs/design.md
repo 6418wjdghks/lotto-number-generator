@@ -232,6 +232,18 @@
   /* Shadows */
   --shadow-high: 0 20px 60px rgba(0, 0, 0, 0.3);
   --shadow-medium: 0 10px 20px rgba(0, 0, 0, 0.2);
+  /* Surfaces */
+  --border-color: #e0e0e0;
+  --bg-light: #f9f9f9;
+  --bg-subtle: #f0f0ff;
+  --bg-muted: #f0f0f0;
+  /* Status */
+  --color-error: #e84118;
+  --color-success: #44bd32;
+  --error-bg: #fff3f3;
+  /* Disabled */
+  --disabled-bg: #cccccc;
+  --disabled-text: #999999;
 }
 ```
 

@@ -136,6 +136,16 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 | `resetExcludedNumbers` | | ✅ |
 | `generateLottoNumbers` | | ✅ |
 
+### 제외 번호 저장 함수 (3개 — 미작성)
+
+브라우저 환경(LocalStorage) 의존으로 테스트 미작성 상태. 향후 브라우저 테스트(`test.html`)에 추가 예정.
+
+| 함수 | CLI | 브라우저 | 비고 |
+|------|-----|---------|------|
+| `saveExcludedNumbers` | | ❌ 미작성 | LocalStorage 저장 (브라우저 환경 필요) |
+| `loadExcludedNumbers` | | ❌ 미작성 | LocalStorage 로드 (브라우저 환경 필요) |
+| `clearExcludedNumbers` | | ❌ 미작성 | LocalStorage 삭제 (브라우저 환경 필요) |
+
 ### Phase 4 함수
 
 미테스트 (Supabase 연동 필요). 프로젝트 설정 완료 후 통합 테스트 추가 예정.

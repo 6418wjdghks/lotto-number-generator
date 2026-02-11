@@ -45,6 +45,12 @@ HTML 구조, UI/UX 디자인, 랜덤 번호 생성(Fisher-Yates), 반응형, 자
   - `button` → `.btn-primary` 분리 — 스타일 충돌 방지
   - `:focus-visible` 포커스 스타일 추가 — 접근성 개선
   - 미디어쿼리 통합 — 분산된 2개 블록을 1개로 통합
+- [x] 코드 품질 및 접근성 개선 (5건)
+  - clearHistory() 중복 제거 + 인증 함수 에러 처리 강화
+  - HTML 접근성/시맨틱 개선 (main, label, aria-label, meta)
+  - CSS 하드코딩 값을 디자인 토큰으로 완전 전환 (9개 추가 토큰)
+  - 제외 번호 상태 LocalStorage 저장 (세션 유지)
+  - 인라인 onclick → addEventListener 분리
 
 ---
 

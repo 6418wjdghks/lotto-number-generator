@@ -36,6 +36,9 @@
 | `toggleExcludeView()` | 제외 패널 표시/숨김 토글, 그리드 생성 |
 | `updateExcludeCount()` | 제외/남은 카운터 업데이트, 경고 표시 |
 | `resetExcludedNumbers()` | 모든 제외 해제, 카운터 리셋 |
+| `saveExcludedNumbers()` | 제외 번호를 LocalStorage에 저장 |
+| `loadExcludedNumbers()` | LocalStorage에서 제외 번호 로드, 에러 시 빈 배열 |
+| `clearExcludedNumbers()` | LocalStorage 제외 번호 삭제 |
 | `showToast(message, type, duration)` | 토스트 메시지 생성/자동 제거 |
 | `toggleAuthForm()` | 로그인 폼 표시/숨김 토글 |
 | `handleSignIn()` | (async) 로그인 처리 + UI 전환 |

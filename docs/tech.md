@@ -61,6 +61,9 @@ HelloClaude/
 | 폰트 | `--font-family`, `--font-size-*` | `'Segoe UI'`, `2em` ~ `14px` |
 | 테두리 | `--radius-full`, `--radius-large`, `--radius-medium` | `50%`, `50px`, `20px` |
 | 그림자 | `--shadow-high`, `--shadow-medium` | 고/중 강도 box-shadow |
+| 표면(Surfaces) | `--border-color`, `--bg-light`, `--bg-subtle`, `--bg-muted` | `#e0e0e0`, `#f9f9f9` |
+| 상태(Status) | `--color-error`, `--color-success`, `--error-bg` | `#e84118`, `#44bd32` |
+| 비활성(Disabled) | `--disabled-bg`, `--disabled-text` | `#cccccc`, `#999999` |
 
 ### 버튼 클래스 체계
 
@@ -161,6 +164,12 @@ css/style.css
 
 **`resetExcludedNumbers()`** — 모든 제외 해제, 카운터 리셋
 
+**`saveExcludedNumbers()`** — 제외 번호를 LocalStorage에 저장. 키: `lotto_excluded`, 값: JSON 배열
+
+**`loadExcludedNumbers()`** → `number[]` — LocalStorage에서 제외 번호 로드. 에러 시 빈 배열 반환
+
+**`clearExcludedNumbers()`** — LocalStorage 제외 번호 삭제
+
 ### 복사 / 유틸리티
 
 **`copyToClipboard(numbers, setNumber = null)`** → `Promise<boolean>`
@@ -175,7 +184,7 @@ css/style.css
 **`handleSignUp()`** (async) — 회원가입
 **`handleSignOut()`** (async) — 로그아웃 + UI 전환
 **`updateAuthUI()`** — 로그인/비로그인 UI 상태 반영
-**`initApp()`** — 페이지 로드 시 세션 확인 + UI 초기화
+**`initApp()`** — 페이지 로드 시 이벤트 바인딩 + 세션 확인 + UI 초기화
 
 ---
 
@@ -224,6 +233,16 @@ css/style.css
 | `numbers` | number[] | 6개, 1~45, 오름차순 |
 | `timestamp` | string | ISO 8601 |
 | `setCount` | number | 동시 추첨 세트 수 |
+
+### LocalStorage — 제외 번호 (`lotto_excluded`)
+
+```json
+[1, 7, 13, 28, 42]
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| (루트) | number[] | 제외된 번호 배열 (1~45 중 선택) |
 
 ### LocalStorage — 세션 (`supabase_session`)
 
