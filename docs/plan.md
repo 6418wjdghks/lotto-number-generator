@@ -101,7 +101,7 @@
 
 ### 현재 사용
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Storage**: LocalStorage (예정)
+- **Storage**: LocalStorage (구현 완료)
 - **Version Control**: Git
 
 ### 고려 중
@@ -178,7 +178,7 @@ Phase 3: ███████████████░░░░░  75% 🚀
 - [x] 반응형 디자인 검증 완료 (미디어 쿼리 추가)
 
 ### Phase 3
-- [ ] 최소 3개 이상의 추가 기능 구현
+- [x] 최소 3개 이상의 추가 기능 구현 (F-003, F-004, F-006 완료)
 - [ ] 사용자 피드백 반영
 - [ ] 코드 리팩토링 완료
 
