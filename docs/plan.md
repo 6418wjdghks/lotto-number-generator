@@ -124,7 +124,7 @@ Phase 3: ████████████████████ 100% ✅
 ### Phase 3 완료 후
 1. [x] 테스트 스위트 v2 전면 개선 (test/README.md 참조) - 2026-02-11
 2. [x] CLI 자동 테스트 도입 (Node.js `node:test`, test/README.md 참조) - 2026-02-11
-3. [ ] GitHub Pages 배포
+3. [x] GitHub Pages 배포 (https://6418wjdghks.github.io/lotto-number-generator/) - 2026-02-12
 4. [ ] Phase 4 계획 검토 (docs/phase4-architecture.md 참조)
 
 ### Phase 4 준비 (백엔드 확장)
