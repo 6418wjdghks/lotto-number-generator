@@ -60,11 +60,11 @@ HelloClaude/
 ├── CLAUDE.md              # 프로젝트 가이드 (본 문서)
 ├── README.md              # 프로젝트 설명
 │
-├── index.html             # 메인 HTML (21줄)
+├── index.html             # 메인 HTML (45줄)
 ├── css/
-│   └── style.css         # 스타일시트 (131줄)
+│   └── style.css         # 스타일시트 (433줄)
 ├── js/
-│   └── app.js            # JavaScript 로직 (42줄)
+│   └── app.js            # JavaScript 로직 (336줄)
 │
 ├── docs/                  # 프로젝트 문서
 │   ├── plan.md           # 프로젝트 계획서
@@ -73,7 +73,7 @@ HelloClaude/
 │   └── tech.md           # 기술 명세서
 │
 ├── test/                  # 테스트 도구
-│   ├── test.html         # 자동 테스트 페이지
+│   ├── test.html         # 자동 테스트 페이지 (v2, 21개 테스트)
 │   └── README.md         # 테스트 문서
 │
 └── .claude/               # Claude Code 설정
@@ -90,35 +90,57 @@ HelloClaude/
 ```html
 <div class="container">
   <h1>🎰 로또번호 추첨기</h1>
-  <div class="numbers-container" id="numbersContainer">
-    <!-- 숫자 뱃지가 동적으로 생성됨 -->
+  <div class="set-selector">
+    <select id="setCount"><!-- 1~5개 --></select>
   </div>
   <button onclick="generateLottoNumbers()">추첨하기</button>
-  <p class="info">안내 텍스트</p>
+  <div class="sets-container" id="setsContainer">
+    <!-- 세트 카드가 동적으로 생성됨 -->
+  </div>
+  <div class="history-section">
+    <button onclick="toggleHistoryView()">이력 보기</button>
+    <button onclick="clearHistory()">전체 삭제</button>
+    <div id="historyList" class="hidden"></div>
+  </div>
 </div>
 ```
 
-### JavaScript API (`js/app.js`)
+### JavaScript API (`js/app.js` - 13개 함수)
 
-#### `generateLottoNumbers()`
-- **설명**: 로또번호 6개를 생성하고 화면에 표시
-- **알고리즘**: Fisher-Yates 셔플
-- **반환**: void
-- **부수효과**: `displayNumbers()` 호출
+#### 핵심 로직
+- **`generateLottoNumbers()`** - 메인 진입점. 세트 수 조회 → 생성 → 표시 → 이력 저장
+- **`generateSingleSet()`** - Fisher-Yates 셔플로 6개 숫자 생성, 오름차순 정렬 반환
+- **`generateMultipleSets(count)`** - count개 세트 생성 (1~5)
+- **`getSelectedSetCount()`** - `#setCount` 드롭다운 값 반환 (number)
 
-#### `displayNumbers(numbers)`
-- **설명**: 숫자 배열을 DOM에 렌더링
-- **매개변수**: `numbers` (Array<number>, 길이 6)
-- **반환**: void
-- **DOM 조작**:
-  - `#numbersContainer`에 `.number` div 생성
-  - 각 숫자마다 애니메이션 딜레이 설정 (0.1초씩)
+#### 표시
+- **`displayMultipleSets(sets)`** - 세트 카드(`.set-card`) DOM 생성, 라벨/뱃지/복사버튼 포함
+- **`displayHistory()`** - 이력 목록 DOM 렌더링, 빈 상태 처리
+
+#### 이력 관리
+- **`saveToHistory(numbers, setCount=1)`** - LocalStorage 저장 (UUID, timestamp 자동 생성)
+- **`loadHistory()`** - LocalStorage 로드 (JSON 파싱 에러 시 빈 배열)
+- **`toggleHistoryView()`** - 이력 영역 표시/숨김 토글
+- **`clearHistory()`** - 전체 이력 삭제 (confirm 다이얼로그)
+
+#### 유틸리티
+- **`generateUUID()`** - UUID v4 생성
+- **`copyToClipboard(numbers, setNumber)`** - Clipboard API 복사, 토스트 피드백
+- **`showToast(message, type, duration)`** - 토스트 메시지 생성/자동 제거
 
 ### CSS 클래스 (`css/style.css`)
 - `.container` - 메인 카드
-- `.numbers-container` - 숫자 표시 영역
-- `.number` - 개별 숫자 뱃지
-- `.number:nth-child(n)` - 숫자별 색상 (6가지)
+- `.set-selector` - 세트 수 선택 영역
+- `.sets-container` - 세트 카드 그리드
+- `.set-card` - 개별 세트 카드
+- `.set-label` - 세트 번호 라벨 ("1회차")
+- `.set-numbers` - 세트 내 숫자 영역
+- `.number` - 개별 숫자 뱃지 (6가지 색상)
+- `.copy-btn` - 복사 버튼
+- `.toast`, `.toast.success`, `.toast.error` - 토스트 메시지
+- `.history-section` - 이력 섹션
+- `.history-item` - 이력 항목
+- `.hidden` - 숨김 처리
 
 ---
 
@@ -305,12 +327,24 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ## 🧪 테스트 가이드
 
-### 자동 테스트
+### 자동 테스트 (v2 - 21개 테스트)
 ```bash
-# test/test.html 실행
+# test/test.html 실행 (페이지 로드 시 자동 실행)
 start test/test.html  # Windows
 open test/test.html   # macOS
 ```
+
+**테스트 그룹**:
+- A. 핵심 생성 로직 (Test 1-6) - `generateSingleSet()` 직접 호출
+- B. 유틸리티 (Test 7) - UUID 형식/유일성
+- C. 이력 관리 (Test 8-12) - 저장/로드/제한/삭제/setCount
+- D. 여러 세트 (Test 13-15) - 생성/경계값/DOM 연동
+- E. 복사/토스트 (Test 16-17) - Clipboard API, 토스트 동작
+- F. DOM 렌더링 (Test 18-20) - 세트 카드, 이력, 토글
+- G. 통합 (Test 21) - `generateLottoNumbers()` end-to-end
+
+**커버리지**: app.js 13개 함수 전체 (100%)
+**상세**: `test/README.md` 참조
 
 새 기능 추가 시 `test/test.html`에 테스트 추가 권장
 
@@ -400,7 +434,9 @@ for(let i = 0; i < 10; i++) {
 ## 📝 히스토리
 
 - **2026-02-11**: 프로젝트 시작, Phase 1, 2 완료
-- **다음**: Phase 3 시작
+- **2026-02-11**: Phase 3 Step 1~3 완료 (F-003, F-004, F-006)
+- **2026-02-11**: 테스트 스위트 v2 전면 개선 (14개 → 21개, 100% 커버리지)
+- **다음**: Phase 3 Step 4 (F-005 수동 번호 제외)
 
 ---
 
