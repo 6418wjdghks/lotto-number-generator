@@ -91,20 +91,34 @@ HelloClaude/
 2. 테스트 (순수 로직: `node --test test/test-logic.js`, DOM/UI: `test/test.html`)
 
 **3단계: 마무리**
-1. 문서 업데이트 (아래 매트릭스에 따라, ADR 포함)
-2. 작업 결과 요약 및 검토
-3. 사용자 승인 후 커밋 & 푸시
+1. 명세-구현 검증:
+   - 변경/추가한 함수의 시그니처가 spec.md와 일치하는가?
+   - 변경한 CSS/레이아웃이 design.md와 일치하는가?
+   - 추가/삭제한 파일이 tech.md 파일 구조에 반영되었는가?
+2. 문서 업데이트 (아래 매트릭스에 따라, ADR 포함)
+3. 작업 결과 요약 및 검토
+4. 사용자 승인 후 커밋 & 푸시
 
 ### 문서 업데이트 매트릭스
 
 | 변경 유형 | 읽을 문서 (준비) | 업데이트할 문서 (마무리) |
 |-----------|-----------------|----------------------|
-| 기능 추가/변경 | spec.md | spec.md, plan.md, CLAUDE.md (API 테이블) |
+| 기능 추가/변경 | spec.md, design.md | spec.md, plan.md, CLAUDE.md (API 테이블), design.md (UI 수반 시), tech.md (파일/API 추가 시) |
 | UI/디자인 변경 | design.md | design.md |
 | 아키텍처/기술 변경 | tech.md | tech.md |
 | 설계 결정 (대안 비교) | decisions.md | decisions.md (새 ADR) |
 | 테스트 추가 | test/README.md | test/README.md, test-logic.js 또는 test.html |
-| Phase/Step 완료 | plan.md | plan.md, CLAUDE.md (상태 바) |
+| Phase/Step 완료 | plan.md | plan.md, CLAUDE.md (상태 바), spec.md (상태 필드) |
+
+### 파생 수치 단일 소스 규칙
+
+코드에서 파생되는 수치는 단일 소스에만 기록한다. 다른 문서에서는 수치 대신 참조 링크를 사용한다.
+
+| 수치 | 단일 소스 | 다른 문서 |
+|------|----------|---------|
+| 함수 목록/수 | CLAUDE.md API 테이블 | "CLAUDE.md 참조" |
+| 테스트 수/항목 | test/README.md | "test/README.md 참조" |
+| 파일 줄 수 | 기록하지 않음 | - |
 
 ### ADR 작성 기준 (`decisions.md`)
 

@@ -5,7 +5,7 @@
 - **버전**: 2.1.0
 - **작성일**: 2026-02-11
 - **최종 수정**: 2026-02-11
-- **상태**: Phase 3 개발 중
+- **상태**: Phase 3 완료
 
 ---
 
@@ -168,8 +168,10 @@
 
 #### JavaScript API 명세
 
-**`saveToHistory(numbers)`**
-- **매개변수**: `numbers` (Array<number>) - 추첨된 숫자 배열
+**`saveToHistory(numbers, setCount = 1)`**
+- **매개변수**:
+  - `numbers` (Array<number>) - 추첨된 숫자 배열
+  - `setCount` (number) - 동시 추첨 세트 수 (기본값: 1)
 - **반환**: void
 - **동작**:
   1. LocalStorage에서 기존 데이터 로드
@@ -398,8 +400,10 @@ saveToHistory(sets[0]) (각 세트 개별 저장)
 
 #### JavaScript API 명세
 
-**`copyToClipboard(numbers)`**
-- **매개변수**: `numbers` (Array<number>) - 복사할 숫자 배열
+**`copyToClipboard(numbers, setNumber = null)`**
+- **매개변수**:
+  - `numbers` (Array<number>) - 복사할 숫자 배열
+  - `setNumber` (number|null) - 세트 번호 (선택, 여러 세트일 때)
 - **반환**: Promise<boolean> - 성공 여부
 - **동작**:
   1. 숫자 배열을 텍스트로 변환 ("3, 12, 19, 27, 38, 42")
@@ -407,21 +411,15 @@ saveToHistory(sets[0]) (각 세트 개별 저장)
   3. 성공 시 토스트 표시
   4. 실패 시 에러 처리
 
-**`copyAllSets()`**
-- **매개변수**: 없음
-- **반환**: Promise<boolean>
-- **동작**:
-  1. 현재 표시된 모든 세트 수집
-  2. 각 세트를 줄바꿈으로 구분
-  3. 클립보드 복사
-  4. 토스트 표시
-
-**`showToast(message, duration)`**
+**`showToast(message, type, duration)`**
 - **매개변수**:
   - `message` (string) - 표시할 메시지
+  - `type` (string) - 토스트 타입 ('success' 또는 'error', 기본값: 'success')
   - `duration` (number) - 표시 시간 (ms, 기본값: 2000)
 - **반환**: void
 - **동작**: 토스트 메시지 생성 및 자동 제거
+
+> **참고**: `copyAllSets()` (전체 복사) 기능은 미구현. 필요 시 Phase 4에서 검토.
 
 #### 복사 형식
 

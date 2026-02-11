@@ -299,14 +299,12 @@ button:active {
 @keyframes pop {
   0% {
     transform: scale(0);
-    opacity: 0;
   }
   50% {
     transform: scale(1.2);
   }
   100% {
     transform: scale(1);
-    opacity: 1;
   }
 }
 ```
@@ -317,12 +315,8 @@ button:active {
   animation: pop 0.5s ease;
 }
 
-.number:nth-child(1) { animation-delay: 0.1s; }
-.number:nth-child(2) { animation-delay: 0.2s; }
-.number:nth-child(3) { animation-delay: 0.3s; }
-.number:nth-child(4) { animation-delay: 0.4s; }
-.number:nth-child(5) { animation-delay: 0.5s; }
-.number:nth-child(6) { animation-delay: 0.6s; }
+/* animation-delay는 JavaScript에서 동적으로 설정 (app.js displayMultipleSets) */
+/* numberDiv.style.animationDelay = `${(setIndex * 0.1) + (numIndex * 0.05)}s`; */
 ```
 
 #### 애니메이션 특성
@@ -584,12 +578,13 @@ Primary Gradient:  [████████████] #667eea → #764ba2
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+  animation: fadeIn 0.3s ease;
 }
 
 .set-card:hover {
   border-color: #667eea;
   box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
-  transition: all 0.2s;
 }
 ```
 
@@ -759,6 +754,7 @@ Primary Gradient:  [████████████] #667eea → #764ba2
   }
   to {
     opacity: 0;
+    transform: translate(-50%, 10px);
   }
 }
 ```
@@ -925,10 +921,160 @@ Primary Gradient:  [████████████] #667eea → #764ba2
 
 ---
 
+### 번호 제외 섹션 (Exclude Section)
+
+#### 레이아웃
+```
+┌─────────────────────────────────┐
+│   [번호 제외 설정 ▼]            │
+│                                 │
+│   제외: 0개 / 남은: 45개 [초기화]│
+│                                 │
+│   ┌──┐┌──┐┌──┐┌──┐┌──┐...     │
+│   │ 1││ 2││ 3││ 4││ 5│  (9열)  │
+│   └──┘└──┘└──┘└──┘└──┘...     │
+│                                 │
+│   ⚠️ 최소 6개의 번호 필요       │
+└─────────────────────────────────┘
+```
+
+#### CSS 클래스
+
+**`.exclude-section`** - 제외 섹션 컨테이너
+```css
+.exclude-section {
+  margin: 20px 0;
+}
+```
+
+**`.exclude-panel`** - 접이식 패널
+```css
+.exclude-panel {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+```
+
+**`.exclude-info`** - 카운터 및 초기화 영역
+```css
+.exclude-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 13px;
+  color: #666;
+}
+```
+
+**`.exclude-reset-btn`** - 초기화 버튼
+```css
+.exclude-reset-btn {
+  background: white;
+  color: #e84118;
+  border: 1px solid #e84118;
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: bold;
+}
+
+.exclude-reset-btn:hover {
+  background: #e84118;
+  color: white;
+}
+```
+
+**`.exclude-grid`** - 번호 그리드 (9열)
+```css
+.exclude-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 6px;
+}
+```
+
+**`.exclude-btn`** - 개별 번호 버튼
+```css
+.exclude-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid #667eea;
+  background: white;
+  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.exclude-btn:hover {
+  background: #f0f0ff;
+  transform: scale(1.1);
+}
+
+.exclude-btn.excluded {
+  background: #ccc;
+  border-color: #999;
+  color: #999;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.exclude-btn.excluded:hover {
+  background: #bbb;
+  opacity: 0.8;
+}
+```
+
+**`.exclude-warning`** - 경고 메시지
+```css
+.exclude-warning {
+  margin-top: 10px;
+  padding: 8px;
+  background: #fff3f3;
+  border: 1px solid #e84118;
+  border-radius: 8px;
+  color: #e84118;
+  font-size: 13px;
+  text-align: center;
+  font-weight: bold;
+}
+```
+
+#### 반응형 (모바일)
+```css
+@media (max-width: 480px) {
+  .exclude-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+
+  .exclude-btn {
+    font-size: 12px;
+  }
+
+  .exclude-info {
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+}
+```
+
+---
+
 ## 🔄 변경 이력
 
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|-----------|--------|
+| 2.1.0 | 2026-02-11 | 번호 제외 섹션 추가, 애니메이션/transition 명세 수정 | - |
 | 2.0.0 | 2026-02-11 | Phase 3 - 이력 섹션 디자인 추가 | - |
 | 1.0.0 | 2026-02-11 | 초기 디자인 시스템 정의 | - |
 
