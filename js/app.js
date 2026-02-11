@@ -1,7 +1,7 @@
 /**
  * 로또번호 추첨기 - 메인 애플리케이션
  * 1-45 범위의 숫자 중 6개를 무작위로 추첨합니다.
- * Phase 3: 추첨 이력 저장 및 관리, 여러 세트 동시 추첨
+ * Phase 4: 듀얼 모드 (비로그인: LocalStorage, 로그인: Supabase)
  */
 
 // LocalStorage 키
@@ -25,7 +25,7 @@ function generateLottoNumbers() {
   const sets = generateMultipleSets(setCount, excludedNumbers);
   displayMultipleSets(sets);
 
-  // 각 세트를 이력에 저장
+  // 각 세트를 이력에 저장 (fire-and-forget)
   sets.forEach(numbers => {
     saveToHistory(numbers, setCount);
   });
@@ -131,17 +131,19 @@ function generateUUID() {
   });
 }
 
+// ============================================================
+// 이력 관리 — LocalStorage (기존 로직)
+// ============================================================
+
 /**
- * 추첨 결과를 이력에 저장
+ * 추첨 결과를 LocalStorage에 저장
  * @param {number[]} numbers - 추첨된 숫자 배열
  * @param {number} setCount - 동시 추첨 세트 수 (기본값: 1)
  */
-function saveToHistory(numbers, setCount = 1) {
+function saveToHistoryLocal(numbers, setCount = 1) {
   try {
-    // 기존 이력 로드
-    const history = loadHistory();
+    const history = loadHistoryLocal();
 
-    // 새 항목 생성
     const newItem = {
       id: generateUUID(),
       numbers: numbers,
@@ -149,36 +151,27 @@ function saveToHistory(numbers, setCount = 1) {
       setCount: setCount
     };
 
-    // 배열 맨 앞에 추가 (최신순)
     history.unshift(newItem);
 
-    // 20개 초과 시 오래된 항목 제거
     if (history.length > MAX_HISTORY) {
       history.splice(MAX_HISTORY);
     }
 
-    // LocalStorage에 저장
     const data = {
       version: '1.0',
       history: history
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-    // 이력 표시 갱신 (열려있으면)
-    const historyList = document.getElementById('historyList');
-    if (!historyList.classList.contains('hidden')) {
-      displayHistory();
-    }
   } catch (error) {
     console.error('이력 저장 실패:', error);
   }
 }
 
 /**
- * 이력 로드
+ * LocalStorage에서 이력 로드
  * @returns {Array} 이력 배열
  */
-function loadHistory() {
+function loadHistoryLocal() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) {
@@ -187,7 +180,6 @@ function loadHistory() {
 
     const parsed = JSON.parse(data);
 
-    // 버전 검증
     if (parsed.version !== '1.0') {
       console.warn('알 수 없는 데이터 버전:', parsed.version);
       return [];
@@ -201,11 +193,111 @@ function loadHistory() {
 }
 
 /**
+ * LocalStorage 전체 이력 삭제
+ */
+function clearHistoryLocal() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// ============================================================
+// 이력 관리 — 듀얼 모드 (LocalStorage / Supabase)
+// ============================================================
+
+/**
+ * 추첨 결과를 이력에 저장 (듀얼 모드)
+ * 로그인 시 Supabase, 아니면 LocalStorage
+ * @param {number[]} numbers - 추첨된 숫자 배열
+ * @param {number} setCount - 동시 추첨 세트 수 (기본값: 1)
+ */
+async function saveToHistory(numbers, setCount = 1) {
+  if (typeof window !== 'undefined' && window.supabase && window.supabase.isLoggedIn()) {
+    try {
+      await window.supabase.insertHistory(numbers, setCount);
+    } catch (error) {
+      console.error('서버 저장 실패:', error);
+      showToast('서버 저장에 실패했습니다.', 'error');
+    }
+  } else {
+    saveToHistoryLocal(numbers, setCount);
+  }
+
+  // 이력 표시 갱신 (열려있으면)
+  const historyList = document.getElementById('historyList');
+  if (!historyList.classList.contains('hidden')) {
+    displayHistory();
+  }
+}
+
+/**
+ * 이력 로드 (듀얼 모드)
+ * 로그인 시 Supabase, 아니면 LocalStorage
+ * @returns {Promise<Array>} 이력 배열
+ */
+async function loadHistory() {
+  if (typeof window !== 'undefined' && window.supabase && window.supabase.isLoggedIn()) {
+    try {
+      const items = await window.supabase.fetchHistory();
+      return items.map(item => ({
+        id: item.id,
+        numbers: item.numbers,
+        timestamp: item.created_at,
+        setCount: item.set_count
+      }));
+    } catch (error) {
+      console.error('서버 로드 실패:', error);
+      return [];
+    }
+  }
+  return loadHistoryLocal();
+}
+
+/**
+ * 전체 이력 삭제 (듀얼 모드)
+ */
+async function clearHistory() {
+  if (typeof window !== 'undefined' && window.supabase && window.supabase.isLoggedIn()) {
+    const history = await loadHistory();
+    if (history.length === 0) {
+      alert('삭제할 이력이 없습니다.');
+      return;
+    }
+
+    if (confirm('모든 추첨 이력을 삭제하시겠습니까?')) {
+      try {
+        await window.supabase.deleteAllHistory();
+        await displayHistory();
+        alert('이력이 삭제되었습니다.');
+      } catch (error) {
+        console.error('이력 삭제 실패:', error);
+        alert('이력 삭제에 실패했습니다.');
+      }
+    }
+  } else {
+    const history = loadHistoryLocal();
+    if (history.length === 0) {
+      alert('삭제할 이력이 없습니다.');
+      return;
+    }
+
+    if (confirm('모든 추첨 이력을 삭제하시겠습니까?')) {
+      try {
+        clearHistoryLocal();
+        displayHistory();
+        alert('이력이 삭제되었습니다.');
+      } catch (error) {
+        console.error('이력 삭제 실패:', error);
+        alert('이력 삭제에 실패했습니다.');
+      }
+    }
+  }
+}
+
+/**
  * 이력 표시
  */
-function displayHistory() {
+async function displayHistory() {
   const historyList = document.getElementById('historyList');
-  const history = loadHistory();
+  const history = await loadHistory();
 
   historyList.innerHTML = '';
 
@@ -251,29 +343,6 @@ function toggleHistoryView() {
   } else {
     historyList.classList.add('hidden');
     toggleText.textContent = '이력 보기 ▼';
-  }
-}
-
-/**
- * 전체 이력 삭제
- */
-function clearHistory() {
-  const history = loadHistory();
-
-  if (history.length === 0) {
-    alert('삭제할 이력이 없습니다.');
-    return;
-  }
-
-  if (confirm('모든 추첨 이력을 삭제하시겠습니까?')) {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-      displayHistory();
-      alert('이력이 삭제되었습니다.');
-    } catch (error) {
-      console.error('이력 삭제 실패:', error);
-      alert('이력 삭제에 실패했습니다.');
-    }
   }
 }
 
@@ -415,7 +484,137 @@ function showToast(message, type = 'success', duration = 2000) {
   }, duration);
 }
 
+// ============================================================
+// 인증 핸들러
+// ============================================================
+
+/**
+ * 로그인 폼 토글
+ */
+function toggleAuthForm() {
+  const form = document.getElementById('authForm');
+  const toggleText = document.getElementById('authToggleText');
+
+  if (form.classList.contains('hidden')) {
+    form.classList.remove('hidden');
+    toggleText.textContent = '로그인 / 회원가입 ▲';
+  } else {
+    form.classList.add('hidden');
+    toggleText.textContent = '로그인 / 회원가입 ▼';
+  }
+}
+
+/**
+ * 로그인 처리
+ */
+async function handleSignIn() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+
+  if (!email || !password) {
+    showToast('이메일과 비밀번호를 입력해주세요.', 'error');
+    return;
+  }
+
+  const result = await window.supabase.signIn(email, password);
+
+  if (result.success) {
+    showToast('로그인 되었습니다!', 'success');
+    updateAuthUI();
+    // 로그인 후 이력이 열려있으면 갱신
+    const historyList = document.getElementById('historyList');
+    if (!historyList.classList.contains('hidden')) {
+      displayHistory();
+    }
+  } else {
+    showToast(result.error, 'error');
+  }
+}
+
+/**
+ * 회원가입 처리
+ */
+async function handleSignUp() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+
+  if (!email || !password) {
+    showToast('이메일과 비밀번호를 입력해주세요.', 'error');
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast('비밀번호는 6자 이상이어야 합니다.', 'error');
+    return;
+  }
+
+  const result = await window.supabase.signUp(email, password);
+
+  if (result.success) {
+    if (result.data.access_token) {
+      showToast('회원가입 및 로그인 되었습니다!', 'success');
+      updateAuthUI();
+    } else {
+      showToast('이메일 확인 링크를 발송했습니다. 이메일을 확인해주세요.', 'success', 4000);
+    }
+  } else {
+    showToast(result.error, 'error');
+  }
+}
+
+/**
+ * 로그아웃 처리
+ */
+async function handleSignOut() {
+  await window.supabase.signOut();
+  showToast('로그아웃 되었습니다.', 'success');
+  updateAuthUI();
+  // 로그아웃 후 이력이 열려있으면 로컬 이력으로 갱신
+  const historyList = document.getElementById('historyList');
+  if (!historyList.classList.contains('hidden')) {
+    displayHistory();
+  }
+}
+
+/**
+ * 인증 UI 상태 업데이트
+ */
+function updateAuthUI() {
+  const guestDiv = document.getElementById('authGuest');
+  const userDiv = document.getElementById('authUser');
+  const emailSpan = document.getElementById('authUserEmail');
+
+  if (window.supabase && window.supabase.isLoggedIn()) {
+    const session = window.supabase.getSession();
+    guestDiv.classList.add('hidden');
+    userDiv.classList.remove('hidden');
+    emailSpan.textContent = session.user.email;
+  } else {
+    guestDiv.classList.remove('hidden');
+    userDiv.classList.add('hidden');
+    emailSpan.textContent = '';
+  }
+}
+
+// ============================================================
+// 앱 초기화
+// ============================================================
+
+/**
+ * 페이지 로드 시 세션 확인 및 UI 초기화
+ */
+function initApp() {
+  if (typeof window !== 'undefined' && window.supabase) {
+    updateAuthUI();
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', initApp);
+}
+
 // Node.js 환경에서 테스트를 위한 모듈 내보내기
+// 테스트 호환성을 위해 Local(동기) 버전을 내보냄
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     STORAGE_KEY,
@@ -423,7 +622,7 @@ if (typeof module !== 'undefined' && module.exports) {
     generateSingleSet,
     generateMultipleSets,
     generateUUID,
-    loadHistory,
-    saveToHistory,
+    loadHistory: loadHistoryLocal,
+    saveToHistory: saveToHistoryLocal,
   };
 }

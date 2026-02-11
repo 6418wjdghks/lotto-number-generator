@@ -113,9 +113,9 @@ Phase 2: ████████████████████ 100% ✅
 Phase 3: ████████████████████ 100% ✅
 ```
 
-**현재 상태**: Phase 3 완료
-**최근 업데이트**: 2026-02-11
-**다음 작업**: GitHub Pages 배포 또는 Phase 4 검토
+**현재 상태**: Phase 4 코드 완료 (Supabase 프로젝트 설정 대기)
+**최근 업데이트**: 2026-02-12
+**다음 작업**: Supabase 대시보드에서 프로젝트 생성 후 URL/KEY 입력
 
 ---
 
@@ -127,11 +127,14 @@ Phase 3: ████████████████████ 100% ✅
 3. [x] GitHub Pages 배포 (https://6418wjdghks.github.io/lotto-number-generator/) - 2026-02-12
 4. [ ] Phase 4 계획 검토 (docs/phase4-architecture.md 참조)
 
-### Phase 4 준비 (백엔드 확장)
-1. [ ] 아키텍처 선택 (Full-stack / Firebase / Supabase)
-2. [ ] 사용자 인증 시스템 구현
-3. [ ] 데이터베이스 설계 및 구축
-4. [ ] REST API 개발
+### Phase 4 진행 중 (Supabase 백엔드 통합)
+1. [x] 아키텍처 선택: Supabase REST API 직접 호출 (ADR-016)
+2. [x] 사용자 인증 UI + 핸들러 구현 (`handleSignIn`, `handleSignUp`, `handleSignOut`)
+3. [x] 듀얼 모드 이력 관리 구현 (Local/Supabase 분기)
+4. [x] Supabase REST API 래퍼 생성 (`js/supabase-config.js`)
+5. [ ] Supabase 대시보드에서 프로젝트 생성 + 테이블/RLS 설정 (사용자 수동)
+6. [ ] `supabase-config.js`에 실제 URL/KEY 입력
+7. [ ] 통합 테스트 (실제 Supabase 연동)
 
 ---
 
@@ -168,6 +171,6 @@ Phase 3: ████████████████████ 100% ✅
 
 ---
 
-**마지막 업데이트**: 2026-02-11
-**현재 Phase**: Phase 3 완료 (100%)
-**프로젝트 상태**: Phase 3 완료 ✅
+**마지막 업데이트**: 2026-02-12
+**현재 Phase**: Phase 4 진행 중
+**프로젝트 상태**: Phase 4 코드 완료, Supabase 설정 대기

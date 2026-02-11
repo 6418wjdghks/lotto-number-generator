@@ -10,6 +10,31 @@
   <div class="container">
     <h1>🎰 로또번호 추첨기</h1>
 
+    <!-- Auth Section -->
+    <div class="auth-section" id="authSection">
+      <!-- 비로그인 상태 -->
+      <div id="authGuest">
+        <button class="btn-secondary" onclick="toggleAuthForm()">
+          <span id="authToggleText">로그인 / 회원가입 ▼</span>
+        </button>
+        <div id="authForm" class="auth-form hidden">
+          <input type="email" id="authEmail" placeholder="이메일" class="auth-input" />
+          <input type="password" id="authPassword" placeholder="비밀번호" class="auth-input" />
+          <div class="auth-buttons">
+            <button class="btn-auth" onclick="handleSignIn()">로그인</button>
+            <button class="btn-auth-secondary" onclick="handleSignUp()">회원가입</button>
+          </div>
+        </div>
+      </div>
+      <!-- 로그인 상태 -->
+      <div id="authUser" class="hidden">
+        <div class="auth-user-info">
+          <span id="authUserEmail"></span>
+          <button class="btn-secondary" onclick="handleSignOut()">로그아웃</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Set Selector -->
     <div class="set-selector">
       <label for="setCount">세트 수:</label>
@@ -56,6 +81,7 @@
     </div>
   </div>
 
+  <script src="js/supabase-config.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

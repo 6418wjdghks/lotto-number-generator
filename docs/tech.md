@@ -44,6 +44,12 @@
 | Chrome DevTools | 디버깅 |
 | Lighthouse | 성능 측정 |
 
+### 백엔드 (Phase 4)
+- **BaaS**: Supabase (REST API 직접 호출, SDK 미사용)
+- **인증**: Supabase Auth (이메일/비밀번호)
+- **데이터베이스**: Supabase PostgreSQL (`lottery_history` 테이블)
+- **API 패턴**: 순수 `fetch()` + Supabase REST API
+
 ### 배포
 - **호스팅**: GitHub Pages (예정)
 - **CI/CD**: 없음 (정적 파일)
@@ -61,6 +67,7 @@ HelloClaude/
 ├── css/
 │   └── style.css          # 스타일시트
 ├── js/
+│   ├── supabase-config.js # Supabase REST API 래퍼 (config, auth, history)
 │   └── app.js             # JavaScript 로직 (CLAUDE.md API 테이블 참조)
 ├── docs/                   # 프로젝트 문서
 │   ├── plan.md            # 프로젝트 계획서
@@ -163,8 +170,9 @@ API 상세 명세: `docs/spec.md` 참조 (F-001 ~ F-006 각 기능별 API 정의
   - `Array.sort()`
   - `Math.floor()`, `Math.random()`
 - **Web API**:
-  - LocalStorage API (이력 저장)
+  - LocalStorage API (이력 저장, 세션 저장)
   - Clipboard API (결과 복사)
+  - Fetch API (Supabase REST API 호출)
 
 #### CSS
 - **레이아웃**:
@@ -376,7 +384,10 @@ python -m http.server 8000
 ## 📚 의존성
 
 ### 외부 라이브러리
-**없음** - 순수 HTML/CSS/JavaScript만 사용
+**없음** - 순수 HTML/CSS/JavaScript만 사용 (Supabase는 REST API로 연동, SDK 미사용)
+
+### 외부 서비스
+- **Supabase**: 인증 및 데이터베이스 (Phase 4). REST API 직접 호출
 
 ### 개발 의존성
 **없음** - 빌드 도구 불필요

@@ -307,7 +307,7 @@
     // A. 이력 관리 - DOM 의존 (clearHistory)
     // ============================================================
 
-    function testClearHistory() {
+    async function testClearHistory() {
       log('═══ Test 1: clearHistory() confirm/alert 동작 ═══', 'info');
       resetFixture();
 
@@ -318,7 +318,7 @@
       // Case 1: 빈 이력에서 삭제 시도
       window.alert = (msg) => { alertMsg = msg; };
       window.confirm = () => true;
-      clearHistory();
+      await clearHistory();
 
       if (alertMsg === '삭제할 이력이 없습니다.') {
         log('✅ PASS: 빈 이력 삭제 시 경고 메시지', 'pass');
@@ -327,13 +327,13 @@
       }
 
       // Case 2: confirm 승인 시 삭제
-      saveToHistory([1, 2, 3, 4, 5, 6]);
+      await saveToHistory([1, 2, 3, 4, 5, 6]);
       alertMsg = '';
       window.confirm = () => true;
       window.alert = (msg) => { alertMsg = msg; };
-      clearHistory();
+      await clearHistory();
 
-      if (loadHistory().length === 0) {
+      if ((await loadHistory()).length === 0) {
         log('✅ PASS: confirm 승인 -> 이력 삭제', 'pass');
       } else {
         log('❌ FAIL: 이력 삭제 실패', 'fail');
@@ -346,12 +346,12 @@
       }
 
       // Case 3: confirm 거부 시 유지
-      saveToHistory([7, 8, 9, 10, 11, 12]);
+      await saveToHistory([7, 8, 9, 10, 11, 12]);
       window.confirm = () => false;
       window.alert = () => {};
-      clearHistory();
+      await clearHistory();
 
-      if (loadHistory().length === 1) {
+      if ((await loadHistory()).length === 1) {
         log('✅ PASS: confirm 거부 -> 이력 유지', 'pass');
       } else {
         log('❌ FAIL: confirm 거부 후 이력 변경됨', 'fail');
@@ -562,14 +562,14 @@
       }
     }
 
-    function testDisplayHistory() {
+    async function testDisplayHistory() {
       log('═══ Test 6: displayHistory() DOM 렌더링 ═══', 'info');
       resetFixture();
 
       const historyList = document.getElementById('historyList');
       historyList.classList.remove('hidden');
 
-      displayHistory();
+      await displayHistory();
       const emptyMsg = historyList.querySelector('.history-empty');
       if (emptyMsg && emptyMsg.textContent === '아직 추첨 이력이 없습니다.') {
         log('✅ PASS: 빈 이력 메시지 표시', 'pass');
@@ -585,7 +585,7 @@
         ]
       };
       localStorage.setItem('lotto_history', JSON.stringify(testData));
-      displayHistory();
+      await displayHistory();
 
       const items = historyList.querySelectorAll('.history-item');
       if (items.length === 2) {
@@ -616,7 +616,7 @@
       }
     }
 
-    function testToggleHistoryView() {
+    async function testToggleHistoryView() {
       log('═══ Test 7: toggleHistoryView() 토글 동작 ═══', 'info');
       resetFixture();
 
@@ -636,6 +636,7 @@
       }
 
       toggleHistoryView();
+      await waitFor(0); // displayHistory() 내부 await 해소 대기
 
       if (!historyList.classList.contains('hidden')) {
         log('✅ PASS: 토글 후 표시 (hidden 제거)', 'pass');
@@ -785,7 +786,7 @@
     // F. 통합 테스트
     // ============================================================
 
-    function testGenerateLottoNumbers() {
+    async function testGenerateLottoNumbers() {
       log('═══ Test 11: generateLottoNumbers() 통합 ═══', 'info');
       resetFixture();
 
@@ -797,6 +798,7 @@
       // 단일 세트 통합 테스트
       select.value = '1';
       generateLottoNumbers();
+      await waitFor(0); // saveToHistory async 해소 대기
 
       const cards = container.querySelectorAll('.set-card');
       if (cards.length === 1) {
@@ -805,7 +807,7 @@
         log(`❌ FAIL: ${cards.length}개 카드`, 'fail');
       }
 
-      let history = loadHistory();
+      let history = await loadHistory();
       if (history.length === 1) {
         log('✅ PASS: 1세트 -> 이력 1개 저장', 'pass');
       } else {
@@ -817,6 +819,7 @@
       select.value = '3';
       historyList.classList.remove('hidden');
       generateLottoNumbers();
+      await waitFor(0); // saveToHistory async 해소 대기
 
       const cards3 = container.querySelectorAll('.set-card');
       if (cards3.length === 3) {
@@ -825,7 +828,7 @@
         log(`❌ FAIL: ${cards3.length}개 카드`, 'fail');
       }
 
-      history = loadHistory();
+      history = await loadHistory();
       if (history.length === 3) {
         log('✅ PASS: 3세트 -> 이력 3개 저장', 'pass');
       } else {
@@ -864,28 +867,28 @@
       log('🚀 DOM/UI 테스트 시작 (순수 로직은 CLI: node --test test/test-logic.js)', 'info');
       logSeparator();
 
-      // A. 이력 관리 - DOM 의존
-      testClearHistory();          logSeparator();
+      // A. 이력 관리 - DOM 의존 (async)
+      await testClearHistory();          logSeparator();
 
       // B. DOM 연동
-      testGetSelectedSetCount();   logSeparator();
+      testGetSelectedSetCount();         logSeparator();
 
       // C. 복사 및 토스트 (async)
-      await testCopyFunction();    logSeparator();
-      await testToastFunction();   logSeparator();
+      await testCopyFunction();          logSeparator();
+      await testToastFunction();         logSeparator();
 
       // D. DOM 렌더링
-      testDisplayMultipleSets();   logSeparator();
-      testDisplayHistory();        logSeparator();
-      testToggleHistoryView();     logSeparator();
+      testDisplayMultipleSets();         logSeparator();
+      await testDisplayHistory();        logSeparator();
+      await testToggleHistoryView();     logSeparator();
 
       // E. 번호 제외 UI
-      testExcludeUI();             logSeparator();
-      testExcludeReset();          logSeparator();
-      testExcludeWarning();        logSeparator();
+      testExcludeUI();                   logSeparator();
+      testExcludeReset();                logSeparator();
+      testExcludeWarning();              logSeparator();
 
-      // F. 통합
-      testGenerateLottoNumbers();  logSeparator();
+      // F. 통합 (async)
+      await testGenerateLottoNumbers();  logSeparator();
 
       // 분포 통계 시각화
       showDistributionStats();

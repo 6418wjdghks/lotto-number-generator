@@ -5,7 +5,7 @@
 - **버전**: 2.1.0
 - **작성일**: 2026-02-11
 - **최종 수정**: 2026-02-11
-- **상태**: Phase 3 완료
+- **상태**: Phase 4 진행 중
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### 제외 항목
 - 실제 당첨 확인 기능
-- 서버 연동 및 데이터베이스
-- 사용자 인증/로그인
+- ~~서버 연동 및 데이터베이스~~ → Phase 4에서 Supabase 도입
+- ~~사용자 인증/로그인~~ → Phase 4에서 이메일 인증 도입
 - 결제 기능
 - 번호 구매 기능
 
@@ -488,6 +488,55 @@ saveToHistory(sets[0]) (각 세트 개별 저장)
 | 2.1.0 | 2026-02-11 | F-003/004/006 상태 완료, v2 테스트 시나리오 추가 | - |
 | 2.0.0 | 2026-02-11 | Phase 3 - F-003 이력 저장 기능 명세 추가 | - |
 | 1.0.0 | 2026-02-11 | 초기 문서 작성 | - |
+
+---
+
+---
+
+### F-007: 사용자 인증 (이메일 로그인/회원가입)
+
+**우선순위**: P1 (높음)
+**Phase**: 4
+**상태**: ✅ 코드 완료 (Supabase 프로젝트 설정 대기)
+
+#### 설명
+이메일/비밀번호 기반 회원가입 및 로그인. 로그인 시 이력이 서버(Supabase)에 저장되고, 비로그인 시 기존 LocalStorage 모드 유지 (듀얼 모드).
+
+#### 입력
+- 이메일 (email input)
+- 비밀번호 (password input, 6자 이상)
+
+#### 처리 로직
+1. Supabase Auth REST API (`/auth/v1/signup`, `/auth/v1/token`) 호출
+2. 세션(access_token, user)을 LocalStorage에 저장
+3. 로그인/비로그인 UI 전환
+
+#### UI 요구사항
+- **인증 섹션**: 컨테이너 최상단 (세트 선택 위)
+- **비로그인 상태**: "로그인 / 회원가입" 토글 버튼 → 이메일/비밀번호 폼
+- **로그인 상태**: 이메일 표시 + 로그아웃 버튼
+
+#### JavaScript API 명세
+
+**`toggleAuthForm()`** - 로그인 폼 토글
+**`handleSignIn()`** - (async) 로그인 처리 + UI 전환
+**`handleSignUp()`** - (async) 회원가입 처리
+**`handleSignOut()`** - (async) 로그아웃 + UI 전환
+**`updateAuthUI()`** - 로그인/비로그인 UI 상태 반영
+**`initApp()`** - 페이지 로드 시 세션 확인
+
+#### 듀얼 모드 함수 (F-003 확장)
+
+- **`saveToHistory(numbers, setCount)`**: (async) 로그인 → Supabase `insertHistory()`, 비로그인 → `saveToHistoryLocal()`
+- **`loadHistory()`**: (async) 로그인 → Supabase `fetchHistory()`, 비로그인 → `loadHistoryLocal()`
+- **`clearHistory()`**: (async) 로그인 → Supabase `deleteAllHistory()`, 비로그인 → `clearHistoryLocal()`
+
+#### Supabase REST API 래퍼 (`js/supabase-config.js`)
+
+전역 객체 `window.supabase`로 노출:
+- `getSession()`, `saveSession()`, `clearSession()`, `isLoggedIn()`
+- `signUp(email, password)`, `signIn(email, password)`, `signOut()`, `getUser()`
+- `fetchHistory(limit)`, `insertHistory(numbers, setCount)`, `deleteAllHistory()`
 
 ---
 

@@ -24,6 +24,7 @@
 | [013](#adr-013) | 번호 제외 UI: 토글 버튼 그리드 | 유지 | 2026-02-11 |
 | [014](#adr-014) | 2계층 테스트 아키텍처 (CLI + 브라우저) | 유지 | 2026-02-11 |
 | [015](#adr-015) | 파생 수치 단일 소스 규칙 | 유지 | 2026-02-11 |
+| [016](#adr-016) | Supabase REST API 직접 호출 (SDK 미사용) | 유지 | 2026-02-12 |
 
 ---
 
@@ -432,3 +433,35 @@ ADR-011에서 "단일 진실 소스" 원칙을 세웠지만, 파생 수치에는
 이 ADR과 함께 다음 가이드라인 수정도 적용되었다:
 - **문서 업데이트 매트릭스 보완**: 기능 추가 시 design.md/tech.md, Phase 완료 시 spec.md 상태 필드 업데이트 추가
 - **마무리 검증 체크리스트**: 3단계 마무리에 "명세-구현 검증" 단계 신설 (함수 시그니처, CSS, 파일 구조 일치 확인)
+
+---
+
+## ADR-016: Supabase REST API 직접 호출 (SDK 미사용)
+
+**날짜**: 2026-02-12 (Phase 4)
+**상태**: 유지
+**코드**: `js/supabase-config.js`
+
+### 맥락
+Phase 4에서 Supabase를 백엔드로 도입하여 사용자 인증과 서버 측 이력 저장을 구현해야 했다. Supabase JS SDK(`@supabase/supabase-js`)를 사용할지, 순수 `fetch()` + REST API로 직접 호출할지 결정해야 했다.
+
+### 결정
+Supabase JS SDK를 사용하지 않고, 순수 `fetch()` + Supabase REST API (`/auth/v1/*`, `/rest/v1/*`)를 직접 호출한다. API 래퍼를 `js/supabase-config.js`에 IIFE로 구현하고 `window.supabase` 전역 객체로 노출한다.
+
+### 사유
+- **ADR-001 일관성**: "순수 JavaScript만 사용 — 프레임워크/라이브러리 금지" 원칙 유지. SDK를 도입하면 이 원칙이 훼손됨
+- **빌드 불필요**: SDK는 npm/CDN 의존성이 생기나, REST API는 브라우저 내장 `fetch()`만 사용
+- **학습 가치**: REST API 직접 호출로 HTTP 인증 흐름(토큰, 헤더)을 이해
+- **번들 크기 0**: SDK(~40KB gzip)가 불필요. `supabase-config.js`는 ~5KB
+- **충분한 API 범위**: Phase 4.1~4.3(인증 + CRUD)은 4개 엔드포인트로 구현 가능
+
+### 검토한 대안
+- **Supabase JS SDK**: 풍부한 기능(realtime, storage 등)과 자동 토큰 갱신 제공. 그러나 CDN 로드 시 ~40KB 추가, npm 없이는 UMD 번들 직접 관리 필요. 프로젝트의 "프레임워크 금지" 원칙과 충돌
+- **Firebase**: Google 생태계 의존, REST API가 Supabase보다 복잡 (ID 토큰 교환 필요)
+
+### 제약사항
+- **토큰 갱신 미구현**: SDK가 자동으로 하는 refresh_token → access_token 갱신을 수동 구현해야 함. 현재는 미구현 (세션 만료 시 재로그인 필요). 필요 시 추후 추가
+- **세션 보안**: access_token을 LocalStorage에 저장. XSS 공격 시 탈취 가능하나, Supabase SDK도 동일한 방식이므로 수용
+
+### 재검토 조건
+실시간 기능(realtime subscriptions), 파일 스토리지, 복잡한 인증(OAuth) 등이 필요해지면 SDK 도입 재검토

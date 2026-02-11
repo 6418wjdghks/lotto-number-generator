@@ -16,15 +16,17 @@
 Phase 1: 개발 환경 설정     ████████████████████ 100%
 Phase 2: 핵심 기능 구현     ████████████████████ 100%
 Phase 3: 기능 확장 및 개선  ████████████████████ 100%
+Phase 4: Supabase 백엔드    ████████░░░░░░░░░░░░  40%
 ```
 
-**Phase 3 완료**:
-- ✅ Step 1: 추첨 이력 저장 (F-003)
-- ✅ Step 2: 여러 세트 동시 추첨 (F-004)
-- ✅ Step 3: 추첨 결과 복사 (F-006)
-- ✅ Step 4: 수동 번호 제외 (F-005)
+**Phase 4 진행 중** (4.1~4.3: 인증 + 이력 API):
+- ✅ Step 2: `js/supabase-config.js` 생성 (REST API 래퍼)
+- ✅ Step 3: `index.html` 인증 UI 추가
+- ✅ Step 4: `js/app.js` 듀얼 모드 + 인증 핸들러
+- ✅ Step 5: `css/style.css` 인증 CSS 추가
+- ⬜ Step 1: Supabase 프로젝트 생성 + 테이블/RLS 설정 (사용자 수동)
 
-**다음**: GitHub Pages 배포 또는 Phase 4 검토 (`docs/phase4-architecture.md`)
+**다음**: Supabase 대시보드에서 프로젝트 생성 후 `js/supabase-config.js`의 URL/KEY 교체
 
 ---
 
@@ -34,7 +36,8 @@ Phase 3: 기능 확장 및 개선  ███████████████
 HelloClaude/
 ├── index.html             # 메인 HTML
 ├── css/style.css          # 스타일시트
-├── js/app.js              # JavaScript 로직 (17개 함수)
+├── js/supabase-config.js  # Supabase REST API 래퍼 (config, auth, history)
+├── js/app.js              # JavaScript 로직 (CLAUDE.md API 테이블 참조)
 ├── docs/                  # 프로젝트 문서 (아래 참조 가이드)
 │   ├── plan.md            # 진행 상황, 액션 아이템
 │   ├── spec.md            # 기능 명세 (F-001~F-006), API, 데이터 구조
@@ -62,11 +65,14 @@ HelloClaude/
 | `generateMultipleSets(count)` | count개 세트 생성 (1~5) |
 | `getSelectedSetCount()` | `#setCount` 드롭다운 값 반환 |
 | `displayMultipleSets(sets)` | 세트 카드 DOM 생성 (라벨/뱃지/복사버튼) |
-| `displayHistory()` | 이력 목록 DOM 렌더링, 빈 상태 처리 |
-| `saveToHistory(numbers, setCount=1)` | LocalStorage 저장 (UUID, timestamp 자동) |
-| `loadHistory()` | LocalStorage 로드 (에러 시 빈 배열) |
+| `displayHistory()` | (async) 이력 목록 DOM 렌더링, 빈 상태 처리 |
+| `saveToHistory(numbers, setCount=1)` | (async) 듀얼 모드 이력 저장 (로그인: Supabase, 비로그인: Local) |
+| `loadHistory()` | (async) 듀얼 모드 이력 로드 |
+| `saveToHistoryLocal(numbers, setCount=1)` | LocalStorage 저장 (UUID, timestamp 자동) |
+| `loadHistoryLocal()` | LocalStorage 로드 (에러 시 빈 배열) |
+| `clearHistoryLocal()` | LocalStorage 이력 삭제 |
 | `toggleHistoryView()` | 이력 영역 표시/숨김 토글 |
-| `clearHistory()` | 전체 이력 삭제 (confirm 다이얼로그) |
+| `clearHistory()` | (async) 듀얼 모드 전체 이력 삭제 (confirm 다이얼로그) |
 | `generateUUID()` | UUID v4 생성 |
 | `copyToClipboard(numbers, setNumber)` | Clipboard API 복사, 토스트 피드백 |
 | `getExcludedNumbers()` | 제외된 번호 배열 반환 |
@@ -74,6 +80,12 @@ HelloClaude/
 | `updateExcludeCount()` | 제외/남은 카운터 업데이트, 경고 표시 |
 | `resetExcludedNumbers()` | 모든 제외 해제, 카운터 리셋 |
 | `showToast(message, type, duration)` | 토스트 메시지 생성/자동 제거 |
+| `toggleAuthForm()` | 로그인 폼 표시/숨김 토글 |
+| `handleSignIn()` | (async) 로그인 처리 + UI 전환 |
+| `handleSignUp()` | (async) 회원가입 처리 |
+| `handleSignOut()` | (async) 로그아웃 + UI 전환 |
+| `updateAuthUI()` | 로그인/비로그인 UI 상태 반영 |
+| `initApp()` | 페이지 로드 시 세션 확인 및 UI 초기화 |
 
 ---
 
@@ -156,7 +168,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
 ## 중요 제약사항
 
-1. **순수 JavaScript만 사용** - 프레임워크/라이브러리 금지
+1. **순수 JavaScript만 사용** - 프레임워크/라이브러리 금지 (Supabase는 REST API로 연동)
 2. **모바일 반응형** - 480px 이하에서도 작동
 3. **단순성 우선** - 복잡한 구조 피하기, 기존 코드 스타일 유지
 4. **브라우저/성능 상세**: `docs/tech.md` 참조
