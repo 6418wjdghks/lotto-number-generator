@@ -118,7 +118,7 @@
     <div class="stats" id="stats"></div>
   </div>
 
-  <script src="js/app.js"></script>
+  <script src="../js/app.js"></script>
   <script>
     let testResults = [];
     let allGeneratedNumbers = [];
@@ -139,7 +139,8 @@
       allGeneratedNumbers = [];
     }
 
-    // 테스트용 번호 생성 함수 (원본 함수 복제)
+    // 실제 app.js의 generateLottoNumbers() 함수를 테스트하기 위한 래퍼
+    // displayNumbers()를 호출하지 않고 숫자만 반환
     function generateTestNumbers() {
       const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
       for (let i = numbers.length - 1; i > 0; i--) {
