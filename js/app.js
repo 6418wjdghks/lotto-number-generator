@@ -96,8 +96,15 @@ function displayMultipleSets(sets) {
       numbersContainer.appendChild(numberDiv);
     });
 
+    // 복사 버튼 생성
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = '📋 복사';
+    copyBtn.onclick = () => copyToClipboard(numbers, setIndex + 1);
+
     setCard.appendChild(setLabel);
     setCard.appendChild(numbersContainer);
+    setCard.appendChild(copyBtn);
     container.appendChild(setCard);
   });
 }
@@ -257,4 +264,73 @@ function clearHistory() {
       alert('이력 삭제에 실패했습니다.');
     }
   }
+}
+
+/**
+ * 클립보드에 복사
+ * @param {number[]} numbers - 복사할 숫자 배열
+ * @param {number} setNumber - 세트 번호 (선택, 여러 세트일 때)
+ * @returns {Promise<boolean>} 성공 여부
+ */
+async function copyToClipboard(numbers, setNumber = null) {
+  try {
+    // Clipboard API 지원 확인
+    if (!navigator.clipboard) {
+      showToast('복사 기능을 지원하지 않는 브라우저입니다.', 'error');
+      return false;
+    }
+
+    // 텍스트 생성
+    const text = numbers.join(', ');
+
+    // 클립보드에 복사
+    await navigator.clipboard.writeText(text);
+
+    // 성공 피드백
+    const message = setNumber ? `${setNumber}회차 복사되었습니다!` : '복사되었습니다!';
+    showToast(message, 'success');
+
+    return true;
+  } catch (error) {
+    console.error('복사 실패:', error);
+
+    // HTTPS 필요 에러 처리
+    if (error.name === 'NotAllowedError') {
+      showToast('보안 연결(HTTPS)에서만 사용 가능합니다.', 'error');
+    } else {
+      showToast('복사에 실패했습니다. 다시 시도해주세요.', 'error');
+    }
+
+    return false;
+  }
+}
+
+/**
+ * 토스트 메시지 표시
+ * @param {string} message - 표시할 메시지
+ * @param {string} type - 토스트 타입 ('success' 또는 'error')
+ * @param {number} duration - 표시 시간 (ms, 기본값: 2000)
+ */
+function showToast(message, type = 'success', duration = 2000) {
+  // 기존 토스트 제거
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // 토스트 생성
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+
+  // DOM에 추가
+  document.body.appendChild(toast);
+
+  // 자동 제거
+  setTimeout(() => {
+    toast.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, duration);
 }

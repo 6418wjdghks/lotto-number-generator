@@ -646,6 +646,141 @@ Primary Gradient:  [████████████] #667eea → #764ba2
 
 ---
 
+### 복사 기능 (Copy Feature)
+
+#### 복사 버튼 (세트 카드 내)
+
+**`.copy-btn`** - 복사 버튼
+```css
+.copy-btn {
+  background: #f0f0f0;
+  color: #667eea;
+  border: 1px solid #667eea;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+  display: block;
+  width: 100%;
+}
+
+.copy-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+```
+
+**아이콘 포함**:
+```html
+<button class="copy-btn">📋 복사</button>
+```
+
+#### 전체 복사 버튼
+
+**위치**: 추첨하기 버튼 옆 또는 세트 컨테이너 상단
+
+```css
+.copy-all-btn {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: bold;
+}
+
+.copy-all-btn:hover {
+  background: #667eea;
+  color: white;
+}
+```
+
+#### 토스트 메시지
+
+**레이아웃**:
+```
+┌──────────────────────────────┐
+│    ✅ 복사되었습니다!        │
+└──────────────────────────────┘
+```
+
+**`.toast`** - 토스트 컨테이너
+```css
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  z-index: 1000;
+  animation: slideUp 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.success {
+  background: #44bd32;
+}
+
+.toast.error {
+  background: #e84118;
+}
+```
+
+**애니메이션**:
+```css
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+```
+
+#### 반응형 (모바일)
+```css
+@media (max-width: 480px) {
+  .copy-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .toast {
+    bottom: 20px;
+    max-width: 90%;
+    font-size: 13px;
+  }
+}
+```
+
+---
+
 ### 이력 섹션 (History Section)
 
 #### 레이아웃
