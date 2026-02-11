@@ -57,28 +57,24 @@
 
 ```
 HelloClaude/
-├── index.html              # 메인 HTML 파일 (21줄)
-│
-├── css/                    # 스타일시트
-│   └── style.css          # 모든 CSS 스타일 (131줄)
-│
-├── js/                     # JavaScript
-│   └── app.js             # 로또 로직 및 UI (42줄)
-│
+├── index.html              # 메인 HTML 파일
+├── css/
+│   └── style.css          # 스타일시트
+├── js/
+│   └── app.js             # JavaScript 로직 (13개 함수)
 ├── docs/                   # 프로젝트 문서
 │   ├── plan.md            # 프로젝트 계획서
 │   ├── spec.md            # 기능 명세서
 │   ├── design.md          # 디자인 명세서
-│   └── tech.md            # 기술 명세서 (본 문서)
-│
+│   ├── tech.md            # 기술 명세서 (본 문서)
+│   └── phase4-plan.md     # Phase 4 백엔드 확장 계획
+├── test/
+│   ├── test.html          # 자동 테스트 (21개, 100% 커버리지)
+│   └── README.md          # 테스트 문서
 ├── .claude/               # Claude Code 설정
-│   └── plugins/
-│       └── local/
-│           └── git-helper/
-│
+│   └── plugins/local/git-helper/
 ├── README.md              # 프로젝트 설명
-├── .gitignore            # Git 제외 파일
-└── start-claude.bat      # 개발 환경 실행
+└── .gitignore             # Git 제외 파일
 ```
 
 ### 아키텍처 패턴
@@ -128,97 +124,9 @@ function shuffleArray(array) {
 
 ---
 
-## 💻 JavaScript API 명세
+## 💻 JavaScript API
 
-### 전역 함수
-
-#### `generateLottoNumbers()`
-
-**설명**: 로또번호 6개를 생성하고 화면에 표시하는 메인 함수
-
-**매개변수**: 없음
-
-**반환값**: `void`
-
-**동작 흐름**:
-```javascript
-function generateLottoNumbers() {
-  // 1. 1-45 배열 생성
-  const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
-
-  // 2. Fisher-Yates 셔플
-  for (let i = numbers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
-  }
-
-  // 3. 앞의 6개 선택 및 정렬
-  const lottoNumbers = numbers.slice(0, 6).sort((a, b) => a - b);
-
-  // 4. 화면에 표시
-  displayNumbers(lottoNumbers);
-}
-```
-
-**예외**: 없음
-
-**성능**: O(n) where n = 45
-
----
-
-#### `displayNumbers(numbers)`
-
-**설명**: 생성된 번호를 DOM에 렌더링
-
-**매개변수**:
-- `numbers` (Array<number>): 표시할 숫자 배열 (길이: 6)
-
-**반환값**: `void`
-
-**동작 흐름**:
-```javascript
-function displayNumbers(numbers) {
-  // 1. 컨테이너 참조
-  const container = document.getElementById('numbersContainer');
-
-  // 2. 기존 내용 제거
-  container.innerHTML = '';
-
-  // 3. 각 숫자에 대해 DOM 요소 생성
-  numbers.forEach((num, index) => {
-    const numberDiv = document.createElement('div');
-    numberDiv.className = 'number';
-    numberDiv.textContent = num;
-    numberDiv.style.animationDelay = `${index * 0.1}s`;
-    container.appendChild(numberDiv);
-  });
-}
-```
-
-**DOM 조작**:
-- `innerHTML` 사용 (초기화)
-- `createElement`, `appendChild` 사용 (추가)
-
-**성능**: O(n) where n = 6
-
----
-
-### DOM 구조
-
-#### HTML 요소 ID
-
-| ID | 요소 | 용도 |
-|----|------|------|
-| `numbersContainer` | `<div>` | 숫자 표시 영역 |
-
-#### CSS 클래스
-
-| 클래스명 | 요소 | 용도 |
-|----------|------|------|
-| `.container` | `<div>` | 메인 카드 컨테이너 |
-| `.numbers-container` | `<div>` | 숫자 표시 영역 |
-| `.number` | `<div>` | 개별 숫자 뱃지 |
-| `.info` | `<p>` | 안내 텍스트 |
+API 상세 명세: `docs/spec.md` 참조 (F-001 ~ F-006 각 기능별 API 정의)
 
 ---
 
@@ -279,45 +187,12 @@ function displayNumbers(numbers) {
 
 ## 📦 데이터 구조
 
-### Phase 2 (현재)
+데이터 구조 상세: `docs/spec.md` F-003 참조
 
-#### 숫자 배열
-```javascript
-// Type: Array<number>
-// Range: 1 ≤ n ≤ 45
-// Length: 6
-// Order: Ascending
-
-const lottoNumbers = [3, 12, 19, 27, 38, 42];
-```
-
-### Phase 3 (예정)
-
-#### 추첨 이력 (LocalStorage)
-```javascript
-// Key: 'lotto_history'
-// Value: JSON string
-
-{
-  "version": "1.0",
-  "history": [
-    {
-      "id": "uuid-v4",
-      "numbers": [3, 12, 19, 27, 38, 42],
-      "timestamp": "2026-02-11T10:30:00.000Z",
-      "setCount": 1
-    }
-  ]
-}
-```
-
-#### 필드 설명
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `id` | string | 고유 식별자 (UUID v4) |
-| `numbers` | number[] | 추첨된 숫자 배열 |
-| `timestamp` | string | ISO 8601 형식의 추첨 시간 |
-| `setCount` | number | 동시 추첨 세트 수 |
+**요약**:
+- LocalStorage key: `lotto_history`
+- 숫자 배열: `Array<number>`, 1~45, 6개, 오름차순
+- 이력: version, id(UUID v4), numbers, timestamp(ISO 8601), setCount
 
 ---
 
@@ -404,93 +279,9 @@ console.log(`실행 시간: ${end - start}ms`);
 
 ---
 
-## 🧪 테스트 전략
+## 🧪 테스트
 
-### 테스트 레벨
-
-#### 1. 단위 테스트 (수동)
-**대상**: 개별 함수
-```javascript
-// generateLottoNumbers() 테스트
-// 1. 콘솔에서 100회 실행
-// 2. 결과 확인: 항상 6개, 1-45 범위, 중복 없음
-```
-
-#### 2. 통합 테스트 (수동)
-**대상**: 전체 워크플로우
-- 버튼 클릭 → 숫자 생성 → 화면 표시 → 애니메이션
-
-#### 3. 호환성 테스트
-**대상**: 여러 브라우저/디바이스
-- Chrome, Firefox, Safari (데스크톱)
-- iOS Safari, Chrome Mobile (모바일)
-
-#### 4. 성능 테스트
-**대상**: 응답 시간, FPS
-- Lighthouse 점수 90+ 목표
-- 연속 클릭 시 성능 유지
-
-### 테스트 도구
-
-| 도구 | 용도 |
-|------|------|
-| Chrome DevTools | 디버깅, 성능 측정 |
-| Lighthouse | 성능, 접근성 점수 |
-| BrowserStack | 크로스 브라우저 테스트 (선택) |
-
-### 테스트 체크리스트
-
-- [ ] 모든 브라우저에서 정상 작동
-- [ ] 모바일에서 터치 인터랙션 정상
-- [ ] 100회 추첨 시 랜덤 분포 균등
-- [ ] 애니메이션이 60fps 유지
-- [ ] 접근성 검사 통과 (Lighthouse)
-
----
-
-## 🔄 Phase 3 기술 명세 (예정)
-
-### LocalStorage API
-
-#### 저장
-```javascript
-const history = {
-  version: '1.0',
-  history: [
-    { id: uuid(), numbers: [...], timestamp: new Date().toISOString() }
-  ]
-};
-
-localStorage.setItem('lotto_history', JSON.stringify(history));
-```
-
-#### 조회
-```javascript
-const data = JSON.parse(localStorage.getItem('lotto_history') || '{"history":[]}');
-```
-
-#### 용량
-- **최대 크기**: 5MB (브라우저 제한)
-- **예상 사용**: < 50KB (20개 이력 기준)
-
-### Clipboard API (복사 기능)
-
-```javascript
-async function copyToClipboard(numbers) {
-  const text = numbers.join(', ');
-
-  try {
-    await navigator.clipboard.writeText(text);
-    showToast('복사되었습니다!');
-  } catch (err) {
-    console.error('복사 실패:', err);
-  }
-}
-```
-
-**요구사항**:
-- HTTPS 또는 localhost
-- 사용자 제스처 필요 (버튼 클릭)
+자동 테스트 (21개, 100% 커버리지) 상세: `test/README.md` 참조
 
 ---
 

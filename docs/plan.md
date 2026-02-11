@@ -99,15 +99,7 @@
 
 ## 🛠️ 기술 스택
 
-### 현재 사용
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Storage**: LocalStorage (구현 완료)
-- **Version Control**: Git
-
-### 고려 중
-- Service Worker (PWA)
-- Web Audio API (사운드 효과)
-- Canvas API (고급 애니메이션)
+`docs/tech.md` 참조
 
 ---
 
@@ -152,16 +144,7 @@ Phase 3: ███████████████░░░░░  75% 🚀
 
 ## ⚠️ 주요 고려사항
 
-### 기술적 제약
-- 순수 JavaScript 사용 (프레임워크 없음)
-- 브라우저 간 호환성 유지
-- 모바일 터치 인터페이스 최적화
-
-### 설계 원칙
-1. **단순성**: 복잡한 의존성 없이 간단하게
-2. **명확성**: 직관적인 UI/UX
-3. **확장성**: 기능 추가가 용이한 구조
-4. **성능**: 빠른 응답 속도
+기술적 제약 및 설계 원칙: `docs/tech.md` 참조
 
 ---
 
