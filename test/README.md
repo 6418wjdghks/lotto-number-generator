@@ -5,7 +5,7 @@
 ## 파일
 
 ### test.html (v2)
-자동화된 기능 테스트 페이지 - **21개 테스트, ~70개 검증 항목**
+자동화된 기능 테스트 페이지 - **27개 테스트, ~90개 검증 항목**
 
 **실행 방법**:
 ```bash
@@ -19,14 +19,14 @@ open test/test.html   # macOS
 ## 테스트 구조
 
 ### DOM Fixture
-`test.html`에 app.js가 참조하는 DOM 요소(`#setCount`, `#setsContainer`, `#historyList`, `#historyToggleText`)를 숨겨진 영역으로 재현합니다. 이를 통해 DOM 의존 함수들을 실제로 테스트할 수 있습니다.
+`test.html`에 app.js가 참조하는 DOM 요소(`#setCount`, `#setsContainer`, `#historyList`, `#historyToggleText`, `#excludePanel`, `#excludeGrid`, `#excludeCount`, `#remainCount`, `#excludeWarning`, `#excludeToggleText`)를 숨겨진 영역으로 재현합니다. 이를 통해 DOM 의존 함수들을 실제로 테스트할 수 있습니다.
 
 ### 비동기 처리
 `runAllTests()`가 async 함수이며, Clipboard API/Toast 테스트를 `await`로 순차 실행합니다. 모든 결과가 최종 요약에 정확히 반영됩니다.
 
 ---
 
-## 테스트 항목 (21개)
+## 테스트 항목 (27개)
 
 ### A. 핵심 생성 로직 (Test 1-6)
 실제 `generateSingleSet()` 함수를 직접 호출하여 검증합니다.
@@ -79,11 +79,21 @@ open test/test.html   # macOS
 | 19 | `displayHistory()` - 빈 이력 메시지, 숫자/시간 표시, setCount 표시 |
 | 20 | `toggleHistoryView()` - hidden 토글, 버튼 텍스트 변경 |
 
-### G. 통합 테스트 (Test 21)
+### G. 번호 제외 F-005 (Test 22-26)
 
 | Test | 검증 내용 |
 |------|-----------|
-| 21 | `generateLottoNumbers()` - 1세트/3세트 end-to-end (DOM + 이력 + setCount + 숫자 유효성) |
+| 22 | `generateSingleSet(excluded)` - 제외 번호 미출현(100회), 빈 배열, 정렬/중복 |
+| 23 | `generateMultipleSets()` 제외 전달 - 여러 세트 모두 제외 적용 |
+| 24 | `toggleExcludeView()` - 패널 토글, 45개 버튼 생성, 클릭 제외, 카운터 |
+| 25 | `resetExcludedNumbers()` - 초기화 후 제외 0개, 카운터 리셋 |
+| 26 | 제외 39개 초과 시 경고 표시/숨김 |
+
+### H. 통합 테스트 (Test 27)
+
+| Test | 검증 내용 |
+|------|-----------|
+| 27 | `generateLottoNumbers()` - 1세트/3세트 end-to-end (DOM + 이력 + setCount + 숫자 유효성) |
 
 ---
 
@@ -95,8 +105,8 @@ open test/test.html   # macOS
 
 ## 함수 커버리지
 
-app.js 13개 함수 전체를 테스트합니다:
-`generateLottoNumbers`, `generateSingleSet`, `generateMultipleSets`, `getSelectedSetCount`, `displayMultipleSets`, `generateUUID`, `saveToHistory`, `loadHistory`, `displayHistory`, `toggleHistoryView`, `clearHistory`, `copyToClipboard`, `showToast`
+app.js 17개 함수 전체를 테스트합니다:
+`generateLottoNumbers`, `generateSingleSet`, `generateMultipleSets`, `getSelectedSetCount`, `displayMultipleSets`, `generateUUID`, `saveToHistory`, `loadHistory`, `displayHistory`, `toggleHistoryView`, `clearHistory`, `copyToClipboard`, `getExcludedNumbers`, `toggleExcludeView`, `updateExcludeCount`, `resetExcludedNumbers`, `showToast`
 
 ---
 

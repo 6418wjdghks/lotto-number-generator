@@ -22,6 +22,22 @@
       </select>
     </div>
 
+    <!-- Exclude Section -->
+    <div class="exclude-section">
+      <button class="btn-secondary" onclick="toggleExcludeView()">
+        <span id="excludeToggleText">번호 제외 설정 ▼</span>
+      </button>
+      <div id="excludePanel" class="exclude-panel hidden">
+        <div class="exclude-info">
+          <span id="excludeCount">제외: 0개</span>
+          <span id="remainCount">남은 번호: 45개</span>
+          <button class="exclude-reset-btn" onclick="resetExcludedNumbers()">초기화</button>
+        </div>
+        <div class="exclude-grid" id="excludeGrid"></div>
+        <div id="excludeWarning" class="exclude-warning hidden">최소 6개의 번호가 필요합니다.</div>
+      </div>
+    </div>
+
     <button onclick="generateLottoNumbers()">추첨하기</button>
     <p class="info">1부터 45까지의 숫자 중 6개를 무작위로 추첨합니다.</p>
 

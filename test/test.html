@@ -158,6 +158,13 @@
     <div class="sets-container" id="setsContainer"></div>
     <div id="historyList" class="history-list hidden"></div>
     <span id="historyToggleText">이력 보기 ▼</span>
+    <span id="excludeToggleText">번호 제외 설정 ▼</span>
+    <div id="excludePanel" class="exclude-panel hidden">
+      <span id="excludeCount">제외: 0개</span>
+      <span id="remainCount">남은 번호: 45개</span>
+      <div class="exclude-grid" id="excludeGrid"></div>
+      <div id="excludeWarning" class="exclude-warning hidden"></div>
+    </div>
   </div>
 
   <div class="test-section">
@@ -222,6 +229,12 @@
       document.getElementById('historyList').classList.add('hidden');
       document.getElementById('historyToggleText').textContent = '이력 보기 ▼';
       document.getElementById('setCount').value = '1';
+      document.getElementById('excludeGrid').innerHTML = '';
+      document.getElementById('excludePanel').classList.add('hidden');
+      document.getElementById('excludeToggleText').textContent = '번호 제외 설정 ▼';
+      document.getElementById('excludeCount').textContent = '제외: 0개';
+      document.getElementById('remainCount').textContent = '남은 번호: 45개';
+      document.getElementById('excludeWarning').classList.add('hidden');
       document.querySelectorAll('.toast').forEach(t => t.remove());
     }
 
@@ -1039,11 +1052,194 @@
     }
 
     // ============================================================
-    // G. 통합 테스트
+    // G. 번호 제외 (F-005)
+    // ============================================================
+
+    function testExcludeBasic() {
+      log('═══ Test 22: generateSingleSet(excludedNumbers) 제외 동작 ═══', 'info');
+
+      const excluded = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      let allExcluded = true;
+
+      for (let i = 0; i < 100; i++) {
+        const numbers = generateSingleSet(excluded);
+        if (numbers.some(n => excluded.includes(n))) {
+          allExcluded = false;
+          break;
+        }
+      }
+
+      if (allExcluded) {
+        log('✅ PASS: 100회 추첨 중 제외 번호 미출현', 'pass');
+      } else {
+        log('❌ FAIL: 제외된 번호가 결과에 포함됨', 'fail');
+      }
+
+      // 제외 없을 때 기존 동작과 동일
+      const noExclude = generateSingleSet([]);
+      if (noExclude.length === 6 && noExclude.every(n => n >= 1 && n <= 45)) {
+        log('✅ PASS: 빈 제외 배열 -> 기존 동작 동일', 'pass');
+      } else {
+        log('❌ FAIL: 빈 제외 배열 동작 오류', 'fail');
+      }
+
+      // 제외 후에도 6개 생성, 오름차순, 중복 없음
+      const result = generateSingleSet([10, 20, 30, 40]);
+      if (result.length === 6) {
+        log('✅ PASS: 제외 후에도 6개 생성', 'pass');
+      } else {
+        log(`❌ FAIL: ${result.length}개 생성`, 'fail');
+      }
+
+      const isSorted = result.every((n, i, arr) => i === 0 || arr[i - 1] < n);
+      if (isSorted && new Set(result).size === 6) {
+        log('✅ PASS: 제외 후 오름차순 + 중복 없음', 'pass');
+      } else {
+        log('❌ FAIL: 정렬/중복 오류', 'fail');
+      }
+    }
+
+    function testExcludeMultipleSets() {
+      log('═══ Test 23: generateMultipleSets() 제외 전달 ═══', 'info');
+
+      const excluded = [1, 2, 3, 4, 5];
+      const sets = generateMultipleSets(3, excluded);
+
+      const allExcluded = sets.every(set => set.every(n => !excluded.includes(n)));
+      if (allExcluded) {
+        log('✅ PASS: 여러 세트 모두 제외 번호 미포함', 'pass');
+      } else {
+        log('❌ FAIL: 일부 세트에 제외 번호 포함', 'fail');
+      }
+    }
+
+    function testExcludeUI() {
+      log('═══ Test 24: toggleExcludeView() 및 UI 동작 ═══', 'info');
+      resetFixture();
+
+      const panel = document.getElementById('excludePanel');
+      const toggleText = document.getElementById('excludeToggleText');
+      const grid = document.getElementById('excludeGrid');
+
+      // 토글 열기
+      toggleExcludeView();
+
+      if (!panel.classList.contains('hidden')) {
+        log('✅ PASS: 패널 표시', 'pass');
+      } else {
+        log('❌ FAIL: 패널 미표시', 'fail');
+      }
+
+      if (toggleText.textContent === '번호 제외 설정 ▲') {
+        log('✅ PASS: 토글 텍스트 변경', 'pass');
+      } else {
+        log(`❌ FAIL: 텍스트 오류 ("${toggleText.textContent}")`, 'fail');
+      }
+
+      if (grid.children.length === 45) {
+        log('✅ PASS: 45개 버튼 생성', 'pass');
+      } else {
+        log(`❌ FAIL: ${grid.children.length}개 버튼`, 'fail');
+      }
+
+      // 버튼 클릭으로 제외 토글
+      grid.children[0].click(); // 1번 제외
+      grid.children[1].click(); // 2번 제외
+
+      const excluded = getExcludedNumbers();
+      if (excluded.length === 2 && excluded.includes(1) && excluded.includes(2)) {
+        log('✅ PASS: 클릭으로 번호 제외 (1, 2)', 'pass');
+      } else {
+        log(`❌ FAIL: 제외 결과 오류 ([${excluded}])`, 'fail');
+      }
+
+      // 카운터 업데이트 확인
+      const countText = document.getElementById('excludeCount').textContent;
+      const remainText = document.getElementById('remainCount').textContent;
+      if (countText === '제외: 2개' && remainText === '남은 번호: 43개') {
+        log('✅ PASS: 카운터 업데이트', 'pass');
+      } else {
+        log(`❌ FAIL: 카운터 오류 ("${countText}", "${remainText}")`, 'fail');
+      }
+
+      // 토글 닫기
+      toggleExcludeView();
+      if (panel.classList.contains('hidden')) {
+        log('✅ PASS: 재토글 후 패널 숨김', 'pass');
+      } else {
+        log('❌ FAIL: 재토글 후 미숨김', 'fail');
+      }
+    }
+
+    function testExcludeReset() {
+      log('═══ Test 25: resetExcludedNumbers() 초기화 ═══', 'info');
+      resetFixture();
+
+      // 패널 열기 및 번호 제외
+      toggleExcludeView();
+      const grid = document.getElementById('excludeGrid');
+      grid.children[0].click();
+      grid.children[4].click();
+      grid.children[9].click();
+
+      if (getExcludedNumbers().length === 3) {
+        log('✅ PASS: 3개 제외 설정', 'pass');
+      } else {
+        log('❌ FAIL: 제외 설정 오류', 'fail');
+      }
+
+      // 초기화
+      resetExcludedNumbers();
+
+      if (getExcludedNumbers().length === 0) {
+        log('✅ PASS: 초기화 후 제외 0개', 'pass');
+      } else {
+        log(`❌ FAIL: 초기화 후 ${getExcludedNumbers().length}개 남음`, 'fail');
+      }
+
+      const countText = document.getElementById('excludeCount').textContent;
+      if (countText === '제외: 0개') {
+        log('✅ PASS: 카운터 리셋', 'pass');
+      } else {
+        log(`❌ FAIL: 카운터 미리셋 ("${countText}")`, 'fail');
+      }
+    }
+
+    function testExcludeWarning() {
+      log('═══ Test 26: 제외 39개 초과 시 경고 ═══', 'info');
+      resetFixture();
+
+      toggleExcludeView();
+      const grid = document.getElementById('excludeGrid');
+      const warning = document.getElementById('excludeWarning');
+
+      // 40개 제외 (남은 5개 < 6)
+      for (let i = 0; i < 40; i++) {
+        grid.children[i].click();
+      }
+
+      if (!warning.classList.contains('hidden')) {
+        log('✅ PASS: 40개 제외 시 경고 표시', 'pass');
+      } else {
+        log('❌ FAIL: 경고 미표시', 'fail');
+      }
+
+      // 1개 해제 (남은 6개 >= 6)
+      grid.children[39].click();
+
+      if (warning.classList.contains('hidden')) {
+        log('✅ PASS: 39개 제외 시 경고 숨김', 'pass');
+      } else {
+        log('❌ FAIL: 경고 미숨김', 'fail');
+      }
+    }
+
+    // ============================================================
+    // H. 통합 테스트
     // ============================================================
 
     function testGenerateLottoNumbers() {
-      log('═══ Test 21: generateLottoNumbers() 통합 ═══', 'info');
+      log('═══ Test 27: generateLottoNumbers() 통합 ═══', 'info');
       resetFixture();
 
       const select = document.getElementById('setCount');
@@ -1154,7 +1350,14 @@
       testDisplayHistory();        logSeparator();
       testToggleHistoryView();     logSeparator();
 
-      // G. 통합
+      // G. 번호 제외 (F-005)
+      testExcludeBasic();          logSeparator();
+      testExcludeMultipleSets();   logSeparator();
+      testExcludeUI();             logSeparator();
+      testExcludeReset();          logSeparator();
+      testExcludeWarning();        logSeparator();
+
+      // H. 통합
       testGenerateLottoNumbers();  logSeparator();
 
       // 정리 & 요약

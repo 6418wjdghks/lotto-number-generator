@@ -13,8 +13,16 @@ const MAX_HISTORY = 20;
  * 선택된 세트 수만큼 로또번호를 생성합니다.
  */
 function generateLottoNumbers() {
+  const excludedNumbers = getExcludedNumbers();
+
+  // 남은 번호가 6개 미만이면 추첨 중단
+  if (45 - excludedNumbers.length < 6) {
+    showToast('최소 6개의 번호가 필요합니다.', 'error');
+    return;
+  }
+
   const setCount = getSelectedSetCount();
-  const sets = generateMultipleSets(setCount);
+  const sets = generateMultipleSets(setCount, excludedNumbers);
   displayMultipleSets(sets);
 
   // 각 세트를 이력에 저장
@@ -26,11 +34,13 @@ function generateLottoNumbers() {
 /**
  * 단일 로또번호 생성 (내부 함수)
  * Fisher-Yates 셔플 알고리즘을 사용하여 무작위 숫자를 생성합니다.
+ * @param {number[]} excludedNumbers - 제외할 번호 배열 (기본값: [])
  * @returns {number[]} 6개의 정렬된 숫자 배열
  */
-function generateSingleSet() {
-  // 1부터 45까지의 숫자 배열 생성
-  const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
+function generateSingleSet(excludedNumbers = []) {
+  // 1부터 45까지의 숫자 중 제외 번호를 뺀 배열 생성
+  const numbers = Array.from({ length: 45 }, (_, i) => i + 1)
+    .filter(n => !excludedNumbers.includes(n));
 
   // Fisher-Yates 셔플 알고리즘으로 무작위 섞기
   for (let i = numbers.length - 1; i > 0; i--) {
@@ -45,12 +55,13 @@ function generateSingleSet() {
 /**
  * 여러 세트 생성
  * @param {number} count - 생성할 세트 수 (1~5)
+ * @param {number[]} excludedNumbers - 제외할 번호 배열 (기본값: [])
  * @returns {Array<number[]>} 세트 배열
  */
-function generateMultipleSets(count) {
+function generateMultipleSets(count, excludedNumbers = []) {
   const sets = [];
   for (let i = 0; i < count; i++) {
-    sets.push(generateSingleSet());
+    sets.push(generateSingleSet(excludedNumbers));
   }
   return sets;
 }
@@ -303,6 +314,75 @@ async function copyToClipboard(numbers, setNumber = null) {
 
     return false;
   }
+}
+
+/**
+ * 제외된 번호 목록 조회
+ * @returns {number[]} 제외된 번호 배열
+ */
+function getExcludedNumbers() {
+  const buttons = document.querySelectorAll('.exclude-btn.excluded');
+  return Array.from(buttons).map(btn => parseInt(btn.textContent, 10));
+}
+
+/**
+ * 번호 제외 패널 표시/숨김 토글
+ */
+function toggleExcludeView() {
+  const panel = document.getElementById('excludePanel');
+  const toggleText = document.getElementById('excludeToggleText');
+  const grid = document.getElementById('excludeGrid');
+
+  if (panel.classList.contains('hidden')) {
+    panel.classList.remove('hidden');
+    toggleText.textContent = '번호 제외 설정 ▲';
+
+    // 그리드가 비어있으면 초기 생성
+    if (grid.children.length === 0) {
+      for (let i = 1; i <= 45; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'exclude-btn';
+        btn.textContent = i;
+        btn.type = 'button';
+        btn.onclick = function() {
+          this.classList.toggle('excluded');
+          updateExcludeCount();
+        };
+        grid.appendChild(btn);
+      }
+    }
+  } else {
+    panel.classList.add('hidden');
+    toggleText.textContent = '번호 제외 설정 ▼';
+  }
+}
+
+/**
+ * 제외 카운터 업데이트
+ */
+function updateExcludeCount() {
+  const excluded = getExcludedNumbers();
+  const remaining = 45 - excluded.length;
+
+  document.getElementById('excludeCount').textContent = `제외: ${excluded.length}개`;
+  document.getElementById('remainCount').textContent = `남은 번호: ${remaining}개`;
+
+  // 경고 표시/숨김
+  const warning = document.getElementById('excludeWarning');
+  if (remaining < 6) {
+    warning.classList.remove('hidden');
+  } else {
+    warning.classList.add('hidden');
+  }
+}
+
+/**
+ * 모든 제외 번호 초기화
+ */
+function resetExcludedNumbers() {
+  const buttons = document.querySelectorAll('.exclude-btn.excluded');
+  buttons.forEach(btn => btn.classList.remove('excluded'));
+  updateExcludeCount();
 }
 
 /**

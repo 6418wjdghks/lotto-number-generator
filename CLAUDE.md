@@ -15,16 +15,16 @@
 ```
 Phase 1: 개발 환경 설정     ████████████████████ 100%
 Phase 2: 핵심 기능 구현     ████████████████████ 100%
-Phase 3: 기능 확장 및 개선  ███████████████░░░░░  75%
+Phase 3: 기능 확장 및 개선  ████████████████████ 100%
 ```
 
-**Phase 3 진행 상황**:
+**Phase 3 완료**:
 - ✅ Step 1: 추첨 이력 저장 (F-003)
 - ✅ Step 2: 여러 세트 동시 추첨 (F-004)
 - ✅ Step 3: 추첨 결과 복사 (F-006)
-- ⏳ **Step 4: 수동 번호 제외 (F-005)** ← 다음 작업
+- ✅ Step 4: 수동 번호 제외 (F-005)
 
-**Step 4 시작 명령어**: `Step 4 시작해줘` 또는 `수동 번호 제외 구현해줘`
+**다음**: GitHub Pages 배포 또는 Phase 4 검토 (`docs/phase4-architecture.md`)
 
 ---
 
@@ -34,7 +34,7 @@ Phase 3: 기능 확장 및 개선  ███████████████
 HelloClaude/
 ├── index.html             # 메인 HTML
 ├── css/style.css          # 스타일시트
-├── js/app.js              # JavaScript 로직 (13개 함수)
+├── js/app.js              # JavaScript 로직 (17개 함수)
 ├── docs/                  # 프로젝트 문서 (아래 참조 가이드)
 │   ├── plan.md            # 진행 상황, 액션 아이템
 │   ├── spec.md            # 기능 명세 (F-001~F-006), API, 데이터 구조
@@ -43,7 +43,7 @@ HelloClaude/
 │   ├── decisions.md       # 설계 결정 기록 (ADR)
 │   └── phase4-architecture.md  # Phase 4 기술 설계 (아키텍처, DB, API)
 ├── test/
-│   ├── test.html          # 자동 테스트 (21개, 100% 커버리지)
+│   ├── test.html          # 자동 테스트 (27개, 100% 커버리지)
 │   └── README.md          # 테스트 상세 문서
 └── .claude/plugins/local/git-helper/  # Git 검증 스킬
 ```
@@ -68,6 +68,10 @@ HelloClaude/
 | `clearHistory()` | 전체 이력 삭제 (confirm 다이얼로그) |
 | `generateUUID()` | UUID v4 생성 |
 | `copyToClipboard(numbers, setNumber)` | Clipboard API 복사, 토스트 피드백 |
+| `getExcludedNumbers()` | 제외된 번호 배열 반환 |
+| `toggleExcludeView()` | 제외 패널 표시/숨김 토글, 그리드 생성 |
+| `updateExcludeCount()` | 제외/남은 카운터 업데이트, 경고 표시 |
+| `resetExcludedNumbers()` | 모든 제외 해제, 카운터 리셋 |
 | `showToast(message, type, duration)` | 토스트 메시지 생성/자동 제거 |
 
 ---
