@@ -43,8 +43,8 @@ HelloClaude/
 │   ├── decisions.md       # 설계 결정 기록 (ADR)
 │   └── phase4-architecture.md  # Phase 4 기술 설계 (아키텍처, DB, API)
 ├── test/
-│   ├── test.html          # 브라우저 DOM/UI 테스트 (27개)
-│   ├── test-logic.js      # Node.js CLI 순수 로직 테스트 (22개)
+│   ├── test.html          # 브라우저 DOM/UI 테스트 (11개)
+│   ├── test-logic.js      # Node.js CLI 순수 로직 테스트 (23개)
 │   └── README.md          # 테스트 상세 문서
 └── .claude/plugins/local/git-helper/  # Git 검증 스킬
 ```

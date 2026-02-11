@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>로또번호 추첨기 - 자동 테스트 v2</title>
+  <title>로또번호 추첨기 - DOM/UI 테스트</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
     /* 테스트 페이지 전용 스타일 (app 스타일 위에 오버라이드) */
@@ -141,7 +141,7 @@
   </style>
 </head>
 <body>
-  <h1>🧪 로또번호 추첨기 - 자동 테스트 v2</h1>
+  <h1>🧪 로또번호 추첨기 - DOM/UI 테스트</h1>
 
   <!--
     DOM Fixture: app.js가 참조하는 DOM 요소들.
@@ -169,6 +169,10 @@
 
   <div class="test-section">
     <h2>테스트 컨트롤</h2>
+    <p style="color:#666; font-size:13px; margin-top:0;">
+      순수 로직 테스트는 CLI에서 실행: <code>node --test test/test-logic.js</code><br>
+      이 페이지는 DOM/UI 의존 테스트만 실행합니다.
+    </p>
     <div class="test-controls">
       <button onclick="runAllTests()">모든 테스트 실행</button>
       <button onclick="clearResults()">결과 초기화</button>
@@ -257,117 +261,8 @@
       `;
     }
 
-    // ============================================================
-    // A. 핵심 생성 로직 (실제 generateSingleSet 사용)
-    // ============================================================
-
-    function testBasicGeneration() {
-      log('═══ Test 1: generateSingleSet() 기본 동작 ═══', 'info');
-
-      const numbers = generateSingleSet();
-
-      if (numbers.length === 6) {
-        log('✅ PASS: 6개의 숫자 생성됨', 'pass');
-      } else {
-        log(`❌ FAIL: ${numbers.length}개 생성됨 (예상: 6개)`, 'fail');
-      }
-
-      if (Array.isArray(numbers)) {
-        log('✅ PASS: 배열 타입 반환', 'pass');
-      } else {
-        log('❌ FAIL: 배열이 아닌 타입 반환', 'fail');
-      }
-
-      const allIntegers = numbers.every(n => Number.isInteger(n));
-      if (allIntegers) {
-        log('✅ PASS: 모든 요소가 정수', 'pass');
-      } else {
-        log('❌ FAIL: 정수가 아닌 요소 존재', 'fail');
-      }
-
-      log(`생성된 숫자: [${numbers.join(', ')}]`, 'info');
-    }
-
-    function testNumberRange() {
-      log('═══ Test 2: 숫자 범위 검증 (1-45, 100회) ═══', 'info');
-
-      let passCount = 0;
-      const iterations = 100;
-
-      for (let i = 0; i < iterations; i++) {
-        const numbers = generateSingleSet();
-        if (numbers.every(n => n >= 1 && n <= 45)) passCount++;
-      }
-
-      if (passCount === iterations) {
-        log(`✅ PASS: ${iterations}회 모두 1-45 범위 내`, 'pass');
-      } else {
-        log(`❌ FAIL: ${passCount}/${iterations} 통과`, 'fail');
-      }
-    }
-
-    function testNoDuplicates() {
-      log('═══ Test 3: 중복 검증 (100회) ═══', 'info');
-
-      let passCount = 0;
-      const iterations = 100;
-
-      for (let i = 0; i < iterations; i++) {
-        const numbers = generateSingleSet();
-        if (new Set(numbers).size === 6) passCount++;
-      }
-
-      if (passCount === iterations) {
-        log(`✅ PASS: ${iterations}회 모두 중복 없음`, 'pass');
-      } else {
-        log(`❌ FAIL: ${passCount}/${iterations} 통과`, 'fail');
-      }
-    }
-
-    function testSorting() {
-      log('═══ Test 4: 오름차순 정렬 검증 (100회) ═══', 'info');
-
-      let passCount = 0;
-      const iterations = 100;
-
-      for (let i = 0; i < iterations; i++) {
-        const numbers = generateSingleSet();
-        const isSorted = numbers.every((n, idx, arr) => idx === 0 || arr[idx - 1] < n);
-        if (isSorted) passCount++;
-      }
-
-      if (passCount === iterations) {
-        log(`✅ PASS: ${iterations}회 모두 오름차순 정렬`, 'pass');
-      } else {
-        log(`❌ FAIL: ${passCount}/${iterations} 통과`, 'fail');
-      }
-    }
-
-    function testRandomness() {
-      log('═══ Test 5: 랜덤성 검증 (100회) ═══', 'info');
-
-      const iterations = 100;
-      const results = [];
-
-      for (let i = 0; i < iterations; i++) {
-        results.push(generateSingleSet().join(','));
-      }
-
-      const uniqueCombinations = new Set(results).size;
-      const pct = (uniqueCombinations / iterations * 100).toFixed(1);
-
-      log(`고유 조합: ${uniqueCombinations}/${iterations}개 (${pct}%)`, 'info');
-
-      if (pct >= 90) {
-        log(`✅ PASS: 랜덤성 양호 (${pct}% 고유)`, 'pass');
-      } else {
-        log(`❌ FAIL: 랜덤성 부족 (${pct}% 고유)`, 'fail');
-      }
-    }
-
-    function testDistribution() {
-      log('═══ Test 6: 숫자 분포 균등성 (1000회) ═══', 'info');
-
+    /** 분포 통계 시각화 (테스트가 아닌 참고 도구) */
+    function showDistributionStats() {
       const iterations = 1000;
       const frequency = new Array(46).fill(0);
 
@@ -378,22 +273,11 @@
       const counts = frequency.slice(1);
       const total = counts.reduce((a, b) => a + b, 0);
       const average = total / 45;
+      const maxCount = Math.max(...counts);
+      const minCount = Math.min(...counts);
       const variance = counts.reduce((sum, c) => sum + Math.pow(c - average, 2), 0) / 45;
       const stdDev = Math.sqrt(variance);
 
-      const maxCount = Math.max(...counts);
-      const minCount = Math.min(...counts);
-
-      log(`평균: ${average.toFixed(1)}, 표준편차: ${stdDev.toFixed(2)}, 최대: ${maxCount}, 최소: ${minCount}`, 'info');
-
-      const threshold = average * 0.3;
-      if (stdDev <= threshold) {
-        log(`✅ PASS: 분포 균등 (표준편차 ${stdDev.toFixed(2)} <= ${threshold.toFixed(2)})`, 'pass');
-      } else {
-        log(`❌ FAIL: 분포 불균등 (표준편차 ${stdDev.toFixed(2)} > ${threshold.toFixed(2)})`, 'fail');
-      }
-
-      // 통계 카드 표시
       const statsDiv = document.getElementById('stats');
       statsDiv.innerHTML = `
         <div class="stat-card">
@@ -412,176 +296,21 @@
           <div class="stat-label">최소 출현</div>
           <div class="stat-value">${minCount}회</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-label">표준편차</div>
+          <div class="stat-value">${stdDev.toFixed(2)}</div>
+        </div>
       `;
     }
 
     // ============================================================
-    // B. 유틸리티 함수
+    // A. 이력 관리 - DOM 의존 (clearHistory)
     // ============================================================
-
-    function testGenerateUUID() {
-      log('═══ Test 7: generateUUID() 형식 및 유일성 ═══', 'info');
-
-      const uuid = generateUUID();
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-
-      if (uuidRegex.test(uuid)) {
-        log('✅ PASS: UUID v4 형식 일치', 'pass');
-      } else {
-        log(`❌ FAIL: UUID 형식 불일치 ("${uuid}")`, 'fail');
-      }
-
-      // 100개 생성 후 유일성 확인
-      const uuids = new Set();
-      for (let i = 0; i < 100; i++) {
-        uuids.add(generateUUID());
-      }
-
-      if (uuids.size === 100) {
-        log('✅ PASS: 100개 UUID 모두 고유', 'pass');
-      } else {
-        log(`❌ FAIL: 100개 중 ${uuids.size}개만 고유`, 'fail');
-      }
-    }
-
-    // ============================================================
-    // C. 이력 관리 (F-003)
-    // ============================================================
-
-    function testHistorySave() {
-      log('═══ Test 8: saveToHistory() 저장 ═══', 'info');
-      resetFixture();
-
-      const testNumbers = [3, 12, 19, 27, 38, 42];
-      saveToHistory(testNumbers);
-
-      const saved = JSON.parse(localStorage.getItem('lotto_history'));
-
-      if (saved && saved.version === '1.0') {
-        log('✅ PASS: version "1.0" 저장', 'pass');
-      } else {
-        log('❌ FAIL: version 누락 또는 불일치', 'fail');
-      }
-
-      if (saved && saved.history && saved.history.length === 1) {
-        log('✅ PASS: 이력 1개 저장', 'pass');
-      } else {
-        log(`❌ FAIL: 이력 개수 오류 (${saved?.history?.length})`, 'fail');
-      }
-
-      const item = saved.history[0];
-
-      if (item.numbers.join(',') === testNumbers.join(',')) {
-        log('✅ PASS: 숫자 배열 일치', 'pass');
-      } else {
-        log('❌ FAIL: 숫자 배열 불일치', 'fail');
-      }
-
-      if (item.id && typeof item.id === 'string' && item.id.length > 0) {
-        log('✅ PASS: id 자동 생성', 'pass');
-      } else {
-        log('❌ FAIL: id 누락', 'fail');
-      }
-
-      if (item.timestamp && !isNaN(new Date(item.timestamp).getTime())) {
-        log('✅ PASS: timestamp ISO 8601 형식', 'pass');
-      } else {
-        log('❌ FAIL: timestamp 형식 오류', 'fail');
-      }
-
-      if (item.setCount === 1) {
-        log('✅ PASS: setCount 기본값 1', 'pass');
-      } else {
-        log(`❌ FAIL: setCount 기본값 오류 (${item.setCount})`, 'fail');
-      }
-    }
-
-    function testHistoryLoad() {
-      log('═══ Test 9: loadHistory() 로드 및 예외처리 ═══', 'info');
-      resetFixture();
-
-      // 정상 데이터 로드
-      const testData = {
-        version: '1.0',
-        history: [
-          { id: 'test-1', numbers: [1, 2, 3, 4, 5, 6], timestamp: '2026-02-11T10:00:00.000Z', setCount: 1 },
-          { id: 'test-2', numbers: [7, 8, 9, 10, 11, 12], timestamp: '2026-02-11T09:00:00.000Z', setCount: 1 }
-        ]
-      };
-      localStorage.setItem('lotto_history', JSON.stringify(testData));
-
-      const loaded = loadHistory();
-
-      if (loaded.length === 2) {
-        log('✅ PASS: 이력 2개 로드', 'pass');
-      } else {
-        log(`❌ FAIL: 로드 개수 오류 (${loaded.length})`, 'fail');
-      }
-
-      if (loaded[0].id === 'test-1' && loaded[1].id === 'test-2') {
-        log('✅ PASS: 이력 순서 유지', 'pass');
-      } else {
-        log('❌ FAIL: 이력 순서 오류', 'fail');
-      }
-
-      // 잘못된 JSON
-      localStorage.setItem('lotto_history', 'not valid json {{{');
-      if (loadHistory().length === 0) {
-        log('✅ PASS: 잘못된 JSON -> 빈 배열', 'pass');
-      } else {
-        log('❌ FAIL: 잘못된 JSON 예외처리 실패', 'fail');
-      }
-
-      // 잘못된 버전
-      localStorage.setItem('lotto_history', JSON.stringify({ version: '999.0', history: [{}] }));
-      if (loadHistory().length === 0) {
-        log('✅ PASS: 미지원 버전 -> 빈 배열', 'pass');
-      } else {
-        log('❌ FAIL: 버전 검증 실패', 'fail');
-      }
-
-      // 빈 LocalStorage
-      localStorage.removeItem('lotto_history');
-      if (loadHistory().length === 0) {
-        log('✅ PASS: 빈 저장소 -> 빈 배열', 'pass');
-      } else {
-        log('❌ FAIL: 빈 저장소 처리 실패', 'fail');
-      }
-    }
-
-    function testHistoryMaxLimit() {
-      log('═══ Test 10: 이력 최대 20개 제한 ═══', 'info');
-      resetFixture();
-
-      // 25개 저장
-      for (let i = 0; i < 25; i++) {
-        saveToHistory(generateSingleSet());
-      }
-
-      const history = loadHistory();
-
-      if (history.length === 20) {
-        log('✅ PASS: 최대 20개 제한', 'pass');
-      } else {
-        log(`❌ FAIL: ${history.length}개 저장됨`, 'fail');
-      }
-
-      // 최신순 정렬 확인
-      const timestamps = history.map(h => new Date(h.timestamp).getTime());
-      const isSorted = timestamps.every((t, i, arr) => i === 0 || arr[i - 1] >= t);
-
-      if (isSorted) {
-        log('✅ PASS: 최신순 정렬 유지', 'pass');
-      } else {
-        log('❌ FAIL: 정렬 순서 오류', 'fail');
-      }
-    }
 
     function testClearHistory() {
-      log('═══ Test 11: clearHistory() 실제 함수 호출 ═══', 'info');
+      log('═══ Test 1: clearHistory() confirm/alert 동작 ═══', 'info');
       resetFixture();
 
-      // confirm/alert 모킹
       const origConfirm = window.confirm;
       const origAlert = window.alert;
       let alertMsg = '';
@@ -628,108 +357,19 @@
         log('❌ FAIL: confirm 거부 후 이력 변경됨', 'fail');
       }
 
-      // 복원
       window.confirm = origConfirm;
       window.alert = origAlert;
     }
 
-    function testSetCountInHistory() {
-      log('═══ Test 12: setCount 이력 저장 ═══', 'info');
-      resetFixture();
-
-      saveToHistory([1, 2, 3, 4, 5, 6], 3);
-      const history = loadHistory();
-
-      if (history[0].setCount === 3) {
-        log('✅ PASS: setCount=3 저장', 'pass');
-      } else {
-        log(`❌ FAIL: setCount 오류 (${history[0].setCount})`, 'fail');
-      }
-
-      saveToHistory([7, 8, 9, 10, 11, 12]);
-      const history2 = loadHistory();
-
-      if (history2[0].setCount === 1) {
-        log('✅ PASS: setCount 기본값=1', 'pass');
-      } else {
-        log(`❌ FAIL: setCount 기본값 오류 (${history2[0].setCount})`, 'fail');
-      }
-    }
-
     // ============================================================
-    // D. 여러 세트 동시 추첨 (F-004)
+    // B. DOM 연동 (getSelectedSetCount)
     // ============================================================
-
-    function testMultipleSets() {
-      log('═══ Test 13: generateMultipleSets() 기본 동작 ═══', 'info');
-
-      const sets = generateMultipleSets(3);
-
-      if (sets.length === 3) {
-        log('✅ PASS: 3개 세트 생성', 'pass');
-      } else {
-        log(`❌ FAIL: ${sets.length}개 세트`, 'fail');
-      }
-
-      if (sets.every(set => set.length === 6)) {
-        log('✅ PASS: 모든 세트 6개 숫자', 'pass');
-      } else {
-        log('❌ FAIL: 세트 내 숫자 개수 오류', 'fail');
-      }
-
-      if (sets.every(set => set.every((n, i, arr) => i === 0 || arr[i - 1] < n))) {
-        log('✅ PASS: 모든 세트 오름차순 정렬', 'pass');
-      } else {
-        log('❌ FAIL: 정렬 오류', 'fail');
-      }
-
-      if (sets.every(set => new Set(set).size === 6)) {
-        log('✅ PASS: 각 세트 내 중복 없음', 'pass');
-      } else {
-        log('❌ FAIL: 세트 내 중복 발견', 'fail');
-      }
-    }
-
-    function testMultipleSetsBoundary() {
-      log('═══ Test 14: generateMultipleSets() 경계값 (1, 5) ═══', 'info');
-
-      // 최소: 1개
-      const single = generateMultipleSets(1);
-      if (single.length === 1 && single[0].length === 6) {
-        log('✅ PASS: 1세트 생성 정상', 'pass');
-      } else {
-        log('❌ FAIL: 1세트 생성 오류', 'fail');
-      }
-
-      // 최대: 5개
-      const five = generateMultipleSets(5);
-      if (five.length === 5 && five.every(s => s.length === 6)) {
-        log('✅ PASS: 5세트 생성 정상', 'pass');
-      } else {
-        log('❌ FAIL: 5세트 생성 오류', 'fail');
-      }
-
-      // 각 세트가 독립적인지 (100회 중 최소 1회는 다른 조합)
-      const results = [];
-      for (let i = 0; i < 20; i++) {
-        const sets = generateMultipleSets(2);
-        results.push(sets[0].join(',') !== sets[1].join(','));
-      }
-      const hasDifferent = results.some(r => r);
-
-      if (hasDifferent) {
-        log('✅ PASS: 세트 간 독립적 추첨 확인', 'pass');
-      } else {
-        log('❌ FAIL: 20회 중 모든 세트가 동일 (독립성 의심)', 'fail');
-      }
-    }
 
     function testGetSelectedSetCount() {
-      log('═══ Test 15: getSelectedSetCount() DOM 연동 ═══', 'info');
+      log('═══ Test 2: getSelectedSetCount() DOM 연동 ═══', 'info');
 
       const select = document.getElementById('setCount');
 
-      // 기본값 (1)
       select.value = '1';
       if (getSelectedSetCount() === 1) {
         log('✅ PASS: 기본값 1 반환', 'pass');
@@ -737,7 +377,6 @@
         log(`❌ FAIL: 기본값 오류 (${getSelectedSetCount()})`, 'fail');
       }
 
-      // 최대값 (5)
       select.value = '5';
       if (getSelectedSetCount() === 5) {
         log('✅ PASS: 최대값 5 반환', 'pass');
@@ -745,7 +384,6 @@
         log(`❌ FAIL: 최대값 오류 (${getSelectedSetCount()})`, 'fail');
       }
 
-      // 반환 타입이 number인지 확인
       select.value = '3';
       if (typeof getSelectedSetCount() === 'number') {
         log('✅ PASS: number 타입 반환', 'pass');
@@ -753,23 +391,21 @@
         log(`❌ FAIL: 반환 타입 오류 (${typeof getSelectedSetCount()})`, 'fail');
       }
 
-      select.value = '1'; // 복원
+      select.value = '1';
     }
 
     // ============================================================
-    // E. 복사 및 토스트 (F-006)
+    // C. 복사 및 토스트 (F-006)
     // ============================================================
 
     async function testCopyFunction() {
-      log('═══ Test 16: copyToClipboard() ═══', 'info');
+      log('═══ Test 3: copyToClipboard() ═══', 'info');
 
       const testNumbers = [3, 12, 19, 27, 38, 42];
 
-      // Clipboard API 지원 확인
       if (!navigator.clipboard || !navigator.clipboard.writeText) {
         log('⚠️ INFO: Clipboard API 미지원 (HTTPS 필요) - 스킵', 'info');
 
-        // 미지원 시 에러 처리 검증
         const result = await copyToClipboard(testNumbers);
         if (result === false) {
           log('✅ PASS: 미지원 시 false 반환', 'pass');
@@ -788,7 +424,6 @@
           log('❌ FAIL: 복사 실패', 'fail');
         }
 
-        // 클립보드 내용 검증
         const clipText = await navigator.clipboard.readText();
         if (clipText === '3, 12, 19, 27, 38, 42') {
           log('✅ PASS: 클립보드 내용 일치', 'pass');
@@ -796,9 +431,7 @@
           log(`❌ FAIL: 클립보드 내용 불일치 ("${clipText}")`, 'fail');
         }
 
-        // setNumber 파라미터 테스트
         await copyToClipboard(testNumbers, 2);
-        // 토스트 메시지에 "2회차" 포함 확인
         await waitFor(50);
         const toast = document.querySelector('.toast');
         if (toast && toast.textContent.includes('2회차')) {
@@ -810,16 +443,14 @@
         log(`⚠️ INFO: 복사 테스트 제한 (${error.message})`, 'info');
       }
 
-      // 토스트 정리
       document.querySelectorAll('.toast').forEach(t => t.remove());
     }
 
     async function testToastFunction() {
-      log('═══ Test 17: showToast() 동작 ═══', 'info');
+      log('═══ Test 4: showToast() 동작 ═══', 'info');
 
       document.querySelectorAll('.toast').forEach(t => t.remove());
 
-      // success 타입 테스트
       showToast('성공 메시지', 'success', 500);
       await waitFor(50);
 
@@ -843,7 +474,6 @@
         log(`❌ FAIL: 메시지 불일치 ("${toast.textContent}")`, 'fail');
       }
 
-      // 자동 제거 확인 (500ms duration + 300ms animation)
       await waitFor(1000);
 
       if (!document.querySelector('.toast')) {
@@ -852,7 +482,6 @@
         log('❌ FAIL: 토스트 자동 제거 실패', 'fail');
       }
 
-      // error 타입 테스트
       showToast('에러 메시지', 'error', 500);
       await waitFor(50);
 
@@ -863,7 +492,6 @@
         log('❌ FAIL: error 클래스 미적용', 'fail');
       }
 
-      // 연속 호출 시 기존 토스트 교체
       showToast('첫 번째', 'success', 2000);
       showToast('두 번째', 'success', 500);
       await waitFor(50);
@@ -875,17 +503,16 @@
         log(`❌ FAIL: 토스트 교체 오류 (${toasts.length}개 존재)`, 'fail');
       }
 
-      // 정리 대기
       await waitFor(1000);
       document.querySelectorAll('.toast').forEach(t => t.remove());
     }
 
     // ============================================================
-    // F. DOM 렌더링
+    // D. DOM 렌더링
     // ============================================================
 
     function testDisplayMultipleSets() {
-      log('═══ Test 18: displayMultipleSets() DOM 렌더링 ═══', 'info');
+      log('═══ Test 5: displayMultipleSets() DOM 렌더링 ═══', 'info');
       resetFixture();
 
       const testSets = [[1, 5, 12, 23, 34, 45], [2, 10, 20, 30, 40, 44]];
@@ -894,14 +521,12 @@
       const container = document.getElementById('setsContainer');
       const cards = container.querySelectorAll('.set-card');
 
-      // 카드 수
       if (cards.length === 2) {
         log('✅ PASS: 2개 세트 카드 생성', 'pass');
       } else {
         log(`❌ FAIL: ${cards.length}개 카드 (예상: 2)`, 'fail');
       }
 
-      // 라벨
       const labels = container.querySelectorAll('.set-label');
       if (labels[0].textContent === '1회차' && labels[1].textContent === '2회차') {
         log('✅ PASS: 세트 라벨 ("1회차", "2회차")', 'pass');
@@ -909,7 +534,6 @@
         log('❌ FAIL: 세트 라벨 오류', 'fail');
       }
 
-      // 숫자 뱃지
       const firstNumbers = cards[0].querySelectorAll('.number');
       if (firstNumbers.length === 6) {
         log('✅ PASS: 첫 번째 카드 6개 숫자 뱃지', 'pass');
@@ -917,14 +541,12 @@
         log(`❌ FAIL: ${firstNumbers.length}개 뱃지`, 'fail');
       }
 
-      // textContent 사용 확인 (XSS 안전)
       if (firstNumbers[0].textContent === '1' && firstNumbers[5].textContent === '45') {
         log('✅ PASS: textContent로 숫자 설정 (XSS 안전)', 'pass');
       } else {
         log('❌ FAIL: 숫자 표시 오류', 'fail');
       }
 
-      // 복사 버튼
       const copyBtns = container.querySelectorAll('.copy-btn');
       if (copyBtns.length === 2) {
         log('✅ PASS: 각 카드에 복사 버튼', 'pass');
@@ -932,7 +554,6 @@
         log(`❌ FAIL: 복사 버튼 ${copyBtns.length}개`, 'fail');
       }
 
-      // 재호출 시 기존 내용 초기화 확인
       displayMultipleSets([[1, 2, 3, 4, 5, 6]]);
       if (container.querySelectorAll('.set-card').length === 1) {
         log('✅ PASS: 재호출 시 기존 내용 초기화', 'pass');
@@ -942,13 +563,12 @@
     }
 
     function testDisplayHistory() {
-      log('═══ Test 19: displayHistory() DOM 렌더링 ═══', 'info');
+      log('═══ Test 6: displayHistory() DOM 렌더링 ═══', 'info');
       resetFixture();
 
       const historyList = document.getElementById('historyList');
       historyList.classList.remove('hidden');
 
-      // 빈 이력 표시
       displayHistory();
       const emptyMsg = historyList.querySelector('.history-empty');
       if (emptyMsg && emptyMsg.textContent === '아직 추첨 이력이 없습니다.') {
@@ -957,7 +577,6 @@
         log('❌ FAIL: 빈 이력 메시지 미표시', 'fail');
       }
 
-      // 이력 저장 후 표시
       const testData = {
         version: '1.0',
         history: [
@@ -975,7 +594,6 @@
         log(`❌ FAIL: ${items.length}개 렌더링`, 'fail');
       }
 
-      // 숫자 표시 확인
       const numbersText = items[0].querySelector('.history-numbers').textContent;
       if (numbersText === '3, 12, 19, 27, 38, 42') {
         log('✅ PASS: 숫자 표시 정상', 'pass');
@@ -983,7 +601,6 @@
         log(`❌ FAIL: 숫자 표시 오류 ("${numbersText}")`, 'fail');
       }
 
-      // 시간 표시 확인
       const timeText = items[0].querySelector('.history-time').textContent;
       if (timeText.includes('2026')) {
         log('✅ PASS: 시간 포맷 포함 (연도)', 'pass');
@@ -991,7 +608,6 @@
         log(`❌ FAIL: 시간 포맷 오류 ("${timeText}")`, 'fail');
       }
 
-      // setCount > 1일 때 "N세트 중" 표시
       const timeText2 = items[1].querySelector('.history-time').textContent;
       if (timeText2.includes('3세트 중')) {
         log('✅ PASS: setCount 표시 ("3세트 중")', 'pass');
@@ -1001,13 +617,12 @@
     }
 
     function testToggleHistoryView() {
-      log('═══ Test 20: toggleHistoryView() 토글 동작 ═══', 'info');
+      log('═══ Test 7: toggleHistoryView() 토글 동작 ═══', 'info');
       resetFixture();
 
       const historyList = document.getElementById('historyList');
       const toggleText = document.getElementById('historyToggleText');
 
-      // 초기 상태: hidden
       if (historyList.classList.contains('hidden')) {
         log('✅ PASS: 초기 상태 hidden', 'pass');
       } else {
@@ -1020,7 +635,6 @@
         log(`❌ FAIL: 초기 텍스트 오류 ("${toggleText.textContent}")`, 'fail');
       }
 
-      // 토글 1회: 열기
       toggleHistoryView();
 
       if (!historyList.classList.contains('hidden')) {
@@ -1035,7 +649,6 @@
         log(`❌ FAIL: 토글 후 텍스트 오류 ("${toggleText.textContent}")`, 'fail');
       }
 
-      // 토글 2회: 닫기
       toggleHistoryView();
 
       if (historyList.classList.contains('hidden')) {
@@ -1052,76 +665,17 @@
     }
 
     // ============================================================
-    // G. 번호 제외 (F-005)
+    // E. 번호 제외 UI (F-005)
     // ============================================================
 
-    function testExcludeBasic() {
-      log('═══ Test 22: generateSingleSet(excludedNumbers) 제외 동작 ═══', 'info');
-
-      const excluded = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-      let allExcluded = true;
-
-      for (let i = 0; i < 100; i++) {
-        const numbers = generateSingleSet(excluded);
-        if (numbers.some(n => excluded.includes(n))) {
-          allExcluded = false;
-          break;
-        }
-      }
-
-      if (allExcluded) {
-        log('✅ PASS: 100회 추첨 중 제외 번호 미출현', 'pass');
-      } else {
-        log('❌ FAIL: 제외된 번호가 결과에 포함됨', 'fail');
-      }
-
-      // 제외 없을 때 기존 동작과 동일
-      const noExclude = generateSingleSet([]);
-      if (noExclude.length === 6 && noExclude.every(n => n >= 1 && n <= 45)) {
-        log('✅ PASS: 빈 제외 배열 -> 기존 동작 동일', 'pass');
-      } else {
-        log('❌ FAIL: 빈 제외 배열 동작 오류', 'fail');
-      }
-
-      // 제외 후에도 6개 생성, 오름차순, 중복 없음
-      const result = generateSingleSet([10, 20, 30, 40]);
-      if (result.length === 6) {
-        log('✅ PASS: 제외 후에도 6개 생성', 'pass');
-      } else {
-        log(`❌ FAIL: ${result.length}개 생성`, 'fail');
-      }
-
-      const isSorted = result.every((n, i, arr) => i === 0 || arr[i - 1] < n);
-      if (isSorted && new Set(result).size === 6) {
-        log('✅ PASS: 제외 후 오름차순 + 중복 없음', 'pass');
-      } else {
-        log('❌ FAIL: 정렬/중복 오류', 'fail');
-      }
-    }
-
-    function testExcludeMultipleSets() {
-      log('═══ Test 23: generateMultipleSets() 제외 전달 ═══', 'info');
-
-      const excluded = [1, 2, 3, 4, 5];
-      const sets = generateMultipleSets(3, excluded);
-
-      const allExcluded = sets.every(set => set.every(n => !excluded.includes(n)));
-      if (allExcluded) {
-        log('✅ PASS: 여러 세트 모두 제외 번호 미포함', 'pass');
-      } else {
-        log('❌ FAIL: 일부 세트에 제외 번호 포함', 'fail');
-      }
-    }
-
     function testExcludeUI() {
-      log('═══ Test 24: toggleExcludeView() 및 UI 동작 ═══', 'info');
+      log('═══ Test 8: toggleExcludeView() 및 UI 동작 ═══', 'info');
       resetFixture();
 
       const panel = document.getElementById('excludePanel');
       const toggleText = document.getElementById('excludeToggleText');
       const grid = document.getElementById('excludeGrid');
 
-      // 토글 열기
       toggleExcludeView();
 
       if (!panel.classList.contains('hidden')) {
@@ -1142,9 +696,8 @@
         log(`❌ FAIL: ${grid.children.length}개 버튼`, 'fail');
       }
 
-      // 버튼 클릭으로 제외 토글
-      grid.children[0].click(); // 1번 제외
-      grid.children[1].click(); // 2번 제외
+      grid.children[0].click();
+      grid.children[1].click();
 
       const excluded = getExcludedNumbers();
       if (excluded.length === 2 && excluded.includes(1) && excluded.includes(2)) {
@@ -1153,7 +706,6 @@
         log(`❌ FAIL: 제외 결과 오류 ([${excluded}])`, 'fail');
       }
 
-      // 카운터 업데이트 확인
       const countText = document.getElementById('excludeCount').textContent;
       const remainText = document.getElementById('remainCount').textContent;
       if (countText === '제외: 2개' && remainText === '남은 번호: 43개') {
@@ -1162,7 +714,6 @@
         log(`❌ FAIL: 카운터 오류 ("${countText}", "${remainText}")`, 'fail');
       }
 
-      // 토글 닫기
       toggleExcludeView();
       if (panel.classList.contains('hidden')) {
         log('✅ PASS: 재토글 후 패널 숨김', 'pass');
@@ -1172,10 +723,9 @@
     }
 
     function testExcludeReset() {
-      log('═══ Test 25: resetExcludedNumbers() 초기화 ═══', 'info');
+      log('═══ Test 9: resetExcludedNumbers() 초기화 ═══', 'info');
       resetFixture();
 
-      // 패널 열기 및 번호 제외
       toggleExcludeView();
       const grid = document.getElementById('excludeGrid');
       grid.children[0].click();
@@ -1188,7 +738,6 @@
         log('❌ FAIL: 제외 설정 오류', 'fail');
       }
 
-      // 초기화
       resetExcludedNumbers();
 
       if (getExcludedNumbers().length === 0) {
@@ -1206,14 +755,13 @@
     }
 
     function testExcludeWarning() {
-      log('═══ Test 26: 제외 39개 초과 시 경고 ═══', 'info');
+      log('═══ Test 10: 제외 39개 초과 시 경고 ═══', 'info');
       resetFixture();
 
       toggleExcludeView();
       const grid = document.getElementById('excludeGrid');
       const warning = document.getElementById('excludeWarning');
 
-      // 40개 제외 (남은 5개 < 6)
       for (let i = 0; i < 40; i++) {
         grid.children[i].click();
       }
@@ -1224,7 +772,6 @@
         log('❌ FAIL: 경고 미표시', 'fail');
       }
 
-      // 1개 해제 (남은 6개 >= 6)
       grid.children[39].click();
 
       if (warning.classList.contains('hidden')) {
@@ -1235,11 +782,11 @@
     }
 
     // ============================================================
-    // H. 통합 테스트
+    // F. 통합 테스트
     // ============================================================
 
     function testGenerateLottoNumbers() {
-      log('═══ Test 27: generateLottoNumbers() 통합 ═══', 'info');
+      log('═══ Test 11: generateLottoNumbers() 통합 ═══', 'info');
       resetFixture();
 
       const select = document.getElementById('setCount');
@@ -1291,7 +838,6 @@
         log('❌ FAIL: setCount 불일치', 'fail');
       }
 
-      // 각 카드의 숫자가 유효한지 확인
       const allValid = Array.from(cards3).every(card => {
         const nums = Array.from(card.querySelectorAll('.number')).map(el => parseInt(el.textContent));
         return nums.length === 6 &&
@@ -1305,7 +851,7 @@
         log('❌ FAIL: 일부 카드 숫자 검증 실패', 'fail');
       }
 
-      select.value = '1'; // 복원
+      select.value = '1';
     }
 
     // ============================================================
@@ -1315,50 +861,34 @@
     async function runAllTests() {
       clearResults();
       resetFixture();
-      log('🚀 자동 테스트 시작 (v2 - 실제 코드 검증)', 'info');
+      log('🚀 DOM/UI 테스트 시작 (순수 로직은 CLI: node --test test/test-logic.js)', 'info');
       logSeparator();
 
-      // A. 핵심 생성 로직
-      testBasicGeneration();       logSeparator();
-      testNumberRange();           logSeparator();
-      testNoDuplicates();          logSeparator();
-      testSorting();               logSeparator();
-      testRandomness();            logSeparator();
-      testDistribution();          logSeparator();
-
-      // B. 유틸리티
-      testGenerateUUID();          logSeparator();
-
-      // C. 이력 관리
-      testHistorySave();           logSeparator();
-      testHistoryLoad();           logSeparator();
-      testHistoryMaxLimit();       logSeparator();
+      // A. 이력 관리 - DOM 의존
       testClearHistory();          logSeparator();
-      testSetCountInHistory();     logSeparator();
 
-      // D. 여러 세트
-      testMultipleSets();          logSeparator();
-      testMultipleSetsBoundary();  logSeparator();
+      // B. DOM 연동
       testGetSelectedSetCount();   logSeparator();
 
-      // E. 복사 및 토스트 (async)
+      // C. 복사 및 토스트 (async)
       await testCopyFunction();    logSeparator();
       await testToastFunction();   logSeparator();
 
-      // F. DOM 렌더링
+      // D. DOM 렌더링
       testDisplayMultipleSets();   logSeparator();
       testDisplayHistory();        logSeparator();
       testToggleHistoryView();     logSeparator();
 
-      // G. 번호 제외 (F-005)
-      testExcludeBasic();          logSeparator();
-      testExcludeMultipleSets();   logSeparator();
+      // E. 번호 제외 UI
       testExcludeUI();             logSeparator();
       testExcludeReset();          logSeparator();
       testExcludeWarning();        logSeparator();
 
-      // H. 통합
+      // F. 통합
       testGenerateLottoNumbers();  logSeparator();
+
+      // 분포 통계 시각화
+      showDistributionStats();
 
       // 정리 & 요약
       resetFixture();

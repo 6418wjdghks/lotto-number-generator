@@ -446,10 +446,10 @@ saveToHistory(sets[0]) (각 세트 개별 저장)
 
 ## 🧪 테스트
 
-2계층 자동 테스트 (CLI 22개 + 브라우저 27개, 100% 커버리지) 상세: `test/README.md` 참조
+2계층 자동 테스트 (CLI 23개 + 브라우저 11개, 중복 없음, 100% 커버리지) 상세: `test/README.md` 참조
 
-- **CLI**: `node --test test/test-logic.js` (Node.js 18+, 외부 의존성 없음)
-- **브라우저**: `test/test.html` (DOM/UI 포함 전체 테스트)
+- **CLI**: `node --test test/test-logic.js` — 순수 로직 (Node.js 18+, 외부 의존성 없음)
+- **브라우저**: `test/test.html` — DOM/UI 전용 테스트
 
 ---
 

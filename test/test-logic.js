@@ -74,6 +74,21 @@ describe('generateSingleSet()', () => {
     assert.ok(results.size >= 90, `고유 조합 ${results.size}/100`);
   });
 
+  it('분포가 균등하다 (1000회 표준편차 검증)', () => {
+    const iterations = 1000;
+    const frequency = new Array(46).fill(0);
+    for (let i = 0; i < iterations; i++) {
+      generateSingleSet().forEach(n => frequency[n]++);
+    }
+    const counts = frequency.slice(1);
+    const total = counts.reduce((a, b) => a + b, 0);
+    const average = total / 45;
+    const variance = counts.reduce((sum, c) => sum + Math.pow(c - average, 2), 0) / 45;
+    const stdDev = Math.sqrt(variance);
+    const threshold = average * 0.3;
+    assert.ok(stdDev <= threshold, `분포 불균등 (stdDev ${stdDev.toFixed(2)} > ${threshold.toFixed(2)})`);
+  });
+
   it('제외된 번호가 결과에 포함되지 않는다', () => {
     const excluded = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     for (let i = 0; i < 100; i++) {
