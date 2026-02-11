@@ -6,57 +6,14 @@
 
 - **GitHub**: https://github.com/6418wjdghks/lotto-number-generator
 - **기술 스택**: HTML5, CSS3, Vanilla JavaScript (프레임워크 금지)
-- **배포**: GitHub Pages (예정)
-
----
-
-## 현재 상태 & 다음 작업
-
-```
-Phase 1: 개발 환경 설정     ████████████████████ 100%
-Phase 2: 핵심 기능 구현     ████████████████████ 100%
-Phase 3: 기능 확장 및 개선  ████████████████████ 100%
-Phase 4: Supabase 백엔드    ████████░░░░░░░░░░░░  40%
-```
-
-**Phase 4 진행 중** (4.1~4.3: 인증 + 이력 API):
-- ✅ Step 2: `js/supabase-config.js` 생성 (REST API 래퍼)
-- ✅ Step 3: `index.html` 인증 UI 추가
-- ✅ Step 4: `js/app.js` 듀얼 모드 + 인증 핸들러
-- ✅ Step 5: `css/style.css` 인증 CSS 추가
-- ⬜ Step 1: Supabase 프로젝트 생성 + 테이블/RLS 설정 (사용자 수동)
-
-**다음**: Supabase 대시보드에서 프로젝트 생성 후 `js/supabase-config.js`의 URL/KEY 교체
-
----
-
-## 파일 구조
-
-```
-HelloClaude/
-├── index.html             # 메인 HTML
-├── css/style.css          # 스타일시트
-├── js/supabase-config.js  # Supabase REST API 래퍼 (config, auth, history)
-├── js/app.js              # JavaScript 로직 (CLAUDE.md API 테이블 참조)
-├── docs/                  # 프로젝트 문서 (아래 참조 가이드)
-│   ├── plan.md            # 진행 상황, 액션 아이템
-│   ├── spec.md            # 기능 명세 (F-001~F-006), API, 데이터 구조
-│   ├── design.md          # 디자인 시스템, CSS 명세
-│   ├── tech.md            # 기술 스택, 아키텍처, 성능
-│   ├── decisions.md       # 설계 결정 기록 (ADR)
-│   └── phase4-architecture.md  # Phase 4 기술 설계 (아키텍처, DB, API)
-├── test/
-│   ├── test.html          # 브라우저 DOM/UI 테스트 (11개)
-│   ├── test-logic.js      # Node.js CLI 순수 로직 테스트 (23개)
-│   └── README.md          # 테스트 상세 문서
-└── .claude/plugins/local/git-helper/  # Git 검증 스킬
-```
+- **현재 상태**: Phase 4 코드 완료, Supabase 설정 대기 → `docs/plan.md` 참조
+- **파일 구조**: `docs/tech.md` 참조
 
 ---
 
 ## JavaScript API 요약 (`js/app.js`)
 
-상세 명세: `docs/spec.md` 참조
+상세 명세: `docs/tech.md` 참조
 
 | 함수 | 설명 |
 |------|------|
@@ -87,95 +44,37 @@ HelloClaude/
 | `updateAuthUI()` | 로그인/비로그인 UI 상태 반영 |
 | `initApp()` | 페이지 로드 시 세션 확인 및 UI 초기화 |
 
----
-
-## Supabase REST API 요약 (`js/supabase-config.js`)
-
-전역 객체 `window.supabase`로 노출. 상세 명세: `docs/spec.md` F-007 참조.
-
-| 함수 | 설명 |
-|------|------|
-| `getSession()` | LocalStorage에서 세션(토큰/유저) 반환 |
-| `saveSession(data)` | 세션 LocalStorage 저장 |
-| `clearSession()` | 세션 삭제 |
-| `isLoggedIn()` | 로그인 여부 (세션 존재 + access_token 유무) |
-| `signUp(email, password)` | (async) 회원가입 (`/auth/v1/signup`) |
-| `signIn(email, password)` | (async) 로그인 (`/auth/v1/token?grant_type=password`) |
-| `signOut()` | (async) 로그아웃 (`/auth/v1/logout`) + 세션 삭제 |
-| `getUser()` | (async) 현재 사용자 정보 (`/auth/v1/user`) |
-| `fetchHistory(limit)` | (async) 이력 조회 (`/rest/v1/lottery_history`) |
-| `insertHistory(numbers, setCount)` | (async) 이력 저장 (POST) |
-| `deleteAllHistory()` | (async) 전체 이력 삭제 (DELETE) |
-
-설정값: `SUPABASE_URL`, `SUPABASE_ANON_KEY` (플레이스홀더 — Supabase 프로젝트 생성 후 교체 필요)
+Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 ---
 
 ## 개발 워크플로우
 
-### 작업 프로세스 (3단계)
-
-**1단계: 준비 (작업 시작 전)**
-1. CLAUDE.md로 프로젝트 상태 파악 (자동 로드)
-2. 작업 관련 문서 읽기 (아래 문서 업데이트 매트릭스 참조)
-3. `git log --oneline -5`로 최근 변경 확인
-
-**2단계: 구현**
-1. 기능 구현
-2. 테스트 (순수 로직: `node --test test/test-logic.js`, DOM/UI: `test/test.html`)
-
-**3단계: 마무리**
-1. 명세-구현 검증:
-   - 변경/추가한 함수의 시그니처가 spec.md와 일치하는가?
-   - 변경한 CSS/레이아웃이 design.md와 일치하는가?
-   - 추가/삭제한 파일이 tech.md 파일 구조에 반영되었는가?
-2. 문서 업데이트 (아래 매트릭스에 따라, ADR 포함)
-3. 작업 결과 요약 및 검토
-4. 사용자 승인 후 커밋 & 푸시
+**1단계 준비**: CLAUDE.md 확인 → 관련 문서 읽기 → `git log --oneline -5`
+**2단계 구현**: 기능 구현 → 테스트 (`node --test test/test-logic.js`, `test/test.html`)
+**3단계 마무리**: 명세-구현 검증 → 문서 업데이트 → 결과 요약 → 사용자 승인 후 커밋
 
 ### 문서 업데이트 매트릭스
 
-| 변경 유형 | 읽을 문서 (준비) | 업데이트할 문서 (마무리) |
-|-----------|-----------------|----------------------|
-| 기능 추가/변경 | spec.md, design.md | spec.md, plan.md, CLAUDE.md (API 테이블), design.md (UI 수반 시), tech.md (파일/API 추가 시) |
-| UI/디자인 변경 | design.md | design.md |
-| 아키텍처/기술 변경 | tech.md | tech.md |
-| 설계 결정 (대안 비교) | decisions.md | decisions.md (새 ADR) |
-| 테스트 추가 | test/README.md | test/README.md, test-logic.js 또는 test.html |
-| Phase/Step 완료 | plan.md | plan.md, CLAUDE.md (상태 바), spec.md (상태 필드) |
+| 변경 유형 | 업데이트할 문서 |
+|-----------|---------------|
+| 기능 추가/변경 | spec.md, plan.md, CLAUDE.md (API 테이블), tech.md (API 상세) |
+| UI/디자인 변경 | design.md |
+| 설계 결정 (대안 비교) | decisions.md (새 ADR) |
+| 테스트 추가 | test/README.md |
+| Phase/Step 완료 | plan.md |
 
 ### 파생 수치 단일 소스 규칙
 
-코드에서 파생되는 수치는 단일 소스에만 기록한다. 다른 문서에서는 수치 대신 참조 링크를 사용한다.
-
-| 수치 | 단일 소스 | 다른 문서 |
-|------|----------|---------|
-| 함수 목록/수 | CLAUDE.md API 테이블 | "CLAUDE.md 참조" |
-| 테스트 수/항목 | test/README.md | "test/README.md 참조" |
-| 파일 줄 수 | 기록하지 않음 | - |
-
-### ADR 작성 기준 (`decisions.md`)
-
-다음 중 하나에 해당하면 새 ADR 기록:
-- 2개 이상의 대안을 비교한 경우
-- 나중에 "왜 이렇게 했지?"라고 물을 수 있는 경우
-- 제약사항이나 한계를 의식적으로 수용한 경우
+| 수치 | 단일 소스 |
+|------|----------|
+| 함수 목록/수 | CLAUDE.md API 테이블 |
+| 테스트 수/항목 | test/README.md |
 
 ### Git 정책
 
-**커밋 절차**:
-- ⚠️ 작업 완료 후 바로 커밋하지 않음
-- 결과 요약 후 "커밋 및 푸시할까요?" 라고 물어보기
-- 사용자 승인 후에만 git 명령어 실행
-
-**커밋 메시지 형식**:
-```
-feat|fix|refactor|docs|test|style: 설명
-
-상세 내용
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-```
+- 결과 요약 후 "커밋 및 푸시할까요?" 확인 → 사용자 승인 후에만 실행
+- 형식: `feat|fix|refactor|docs|test|style: 설명` + `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
 
 ---
 
@@ -193,7 +92,6 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 1. **순수 JavaScript만 사용** - 프레임워크/라이브러리 금지 (Supabase는 REST API로 연동)
 2. **모바일 반응형** - 480px 이하에서도 작동
 3. **단순성 우선** - 복잡한 구조 피하기, 기존 코드 스타일 유지
-4. **브라우저/성능 상세**: `docs/tech.md` 참조
 
 ---
 
@@ -201,10 +99,10 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
 | 찾고 싶은 정보 | 참조 문서 |
 |---------------|----------|
-| 기능 명세, API 상세, 데이터 구조 | `docs/spec.md` |
+| 기능 명세 (제품 관점) | `docs/spec.md` |
+| JavaScript API 상세, 데이터 구조, 기술 스택 | `docs/tech.md` |
 | Phase 진행 상황, 액션 아이템 | `docs/plan.md` |
-| 색상, 타이포그래피, CSS 클래스, 레이아웃 | `docs/design.md` |
-| 기술 스택, 브라우저 호환성, 성능 목표, 아키텍처 | `docs/tech.md` |
+| 색상, 타이포그래피, 컴포넌트 명세, 레이아웃 | `docs/design.md` |
 | 테스트 항목, 커버리지, 실행 방법 | `test/README.md` |
 | 설계 결정 사유 (왜 이렇게 했는지) | `docs/decisions.md` |
 | Phase 4 기술 설계 (아키텍처, DB, API) | `docs/phase4-architecture.md` |

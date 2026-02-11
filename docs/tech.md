@@ -1,110 +1,194 @@
 # 로또번호 추첨기 - 기술 명세서
 
-## 📋 문서 정보
-
-- **버전**: 2.0.0
-- **작성일**: 2026-02-11
-- **최종 수정**: 2026-02-12
-- **상태**: Phase 4 진행 중
+**버전**: 3.0.0 | **최종 수정**: 2026-02-12 | **상태**: Phase 4 진행 중
 
 ---
 
-## 🛠️ 기술 스택
+## 기술 스택
 
-### 프론트엔드
-
-#### HTML
-- **버전**: HTML5
-- **문서 타입**: `<!DOCTYPE html>`
-- **언어**: 한국어 (`lang="ko"`)
-- **인코딩**: UTF-8
-- **뷰포트**: `width=device-width, initial-scale=1.0`
-
-#### CSS
-- **버전**: CSS3
-- **접근 방식**: 외부 스타일시트 (`css/style.css`)
-- **레이아웃 기술**:
-  - Flexbox (메인 레이아웃)
-  - Grid (Phase 3 - 여러 세트 표시)
-- **애니메이션**: CSS Keyframes, Transitions
-- **전처리기**: 없음 (순수 CSS)
-
-#### JavaScript
-- **버전**: ES6+ (ES2015 이상)
-- **스타일**: Vanilla JavaScript (프레임워크 없음)
-- **모듈 시스템**: 외부 스크립트 파일 (`js/app.js`)
-- **빌드 도구**: 없음
-
-### 개발 도구
-
-| 도구 | 용도 |
-|------|------|
-| Git | 버전 관리 |
-| VS Code | 코드 편집 (권장) |
-| Chrome DevTools | 디버깅 |
-| Lighthouse | 성능 측정 |
-
-### 백엔드 (Phase 4)
-- **BaaS**: Supabase (REST API 직접 호출, SDK 미사용)
-- **인증**: Supabase Auth (이메일/비밀번호)
-- **데이터베이스**: Supabase PostgreSQL (`lottery_history` 테이블)
-- **API 패턴**: 순수 `fetch()` + Supabase REST API
-
-### 배포
-- **호스팅**: GitHub Pages (예정)
-- **CI/CD**: 없음 (정적 파일)
-- **도메인**: `[username].github.io/[repo-name]`
+- **Frontend**: HTML5, CSS3 (Flexbox + Grid), Vanilla JavaScript (ES6+)
+- **백엔드 (Phase 4)**: Supabase REST API 직접 호출 (SDK 미사용, ADR-016)
+- **배포**: GitHub Pages (`[username].github.io/[repo-name]`)
+- **의존성**: 외부 없음. Supabase REST API만 사용
 
 ---
 
-## 📊 아키텍처
-
-### 파일 구조
+## 파일 구조
 
 ```
 HelloClaude/
-├── index.html              # 메인 HTML 파일
-├── css/
-│   └── style.css          # 스타일시트
+├── index.html              # 메인 HTML
+├── css/style.css           # 스타일시트
 ├── js/
-│   ├── supabase-config.js # Supabase REST API 래퍼 (config, auth, history)
-│   └── app.js             # JavaScript 로직 (CLAUDE.md API 테이블 참조)
+│   ├── supabase-config.js  # Supabase REST API 래퍼
+│   └── app.js              # JavaScript 로직
 ├── docs/                   # 프로젝트 문서
-│   ├── plan.md            # 프로젝트 계획서
-│   ├── spec.md            # 기능 명세서
-│   ├── design.md          # 디자인 명세서
-│   ├── tech.md            # 기술 명세서 (본 문서)
-│   ├── decisions.md       # 설계 결정 기록 (ADR)
-│   └── phase4-architecture.md  # Phase 4 기술 설계
+│   ├── plan.md             # 진행 상황
+│   ├── spec.md             # 기능 명세 (제품)
+│   ├── design.md           # 디자인 시스템
+│   ├── tech.md             # 기술 명세 (본 문서)
+│   ├── decisions.md        # ADR (활성)
+│   ├── decisions_001_010.md # ADR 아카이브
+│   └── phase4-architecture.md # Phase 4 설계
 ├── test/
-│   ├── test.html          # 브라우저 DOM/UI 테스트
-│   ├── test-logic.js      # Node.js CLI 순수 로직 테스트
-│   └── README.md          # 테스트 문서 (테스트 수/항목 단일 소스)
-├── .claude/               # Claude Code 설정
-│   └── plugins/local/git-helper/
-├── README.md              # 프로젝트 설명
-└── .gitignore             # Git 제외 파일
+│   ├── test.html           # 브라우저 테스트
+│   ├── test-logic.js       # CLI 테스트
+│   └── README.md           # 테스트 문서
+└── .claude/                # Claude Code 설정
 ```
-
-### 아키텍처 패턴
-- **패턴**: 관심사 분리 (Separation of Concerns)
-- **구조**: HTML, CSS, JavaScript 파일 분리
-- **이유**:
-  - 코드 가독성 및 유지보수성 향상
-  - 각 파일이 단일 책임을 가짐
-  - 협업 시 충돌 최소화
-  - 재사용 가능성 증가
 
 ---
 
-## 🔧 핵심 알고리즘
+## 아키텍처
 
-### Fisher-Yates Shuffle
+**패턴**: 관심사 분리 (HTML/CSS/JS 파일 분리)
+- 구조(HTML), 표현(CSS), 동작(JS) 독립 수정 가능
+- CSS/JS 별도 캐시, 협업 충돌 최소화
 
-#### 설명
-배열을 무작위로 섞는 알고리즘으로, 완전한 균등 분포를 보장합니다.
+---
 
-#### 구현
+## JavaScript API (`js/app.js`)
+
+> 함수 요약: CLAUDE.md API 테이블 참조. 아래는 상세 명세.
+
+### 핵심 생성 함수
+
+**`generateSingleSet(excludedNumbers = [])`**
+- **반환**: `Array<number>` — 6개 숫자, 1~45, 오름차순
+- **알고리즘**: Fisher-Yates 셔플 → 앞 6개 추출 → sort
+- **제외**: `excludedNumbers` 배열의 번호를 1~45에서 제거 후 셔플
+
+**`generateMultipleSets(count, excludedNumbers = [])`**
+- **매개변수**: `count` (1~5)
+- **반환**: `Array<Array<number>>` — count개 세트
+
+**`getSelectedSetCount()`**
+- **반환**: `number` — `#setCount` 드롭다운 값
+
+**`generateLottoNumbers()`**
+- 메인 진입점. `getSelectedSetCount()` → `generateMultipleSets()` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
+
+### 표시 함수
+
+**`displayMultipleSets(sets)`**
+- 기존 DOM 초기화 → 각 세트 카드(라벨/뱃지/복사버튼) 생성 → 순차 애니메이션
+
+**`displayHistory()`** (async)
+- `loadHistory()` → DOM 렌더링, 빈 상태 처리
+
+**`showToast(message, type = 'success', duration = 2000)`**
+- 토스트 메시지 생성, `duration`ms 후 자동 제거. type: `'success'` | `'error'`
+
+### 이력 함수 (듀얼 모드)
+
+**`saveToHistory(numbers, setCount = 1)`** (async)
+- 로그인 → `supabase.insertHistory()`, 비로그인 → `saveToHistoryLocal()`
+
+**`loadHistory()`** (async)
+- 로그인 → `supabase.fetchHistory()`, 비로그인 → `loadHistoryLocal()`
+- **반환**: `Array<HistoryItem>`
+
+**`clearHistory()`** (async)
+- confirm 후 로그인 → `supabase.deleteAllHistory()`, 비로그인 → `clearHistoryLocal()`
+
+**`saveToHistoryLocal(numbers, setCount = 1)`**
+- LocalStorage에 JSON 저장. id(UUID), timestamp(ISO 8601) 자동 생성. 최대 20개 FIFO.
+
+**`loadHistoryLocal()`**
+- **반환**: `Array<HistoryItem>` — 에러 시 빈 배열
+
+**`clearHistoryLocal()`** — LocalStorage 이력 삭제
+
+**`toggleHistoryView()`** — 이력 영역 표시/숨김 토글
+
+### 제외 함수
+
+**`getExcludedNumbers()`** → `Array<number>` — `.exclude-btn.excluded` 버튼의 숫자 수집
+
+**`toggleExcludeView()`** — 패널 토글, 최초 열기 시 45개 버튼 그리드 생성
+
+**`updateExcludeCount()`** — 제외/남은 카운터 업데이트, 경고 표시
+
+**`resetExcludedNumbers()`** — 모든 제외 해제, 카운터 리셋
+
+### 복사 / 유틸리티
+
+**`copyToClipboard(numbers, setNumber = null)`** → `Promise<boolean>`
+- Clipboard API 사용. 형식: `"3, 12, 19, 27, 38, 42"`
+
+**`generateUUID()`** → `string` — UUID v4 (`Math.random()` 기반)
+
+### 인증 함수 (Phase 4)
+
+**`toggleAuthForm()`** — 로그인 폼 토글
+**`handleSignIn()`** (async) — 로그인 + UI 전환
+**`handleSignUp()`** (async) — 회원가입
+**`handleSignOut()`** (async) — 로그아웃 + UI 전환
+**`updateAuthUI()`** — 로그인/비로그인 UI 상태 반영
+**`initApp()`** — 페이지 로드 시 세션 확인 + UI 초기화
+
+---
+
+## Supabase REST API (`js/supabase-config.js`)
+
+전역 객체 `window.supabase`로 노출. 설정: `SUPABASE_URL`, `SUPABASE_ANON_KEY` (플레이스홀더).
+
+| 함수 | 설명 |
+|------|------|
+| `getSession()` | LocalStorage에서 세션(토큰/유저) 반환 |
+| `saveSession(data)` | 세션 저장 |
+| `clearSession()` | 세션 삭제 |
+| `isLoggedIn()` | 세션 존재 + access_token 유무 |
+| `signUp(email, password)` | (async) `/auth/v1/signup` |
+| `signIn(email, password)` | (async) `/auth/v1/token?grant_type=password` |
+| `signOut()` | (async) `/auth/v1/logout` + 세션 삭제 |
+| `getUser()` | (async) `/auth/v1/user` |
+| `fetchHistory(limit)` | (async) `/rest/v1/lottery_history` 조회 |
+| `insertHistory(numbers, setCount)` | (async) 이력 POST |
+| `deleteAllHistory()` | (async) 전체 이력 DELETE |
+
+---
+
+## 데이터 구조
+
+### LocalStorage — 이력 (`lotto_history`)
+
+```json
+{
+  "version": "1.0",
+  "history": [
+    {
+      "id": "uuid-v4",
+      "numbers": [3, 12, 19, 27, 38, 42],
+      "timestamp": "2026-02-11T10:30:00.000Z",
+      "setCount": 1
+    }
+  ]
+}
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `version` | string | 데이터 포맷 버전 |
+| `id` | string | UUID v4 |
+| `numbers` | number[] | 6개, 1~45, 오름차순 |
+| `timestamp` | string | ISO 8601 |
+| `setCount` | number | 동시 추첨 세트 수 |
+
+### LocalStorage — 세션 (`supabase_session`)
+
+인증 세션 (access_token, user 정보). `supabase-config.js`가 관리.
+
+### Supabase DB
+
+DB 스키마 상세: `docs/phase4-architecture.md` 참조.
+- `lottery_history`: 서버 측 추첨 이력 (user_id, numbers, set_count, created_at)
+- `lottery_results`, `winning_history`, `users`: Phase 4 후반 구현 예정
+
+---
+
+## 핵심 알고리즘: Fisher-Yates Shuffle
+
 ```javascript
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -115,292 +199,48 @@ function shuffleArray(array) {
 }
 ```
 
-#### 복잡도
-- **시간 복잡도**: O(n)
-- **공간 복잡도**: O(1) (in-place)
-
-#### 동작 원리
-1. 배열의 마지막 요소부터 시작
-2. 현재 인덱스(i) 이하의 랜덤 인덱스(j) 선택
-3. 두 요소의 위치를 교환
-4. 인덱스를 감소시키며 반복
-
-#### 장점
-- 균등한 확률 분포 보장 (모든 순열이 동일한 확률)
-- 효율적인 성능 (선형 시간)
-- 간단한 구현
-- 추가 메모리 불필요
+- **복잡도**: O(n) 시간, O(1) 공간 (in-place)
+- **균등 분포 보장**: 모든 순열 동일 확률
+- **목적**: 오락용 (`Math.random()`). 암호학적 안전성 불필요
 
 ---
 
-## 💻 JavaScript API
+## 브라우저 호환성
 
-API 상세 명세: `docs/spec.md` 참조 (F-001 ~ F-006 각 기능별 API 정의)
+**지원**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (데스크톱/모바일)
 
----
+**필수 API**: ES6 (Arrow, Template Literals, Destructuring, Array.from), LocalStorage, Clipboard, Fetch, Flexbox, Grid, CSS Animations
 
-## 🌐 브라우저 호환성
-
-### 지원 브라우저
-
-#### 데스크톱
-| 브라우저 | 최소 버전 | 테스트 상태 |
-|----------|-----------|-------------|
-| Chrome | 90+ | ✅ 지원 |
-| Firefox | 88+ | ✅ 지원 |
-| Safari | 14+ | ✅ 지원 |
-| Edge | 90+ | ✅ 지원 |
-
-#### 모바일
-| 브라우저 | 최소 버전 | 테스트 상태 |
-|----------|-----------|-------------|
-| Chrome Mobile | 90+ | ✅ 지원 |
-| Safari iOS | 14+ | ✅ 지원 |
-| Samsung Internet | 14+ | ✅ 지원 |
-
-### 필수 브라우저 기능
-
-#### JavaScript
-- **ES6 기능**:
-  - Arrow Functions
-  - Template Literals
-  - Destructuring Assignment
-  - `Array.from()`
-  - `Array.forEach()`
-  - `Array.sort()`
-  - `Math.floor()`, `Math.random()`
-- **Web API**:
-  - LocalStorage API (이력 저장, 세션 저장)
-  - Clipboard API (결과 복사)
-  - Fetch API (Supabase REST API 호출)
-
-#### CSS
-- **레이아웃**:
-  - Flexbox
-  - CSS Grid (여러 세트, 번호 제외 그리드)
-  - Box Model
-- **시각 효과**:
-  - `linear-gradient()`
-  - `border-radius`
-  - `box-shadow`
-  - CSS Animations (`@keyframes`)
-  - CSS Transitions
-- **반응형**:
-  - Media Queries
-
-#### HTML
-- **HTML5 요소**:
-  - `<!DOCTYPE html>`
-  - Semantic elements (선택)
-
-### 폴리필 불필요
-- 사용된 모든 기능은 대상 브라우저에서 네이티브 지원
-- 추가 라이브러리나 폴리필 없이 작동
+**폴리필 불필요**: 모든 기능이 대상 브라우저에서 네이티브 지원
 
 ---
 
-## 📦 데이터 구조
+## 보안
 
-데이터 구조 상세: `docs/spec.md` F-003 참조
-
-**요약**:
-- LocalStorage key: `lotto_history`
-- 숫자 배열: `Array<number>`, 1~45, 6개, 오름차순
-- 이력: version, id(UUID v4), numbers, timestamp(ISO 8601), setCount
+- **XSS 방지**: `textContent` 사용 (innerHTML 금지). 컨테이너 초기화(`innerHTML = ''`)만 예외
+- **입력 검증**: LocalStorage JSON 파싱 시 try-catch
+- **랜덤**: `Math.random()` — 오락용 충분. 실제 도박에는 `crypto.getRandomValues()` 필요
+- **세션**: access_token을 LocalStorage 저장 (Supabase SDK와 동일 방식)
 
 ---
 
-## 🔒 보안 고려사항
+## 성능
 
-### 클라이언트 사이드 보안
+| 메트릭 | 목표 |
+|--------|------|
+| First Contentful Paint | < 1.0s |
+| Time to Interactive | < 1.5s |
+| 추첨 응답 | < 100ms |
+| 애니메이션 | 60fps |
+| 페이지 크기 | < 50KB |
 
-#### XSS 방지
-```javascript
-// ✅ 안전: textContent 사용
-numberDiv.textContent = num;
-
-// ❌ 위험: innerHTML 사용 금지
-// numberDiv.innerHTML = num; // 사용하지 않음
-```
-
-**이유**: 사용자 입력이 없지만, 모범 사례로 `textContent` 사용
-
-#### 입력 검증
-- **Phase 2**: 사용자 입력 없음 → 검증 불필요
-- **Phase 3**: LocalStorage 데이터 검증 필요
-  ```javascript
-  // 예정: JSON 파싱 시 try-catch
-  try {
-    const data = JSON.parse(localStorage.getItem('lotto_history'));
-    // 데이터 검증
-  } catch (e) {
-    console.error('Invalid data');
-  }
-  ```
-
-### 랜덤 보안
-
-#### Math.random() 사용
-- **목적**: 오락용 (비암호화)
-- **보안 수준**: 충분함 (로또 추첨 시뮬레이션)
-- **주의**: 실제 도박에는 부적합 (암호학적으로 안전하지 않음)
-
-**참고**: 실제 보안이 필요한 경우 `crypto.getRandomValues()` 사용
+**최적화**: Vanilla JS (프레임워크 오버헤드 없음), CSS `transform` 하드웨어 가속, 배치 DOM 업데이트, 클래스 기반 효율적 선택자
 
 ---
 
-## ⚡ 성능 명세
+## 테스트
 
-### 성능 목표
-
-| 메트릭 | 목표 | 측정 방법 |
-|--------|------|-----------|
-| First Contentful Paint (FCP) | < 1.0s | Lighthouse |
-| Time to Interactive (TTI) | < 1.5s | Lighthouse |
-| 추첨 응답 시간 | < 100ms | Performance API |
-| 애니메이션 FPS | 60fps | DevTools Performance |
-| 페이지 크기 | < 50KB | Network Tab |
-
-### 최적화 전략
-
-#### 코드 최적화
-- **관심사 분리**: HTML/CSS/JS 파일 분리로 유지보수성 향상
-- **Vanilla JS**: 프레임워크 오버헤드 없음
-- **간단한 DOM**: 최소한의 요소
-
-#### CSS 최적화
-- **외부 스타일시트**: `css/style.css` 사용 (캐시 가능)
-- **하드웨어 가속**: `transform` 사용 (애니메이션)
-- **효율적 선택자**: 클래스 기반
-
-#### JavaScript 최적화
-- **알고리즘**: O(n) 시간 복잡도
-- **DOM 조작**: 배치 업데이트 (innerHTML 초기화 후 appendChild)
-- **이벤트 리스너**: 단일 버튼에만 적용
-
-### 성능 측정
-
-#### Chrome DevTools
-```javascript
-// Performance API 사용
-const start = performance.now();
-generateLottoNumbers();
-const end = performance.now();
-console.log(`실행 시간: ${end - start}ms`);
-```
-
-**예상 결과**: 5-10ms (일반적인 PC 기준)
-
----
-
-## 🧪 테스트
-
-2계층 자동 테스트 (CLI + 브라우저, 중복 없음, 100% 커버리지) 상세: `test/README.md` 참조
-
----
-
-## 🚀 배포 명세
-
-### GitHub Pages 설정
-
-#### 1. 저장소 설정
-```bash
-# GitHub에 저장소 생성 후
-git remote add origin https://github.com/[username]/[repo-name].git
-git push -u origin main
-```
-
-#### 2. Pages 활성화
-- Settings → Pages
-- Source: `main` branch
-- Folder: `/` (root)
-
-#### 3. 접근 URL
-```
-https://[username].github.io/[repo-name]/
-```
-
-### 배포 체크리스트
-- [ ] `index.html`이 루트에 위치
-- [ ] 모든 경로가 상대 경로
-- [ ] HTTPS 사용 (GitHub Pages 기본)
-- [ ] README에 라이브 URL 추가
-
----
-
-## 📐 코드 품질 기준
-
-### 코드 스타일
-- **들여쓰기**: 2 spaces
-- **문자열**: 작은따옴표 사용
-- **세미콜론**: 사용 (선택적이지만 일관성)
-- **네이밍**: camelCase (JavaScript), kebab-case (CSS)
-
-### 주석
-```javascript
-// 함수 설명 주석
-function generateLottoNumbers() {
-  // 1. 배열 생성
-  const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
-
-  // 2. 셔플
-  // ...
-}
-```
-
-### 린팅
-- **도구**: 없음 (선택사항)
-- **기준**: 일관성 유지
-
----
-
-## 🔧 개발 환경 설정
-
-### 필수 요구사항
-- 최신 브라우저 (Chrome 권장)
-- 텍스트 에디터 (VS Code 권장)
-- Git
-
-### 선택 요구사항
-- Live Server (VS Code 확장)
-- GitHub CLI (`gh`)
-
-### 로컬 실행
-```bash
-# 방법 1: 파일 직접 열기
-# index.html을 더블클릭
-
-# 방법 2: Live Server 사용 (VS Code)
-# 1. Live Server 확장 설치
-# 2. index.html에서 우클릭 → "Open with Live Server"
-
-# 방법 3: Python 서버
-python -m http.server 8000
-# http://localhost:8000 접속
-```
-
----
-
-## 📚 의존성
-
-### 외부 라이브러리
-**없음** - 순수 HTML/CSS/JavaScript만 사용 (Supabase는 REST API로 연동, SDK 미사용)
-
-### 외부 서비스
-- **Supabase**: 인증 및 데이터베이스 (Phase 4). REST API 직접 호출
-
-### 개발 의존성
-**없음** - 빌드 도구 불필요
-
----
-
-## 🔄 변경 이력
-
-| 버전 | 날짜 | 변경 내용 | 작성자 |
-|------|------|-----------|--------|
-| 2.0.0 | 2026-02-12 | Phase 4 - Supabase 백엔드, 파일 구조, Fetch API 추가 | - |
-| 1.1.0 | 2026-02-11 | 파일 구조 분리 (HTML/CSS/JS) 반영 | - |
-| 1.0.0 | 2026-02-11 | 초기 기술 명세 작성 | - |
+`test/README.md` 참조. CLI 순수 로직 + 브라우저 DOM/UI, 중복 없음.
 
 ---
 

@@ -19,7 +19,6 @@ node --test test/test-logic.js
 ```
 - 외부 의존성 없음 (Node.js 내장 `node:test` 사용)
 - exit code 0/1로 CI 연동 가능
-- 23개 테스트 (5 suites)
 
 ### 브라우저 DOM/UI 테스트
 ```bash
@@ -27,7 +26,7 @@ start test/test.html  # Windows
 open test/test.html   # macOS
 ```
 - 페이지 로드 시 자동 실행
-- 11개 테스트 + 분포 통계 시각화
+- 분포 통계 시각화 포함
 
 ---
 
@@ -85,19 +84,19 @@ open test/test.html   # macOS
 
 ## 브라우저 테스트 항목 (test.html, 11개)
 
-| Test | 검증 내용 | 의존 |
-|------|-----------|------|
+| # | 검증 내용 | 의존 |
+|---|-----------|------|
 | 1 | `clearHistory()` - 빈 이력 경고, confirm 승인/거부, 완료 알림 | alert/confirm |
 | 2 | `getSelectedSetCount()` - DOM select 연동, 타입 검증 | DOM |
 | 3 | `copyToClipboard()` - 성공/실패, 클립보드 내용, setNumber 토스트 | Clipboard API |
-| 4 | `showToast()` - success/error 타입, 메시지 일치, 자동 제거, 연속 호출 교체 | DOM |
-| 5 | `displayMultipleSets()` - 카드, 라벨, 뱃지, textContent(XSS), 복사버튼, 재호출 초기화 | DOM |
-| 6 | `displayHistory()` - 빈 이력 메시지, 숫자/시간 표시, setCount 표시 | DOM |
+| 4 | `showToast()` - success/error 타입, 메시지 일치, 자동 제거 | DOM |
+| 5 | `displayMultipleSets()` - 카드, 라벨, 뱃지, textContent, 복사버튼 | DOM |
+| 6 | `displayHistory()` - 빈 이력 메시지, 숫자/시간 표시, setCount | DOM |
 | 7 | `toggleHistoryView()` - hidden 토글, 버튼 텍스트 변경 | DOM |
-| 8 | `toggleExcludeView()` - 패널 토글, 45개 버튼 생성, 클릭 제외, 카운터 | DOM |
+| 8 | `toggleExcludeView()` - 패널 토글, 45개 버튼, 클릭 제외, 카운터 | DOM |
 | 9 | `resetExcludedNumbers()` - 초기화 후 제외 0개, 카운터 리셋 | DOM |
 | 10 | 제외 39개 초과 시 경고 표시/숨김 | DOM |
-| 11 | `generateLottoNumbers()` - 1세트/3세트 end-to-end (DOM + 이력 + setCount) | DOM + 통합 |
+| 11 | `generateLottoNumbers()` - 1세트/3세트 end-to-end | DOM + 통합 |
 
 추가로 분포 통계 시각화(1000회)를 참고 도구로 제공합니다 (테스트 검증 아님).
 
@@ -105,28 +104,11 @@ open test/test.html   # macOS
 
 ## 테스트 구조
 
-### DOM Fixture
-`test.html`에 app.js가 참조하는 DOM 요소(`#setCount`, `#setsContainer`, `#historyList`, `#historyToggleText`, `#excludePanel`, `#excludeGrid`, `#excludeCount`, `#remainCount`, `#excludeWarning`, `#excludeToggleText`)를 숨겨진 영역으로 재현합니다.
-
-### localStorage 모킹 (CLI)
-`test-logic.js`에서 `global.localStorage`와 `global.document`를 최소 모킹하여 Node.js에서 순수 로직 함수를 테스트합니다.
-
-### 비동기 처리
-`test.html`의 `runAllTests()`가 async 함수이며, Clipboard API/Toast 테스트를 `await`로 순차 실행합니다.
+- **DOM Fixture** (`test.html`): app.js가 참조하는 DOM 요소를 숨겨진 영역으로 재현
+- **localStorage 모킹** (`test-logic.js`): `global.localStorage`/`global.document` 최소 모킹
+- **비동기 처리**: `runAllTests()`가 async, Clipboard/Toast 테스트를 `await`로 순차 실행
 
 ---
-
-## 결과 해석
-
-### CLI (`node --test`)
-- `ok` / `not ok`: 개별 테스트 통과/실패
-- exit code 0: 전부 통과, 1: 실패 있음
-
-### 브라우저 (`test.html`)
-- ✅ PASS: 검증 통과
-- ❌ FAIL: 검증 실패
-- ⚠️ INFO: 환경 제한으로 스킵 (예: Clipboard API는 HTTPS 필요)
-- 하단 요약 바에서 전체 통과/실패 수 확인
 
 ## 함수 커버리지
 
@@ -154,22 +136,10 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 | `resetExcludedNumbers` | | ✅ |
 | `generateLottoNumbers` | | ✅ |
 
-### Phase 4 함수 (9개 — 미테스트, Supabase 연동 필요)
+### Phase 4 함수
 
-| 함수 | 미테스트 사유 |
-|------|-------------|
-| `saveToHistory` | async 듀얼 모드 래퍼 (Supabase 연동 필요) |
-| `loadHistory` | async 듀얼 모드 래퍼 (Supabase 연동 필요) |
-| `clearHistoryLocal` | `clearHistory`에서 간접 테스트됨 |
-| `toggleAuthForm` | 인증 UI (Supabase 연동 필요) |
-| `handleSignIn` | Supabase Auth API 호출 |
-| `handleSignUp` | Supabase Auth API 호출 |
-| `handleSignOut` | Supabase Auth API 호출 |
-| `updateAuthUI` | 인증 UI 상태 반영 |
-| `initApp` | 페이지 로드 초기화 |
-
-> **참고**: Phase 4 함수는 Supabase 프로젝트 설정 완료 후 통합 테스트 추가 예정. `supabase-config.js`의 13개 함수도 동일하게 Supabase 연동 후 테스트 예정.
+미테스트 (Supabase 연동 필요). 프로젝트 설정 완료 후 통합 테스트 추가 예정.
 
 ---
 
-**최종 업데이트**: 2026-02-12 (v4 - Phase 4 커버리지 업데이트)
+**최종 업데이트**: 2026-02-12 (v4)
