@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로또번호 추첨기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .numbers-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            min-height: 80px;
+            align-items: center;
+        }
+
+        .number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .number:nth-child(1) { background: #fbc531; animation-delay: 0.1s; }
+        .number:nth-child(2) { background: #00a8ff; animation-delay: 0.2s; }
+        .number:nth-child(3) { background: #e84118; animation-delay: 0.3s; }
+        .number:nth-child(4) { background: #273c75; animation-delay: 0.4s; }
+        .number:nth-child(5) { background: #44bd32; animation-delay: 0.5s; }
+        .number:nth-child(6) { background: #8c7ae6; animation-delay: 0.6s; }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .info {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 로또번호 추첨기</h1>
+        <div class="numbers-container" id="numbersContainer">
+            <p style="color: #999;">추첨하기 버튼을 눌러주세요!</p>
+        </div>
+        <button onclick="generateLottoNumbers()">추첨하기</button>
+        <p class="info">1부터 45까지의 숫자 중 6개를 무작위로 추첨합니다.</p>
+    </div>
+
+    <script>
+        function generateLottoNumbers() {
+            // 1부터 45까지의 숫자 배열 생성
+            const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
+
+            // Fisher-Yates 셔플 알고리즘으로 무작위 섞기
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+
+            // 앞의 6개 숫자 선택 후 정렬
+            const lottoNumbers = numbers.slice(0, 6).sort((a, b) => a - b);
+
+            // 화면에 표시
+            displayNumbers(lottoNumbers);
+        }
+
+        function displayNumbers(numbers) {
+            const container = document.getElementById('numbersContainer');
+            container.innerHTML = '';
+
+            numbers.forEach((num, index) => {
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'number';
+                numberDiv.textContent = num;
+                numberDiv.style.animationDelay = `${index * 0.1}s`;
+                container.appendChild(numberDiv);
+            });
+        }
+    </script>
+</body>
+</html>
