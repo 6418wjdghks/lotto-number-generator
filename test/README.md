@@ -130,15 +130,17 @@ open test/test.html   # macOS
 
 ## 함수 커버리지
 
-app.js 17개 함수 전체를 테스트합니다:
+app.js 함수 목록은 CLAUDE.md API 테이블 참조.
+
+### Phase 1~3 함수 (17개 — 전수 테스트)
 
 | 함수 | CLI | 브라우저 |
 |------|-----|---------|
 | `generateSingleSet` | ✅ | |
 | `generateMultipleSets` | ✅ | |
 | `generateUUID` | ✅ | |
-| `saveToHistory` | ✅ | |
-| `loadHistory` | ✅ | |
+| `saveToHistoryLocal` | ✅ | |
+| `loadHistoryLocal` | ✅ | |
 | `clearHistory` | | ✅ |
 | `getSelectedSetCount` | | ✅ |
 | `displayMultipleSets` | | ✅ |
@@ -152,6 +154,22 @@ app.js 17개 함수 전체를 테스트합니다:
 | `resetExcludedNumbers` | | ✅ |
 | `generateLottoNumbers` | | ✅ |
 
+### Phase 4 함수 (9개 — 미테스트, Supabase 연동 필요)
+
+| 함수 | 미테스트 사유 |
+|------|-------------|
+| `saveToHistory` | async 듀얼 모드 래퍼 (Supabase 연동 필요) |
+| `loadHistory` | async 듀얼 모드 래퍼 (Supabase 연동 필요) |
+| `clearHistoryLocal` | `clearHistory`에서 간접 테스트됨 |
+| `toggleAuthForm` | 인증 UI (Supabase 연동 필요) |
+| `handleSignIn` | Supabase Auth API 호출 |
+| `handleSignUp` | Supabase Auth API 호출 |
+| `handleSignOut` | Supabase Auth API 호출 |
+| `updateAuthUI` | 인증 UI 상태 반영 |
+| `initApp` | 페이지 로드 초기화 |
+
+> **참고**: Phase 4 함수는 Supabase 프로젝트 설정 완료 후 통합 테스트 추가 예정. `supabase-config.js`의 13개 함수도 동일하게 Supabase 연동 후 테스트 예정.
+
 ---
 
-**최종 업데이트**: 2026-02-11 (v3 - 2계층 분리)
+**최종 업데이트**: 2026-02-12 (v4 - Phase 4 커버리지 업데이트)

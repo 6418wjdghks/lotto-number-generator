@@ -89,6 +89,28 @@ HelloClaude/
 
 ---
 
+## Supabase REST API 요약 (`js/supabase-config.js`)
+
+전역 객체 `window.supabase`로 노출. 상세 명세: `docs/spec.md` F-007 참조.
+
+| 함수 | 설명 |
+|------|------|
+| `getSession()` | LocalStorage에서 세션(토큰/유저) 반환 |
+| `saveSession(data)` | 세션 LocalStorage 저장 |
+| `clearSession()` | 세션 삭제 |
+| `isLoggedIn()` | 로그인 여부 (세션 존재 + access_token 유무) |
+| `signUp(email, password)` | (async) 회원가입 (`/auth/v1/signup`) |
+| `signIn(email, password)` | (async) 로그인 (`/auth/v1/token?grant_type=password`) |
+| `signOut()` | (async) 로그아웃 (`/auth/v1/logout`) + 세션 삭제 |
+| `getUser()` | (async) 현재 사용자 정보 (`/auth/v1/user`) |
+| `fetchHistory(limit)` | (async) 이력 조회 (`/rest/v1/lottery_history`) |
+| `insertHistory(numbers, setCount)` | (async) 이력 저장 (POST) |
+| `deleteAllHistory()` | (async) 전체 이력 삭제 (DELETE) |
+
+설정값: `SUPABASE_URL`, `SUPABASE_ANON_KEY` (플레이스홀더 — Supabase 프로젝트 생성 후 교체 필요)
+
+---
+
 ## 개발 워크플로우
 
 ### 작업 프로세스 (3단계)
