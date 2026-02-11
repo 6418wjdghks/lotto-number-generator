@@ -6,6 +6,7 @@
 
 // LocalStorage 키
 const STORAGE_KEY = 'lotto_history';
+const EXCLUDED_KEY = 'lotto_excluded';
 const MAX_HISTORY = 20;
 
 /**
@@ -395,17 +396,23 @@ function toggleExcludeView() {
 
     // 그리드가 비어있으면 초기 생성
     if (grid.children.length === 0) {
+      const saved = loadExcludedNumbers();
       for (let i = 1; i <= 45; i++) {
         const btn = document.createElement('button');
         btn.className = 'exclude-btn';
+        if (saved.includes(i)) {
+          btn.classList.add('excluded');
+        }
         btn.textContent = i;
         btn.type = 'button';
         btn.onclick = function() {
           this.classList.toggle('excluded');
           updateExcludeCount();
+          saveExcludedNumbers();
         };
         grid.appendChild(btn);
       }
+      updateExcludeCount();
     }
   } else {
     panel.classList.add('hidden');
@@ -439,6 +446,41 @@ function resetExcludedNumbers() {
   const buttons = document.querySelectorAll('.exclude-btn.excluded');
   buttons.forEach(btn => btn.classList.remove('excluded'));
   updateExcludeCount();
+  clearExcludedNumbers();
+}
+
+/**
+ * 제외 번호를 LocalStorage에 저장
+ */
+function saveExcludedNumbers() {
+  try {
+    const excluded = getExcludedNumbers();
+    localStorage.setItem(EXCLUDED_KEY, JSON.stringify(excluded));
+  } catch (error) {
+    console.error('제외 번호 저장 실패:', error);
+  }
+}
+
+/**
+ * LocalStorage에서 제외 번호 로드
+ * @returns {number[]} 제외된 번호 배열
+ */
+function loadExcludedNumbers() {
+  try {
+    const data = localStorage.getItem(EXCLUDED_KEY);
+    if (!data) return [];
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('제외 번호 로드 실패:', error);
+    return [];
+  }
+}
+
+/**
+ * LocalStorage 제외 번호 삭제
+ */
+function clearExcludedNumbers() {
+  localStorage.removeItem(EXCLUDED_KEY);
 }
 
 /**
@@ -620,11 +662,15 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     STORAGE_KEY,
+    EXCLUDED_KEY,
     MAX_HISTORY,
     generateSingleSet,
     generateMultipleSets,
     generateUUID,
     loadHistory: loadHistoryLocal,
     saveToHistory: saveToHistoryLocal,
+    saveExcludedNumbers,
+    loadExcludedNumbers,
+    clearExcludedNumbers,
   };
 }
