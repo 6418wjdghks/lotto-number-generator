@@ -1,8 +1,9 @@
 # 로또번호 추첨기 - 디자인 명세서
 
-**버전**: 4.0.0 | **최종 수정**: 2026-02-12
+**버전**: 4.1.0 | **최종 수정**: 2026-02-12
 
 > CSS 구현 상세는 `css/style.css` 참조. 본 문서는 디자인 시스템과 컴포넌트 명세만 기술.
+> `:root` 디자인 토큰이 CSS에 적용되어 있으며, 모든 주요 값은 변수로 관리됨.
 
 ---
 
@@ -138,8 +139,8 @@
 
 | 대상 | 이벤트 | 효과 | 전환 |
 |------|--------|------|------|
-| `button` (추첨) | hover | translateY(-2px), shadow-medium | 0.2s |
-| `button` (추첨) | active | translateY(0) | 즉시 |
+| `.btn-primary` (추첨) | hover | translateY(-2px), shadow-medium | 0.2s |
+| `.btn-primary` (추첨) | active | translateY(0) | 즉시 |
 | `.set-card` | hover | border #667eea, shadow 증가 | 0.2s |
 | `.copy-btn` | hover | bg #667eea, color white | 0.2s |
 | `.copy-btn` | active | scale(0.95) | 즉시 |
@@ -147,6 +148,8 @@
 | `.exclude-btn` | hover | bg #f0f0ff, scale(1.1) | 0.15s |
 | `.exclude-reset-btn` | hover | bg #e84118, color white | 0.2s |
 | `.auth-input` | focus | border #667eea, shadow 3px rgba | 즉시 |
+| 모든 버튼 | focus-visible | outline 3px solid primary, offset 2px | 즉시 |
+| `.exclude-reset-btn` | focus-visible | outline 3px solid #e84118, offset 2px | 즉시 |
 
 ---
 
@@ -186,7 +189,7 @@
 ## 접근성
 
 - **색상 대비**: WCAG AA 이상 (text/bg 최소 4.5:1)
-- **키보드**: Tab 포커스, Enter/Space 활성화, 포커스 표시
+- **키보드**: Tab 포커스, Enter/Space 활성화, `:focus-visible` 아웃라인 표시
 - **터치**: 최소 44×44px 터치 영역
 - **스크린 리더**: 명확한 버튼 레이블
 
@@ -238,7 +241,7 @@
 
 | 디바이스 | 범위 | 주요 변경 |
 |----------|------|----------|
-| 모바일 | < 480px | container pad 30×20, .number 50×50/20px, h1 1.5em, button 12×30/16px, grid→1열, exclude-grid→5열 |
+| 모바일 | < 480px | container pad 30×20, .number 50×50/20px, h1 1.5em, .btn-primary 12×30/16px, grid→1열, exclude-grid→5열 |
 | 태블릿 | 480-768px | 기본 유지 |
 | 데스크톱 | > 768px | 기본 (최적화됨) |
 
