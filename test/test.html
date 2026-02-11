@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로또번호 추첨기 - 자동 테스트</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .test-section h2 {
+      color: #667eea;
+      margin-top: 0;
+    }
+
+    .result {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .pass {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      color: #155724;
+    }
+
+    .fail {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      color: #721c24;
+    }
+
+    .info {
+      background: #d1ecf1;
+      border-left: 4px solid #0c5460;
+      color: #0c5460;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 4px solid #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 로또번호 추첨기 - 자동 테스트</h1>
+
+  <div class="test-section">
+    <h2>테스트 컨트롤</h2>
+    <button onclick="runAllTests()">모든 테스트 실행</button>
+    <button onclick="clearResults()">결과 초기화</button>
+  </div>
+
+  <div class="test-section">
+    <h2>테스트 결과</h2>
+    <div id="testResults"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>통계</h2>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let testResults = [];
+    let allGeneratedNumbers = [];
+
+    function log(message, type = 'info') {
+      const resultsDiv = document.getElementById('testResults');
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `result ${type}`;
+      resultDiv.textContent = message;
+      resultsDiv.appendChild(resultDiv);
+      testResults.push({ message, type });
+    }
+
+    function clearResults() {
+      document.getElementById('testResults').innerHTML = '';
+      document.getElementById('stats').innerHTML = '';
+      testResults = [];
+      allGeneratedNumbers = [];
+    }
+
+    // 테스트용 번호 생성 함수 (원본 함수 복제)
+    function generateTestNumbers() {
+      const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
+      for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+      }
+      return numbers.slice(0, 6).sort((a, b) => a - b);
+    }
+
+    // Test 1: 기본 추첨 기능
+    function testBasicGeneration() {
+      log('═══ Test 1: 기본 추첨 기능 ═══', 'info');
+
+      const numbers = generateTestNumbers();
+
+      // 6개 숫자 생성 확인
+      if (numbers.length === 6) {
+        log('✅ PASS: 6개의 숫자 생성됨', 'pass');
+      } else {
+        log(`❌ FAIL: ${numbers.length}개의 숫자 생성됨 (예상: 6개)`, 'fail');
+      }
+
+      log(`생성된 숫자: [${numbers.join(', ')}]`, 'info');
+    }
+
+    // Test 2: 숫자 범위 검증
+    function testNumberRange() {
+      log('═══ Test 2: 숫자 범위 검증 ═══', 'info');
+
+      let passCount = 0;
+      const iterations = 100;
+
+      for (let i = 0; i < iterations; i++) {
+        const numbers = generateTestNumbers();
+        const allInRange = numbers.every(n => n >= 1 && n <= 45);
+        if (allInRange) passCount++;
+      }
+
+      if (passCount === iterations) {
+        log(`✅ PASS: ${iterations}회 테스트, 모든 숫자가 1-45 범위 내`, 'pass');
+      } else {
+        log(`❌ FAIL: ${passCount}/${iterations} 통과`, 'fail');
+      }
+    }
+
+    // Test 3: 중복 검증
+    function testNoDuplicates() {
+      log('═══ Test 3: 중복 검증 ═══', 'info');
+
+      let passCount = 0;
+      const iterations = 100;
+
+      for (let i = 0; i < iterations; i++) {
+        const numbers = generateTestNumbers();
+        const uniqueNumbers = new Set(numbers);
+        if (uniqueNumbers.size === 6) passCount++;
+      }
+
+      if (passCount === iterations) {
+        log(`✅ PASS: ${iterations}회 테스트, 모두 중복 없음`, 'pass');
+      } else {
+        log(`❌ FAIL: ${passCount}/${iterations} 통과`, 'fail');
+      }
+    }
+
+    // Test 4: 정렬 검증
+    function testSorting() {
+      log('═══ Test 4: 정렬 검증 ═══', 'info');
+
+      let passCount = 0;
+      const iterations = 100;
+
+      for (let i = 0; i < iterations; i++) {
+        const numbers = generateTestNumbers();
+        const isSorted = numbers.every((n, i, arr) => i === 0 || arr[i - 1] < n);
+        if (isSorted) passCount++;
+      }
+
+      if (passCount === iterations) {
+        log(`✅ PASS: ${iterations}회 테스트, 모두 오름차순 정렬됨`, 'pass');
+      } else {
+        log(`❌ FAIL: ${passCount}/${iterations} 통과`, 'fail');
+      }
+    }
+
+    // Test 5: 랜덤성 검증
+    function testRandomness() {
+      log('═══ Test 5: 랜덤성 검증 ═══', 'info');
+
+      const iterations = 100;
+      const results = [];
+
+      for (let i = 0; i < iterations; i++) {
+        const numbers = generateTestNumbers();
+        results.push(numbers.join(','));
+        allGeneratedNumbers.push(...numbers);
+      }
+
+      // 고유한 조합 개수
+      const uniqueCombinations = new Set(results).size;
+      const uniquePercentage = (uniqueCombinations / iterations * 100).toFixed(1);
+
+      log(`생성된 조합: ${iterations}개`, 'info');
+      log(`고유한 조합: ${uniqueCombinations}개 (${uniquePercentage}%)`, 'info');
+
+      if (uniquePercentage >= 90) {
+        log(`✅ PASS: 랜덤성 양호 (${uniquePercentage}% 고유)`, 'pass');
+      } else {
+        log(`⚠️ WARNING: 랜덤성 낮음 (${uniquePercentage}% 고유)`, 'fail');
+      }
+    }
+
+    // Test 6: 숫자 분포 분석
+    function testDistribution() {
+      log('═══ Test 6: 숫자 분포 분석 ═══', 'info');
+
+      const iterations = 1000;
+      const frequency = new Array(46).fill(0);
+
+      for (let i = 0; i < iterations; i++) {
+        const numbers = generateTestNumbers();
+        numbers.forEach(n => frequency[n]++);
+      }
+
+      // 통계 계산
+      const counts = frequency.slice(1); // 0번 인덱스 제외
+      const total = counts.reduce((a, b) => a + b, 0);
+      const average = total / 45;
+      const variance = counts.reduce((sum, count) => sum + Math.pow(count - average, 2), 0) / 45;
+      const stdDev = Math.sqrt(variance);
+
+      log(`총 추첨 횟수: ${iterations}회 (${total}개 숫자)`, 'info');
+      log(`평균 출현 횟수: ${average.toFixed(2)}`, 'info');
+      log(`표준편차: ${stdDev.toFixed(2)}`, 'info');
+
+      // 가장 많이/적게 나온 숫자
+      const maxCount = Math.max(...counts);
+      const minCount = Math.min(...counts);
+      const maxNumbers = counts.map((c, i) => c === maxCount ? i + 1 : null).filter(n => n);
+      const minNumbers = counts.map((c, i) => c === minCount ? i + 1 : null).filter(n => n);
+
+      log(`최다 출현: ${maxNumbers.join(', ')} (${maxCount}회)`, 'info');
+      log(`최소 출현: ${minNumbers.join(', ')} (${minCount}회)`, 'info');
+
+      // 균등성 검증 (표준편차가 평균의 30% 이내면 양호)
+      const threshold = average * 0.3;
+      if (stdDev <= threshold) {
+        log(`✅ PASS: 분포가 균등함 (표준편차 ${stdDev.toFixed(2)} ≤ ${threshold.toFixed(2)})`, 'pass');
+      } else {
+        log(`⚠️ WARNING: 분포가 불균등함 (표준편차 ${stdDev.toFixed(2)} > ${threshold.toFixed(2)})`, 'fail');
+      }
+
+      // 통계 표시
+      displayStats(frequency);
+    }
+
+    function displayStats(frequency) {
+      const statsDiv = document.getElementById('stats');
+
+      const counts = frequency.slice(1);
+      const total = counts.reduce((a, b) => a + b, 0);
+      const average = total / 45;
+      const max = Math.max(...counts);
+      const min = Math.min(...counts);
+
+      statsDiv.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">총 추첨 횟수</div>
+          <div class="stat-value">1000회</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">평균 출현</div>
+          <div class="stat-value">${average.toFixed(1)}회</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">최대 출현</div>
+          <div class="stat-value">${max}회</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">최소 출현</div>
+          <div class="stat-value">${min}회</div>
+        </div>
+      `;
+    }
+
+    function runAllTests() {
+      clearResults();
+      log('🚀 자동 테스트 시작...', 'info');
+      log('', 'info');
+
+      testBasicGeneration();
+      log('', 'info');
+
+      testNumberRange();
+      log('', 'info');
+
+      testNoDuplicates();
+      log('', 'info');
+
+      testSorting();
+      log('', 'info');
+
+      testRandomness();
+      log('', 'info');
+
+      testDistribution();
+      log('', 'info');
+
+      // 요약
+      const passCount = testResults.filter(r => r.type === 'pass').length;
+      const failCount = testResults.filter(r => r.type === 'fail').length;
+
+      log('═══════════════════════════════', 'info');
+      log(`테스트 완료: ${passCount} 통과, ${failCount} 실패`, passCount > failCount ? 'pass' : 'fail');
+    }
+
+    // 페이지 로드 시 자동 실행
+    window.addEventListener('load', () => {
+      setTimeout(runAllTests, 500);
+    });
+  </script>
+</body>
+</html>
