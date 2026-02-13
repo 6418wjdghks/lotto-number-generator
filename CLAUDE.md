@@ -101,7 +101,7 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | `doc:design` | 문서(디자인) | `design.md` |
 | `doc:spec` | 문서(명세) | `spec.md` |
 | `doc:test` | 문서(테스트) | `test/README.md` |
-| `doc:track` | 문서(추적) | `plan.md`, `decisions.md`, `phase4-architecture.md` |
+| `doc:track` | 문서(추적) | `plan.md`, `decisions.md`, `decisions_*_*.md`, `phase4-architecture.md` |
 | `config` | 설정 | `package.json` |
 
 #### 2계층 검증
@@ -205,6 +205,13 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | Agent 2 | DOM/UI 테스트 항목/수 | test.html, test-dom.js |
 
 > D-Agent 1: app.js의 module.exports로 export된 함수 목록 + Grep(`js/`)로 전체 함수 목록 비교하여 커버리지 판단
+
+### ADR Chunk 규칙
+
+`decisions.md`의 활성 ADR이 **10개를 초과**하면 가장 오래된 10개를 아카이브한다.
+- 파일명: `decisions_NNN_MMM.md` (예: `decisions_011_020.md`)
+- `decisions.md` 헤더에 아카이브 링크 추가
+- 아카이브 파일 헤더에 활성/이전 아카이브 상호 링크 포함
 
 ### Git 정책
 
