@@ -376,6 +376,7 @@ h1 {
   border: 2px solid var(--primary-start);
   border-radius: 8px;
   background: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   transition: border-color 0.2s;
 }

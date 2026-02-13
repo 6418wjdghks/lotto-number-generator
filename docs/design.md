@@ -117,7 +117,7 @@
 | `.container` | max-w 500, pad 40 | — | 20px | `--shadow-high` | white | — |
 | `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold white |
 | `.set-selector` | flex, gap 10 | — | — | — | — | 16px bold |
-| `.set-selector select` | pad 8×12 | 2px #667eea | 8px | — | white | 16px |
+| `.set-selector select` | pad 8×12 | 2px #667eea | 8px | — | white | 16px text-primary |
 | `.sets-container` | grid auto-fit 280px, gap 20 | — | — | — | — | — |
 | `.set-card` | pad 20 | 2px #e0e0e0 | 15px | 0 4 12 0.1 | white | — |
 | `.set-label` | — | — | — | — | — | 14px bold #667eea |
