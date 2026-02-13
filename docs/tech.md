@@ -18,6 +18,8 @@
 ```
 HelloClaude/
 ├── index.html              # 메인 HTML
+├── CLAUDE.md               # 프로젝트 가이드 (API 테이블)
+├── package.json            # npm 스크립트 (test 등)
 ├── css/style.css           # 스타일시트
 ├── js/
 │   ├── supabase-config.js  # Supabase REST API 래퍼
@@ -32,6 +34,7 @@ HelloClaude/
 │   └── phase4-architecture.md # Phase 4 설계
 ├── test/
 │   ├── test.html           # 브라우저 테스트
+│   ├── test-dom.js         # DOM/UI CLI 러너 (Edge headless)
 │   ├── test-logic.js       # CLI 테스트
 │   └── README.md           # 테스트 문서
 └── .claude/                # Claude Code 설정
@@ -87,6 +90,7 @@ HelloClaude/
 
 ```
 css/style.css
+├── Dark Mode                 /* html[data-theme="dark"] 변수 오버라이드 */
 ├── Reset & Base Styles       /* 전역 리셋 */
 ├── Design Tokens (:root)     /* CSS 변수 정의 */
 ├── Layout                    /* body, .container */
@@ -95,6 +99,7 @@ css/style.css
 ├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
 ├── Focus Styles              /* :focus-visible (접근성) */
 ├── Section Styles            /* 인증, 제외, 이력 */
+├── Utility                   /* .hidden, .sr-only */
 └── Responsive (@media)       /* 480px 이하 — 단일 미디어쿼리 블록 */
 ```
 
@@ -135,7 +140,7 @@ css/style.css
 - 드롭다운 옵션 텍스트: `"1개"`, `"2개"`, `"3개"`, `"4개"`, `"5개"` (value: `"1"`~`"5"`, `"1"` selected)
 
 **`generateLottoNumbers()`**
-- 메인 진입점. `getSelectedSetCount()` → `generateMultipleSets()` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
+- 메인 진입점. `getExcludedNumbers()` → 남은 번호 < 6 시 토스트 에러 + 중단 → `getSelectedSetCount()` → `generateMultipleSets(setCount, excludedNumbers)` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
 
 ### 표시 함수
 
@@ -354,13 +359,13 @@ module.exports = {
 
 ## 핵심 알고리즘: Fisher-Yates Shuffle
 
+> 아래는 알고리즘 참고용 의사코드. 실제 코드는 `generateSingleSet()` 내부에 인라인 구현 (별도 함수 분리 금지).
+
 ```javascript
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+// 참고용 — 실제 코드는 generateSingleSet() 내부 인라인
+for (let i = array.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [array[i], array[j]] = [array[j], array[i]];
 }
 ```
 

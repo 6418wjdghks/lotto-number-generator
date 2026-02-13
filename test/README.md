@@ -130,7 +130,7 @@ open test/test.html   # macOS
 
 app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 
-### Phase 1~3 함수 (17개 — 전수 테스트)
+### Phase 1~3 함수 (18개 — 전수 테스트)
 
 | 함수 | CLI | 브라우저 |
 |------|-----|---------|
@@ -139,6 +139,7 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 | `generateUUID` | ✅ | |
 | `saveToHistoryLocal` | ✅ | |
 | `loadHistoryLocal` | ✅ | |
+| `clearHistoryLocal` | | ✅ (clearHistory 경유) |
 | `clearHistory` | | ✅ |
 | `getSelectedSetCount` | | ✅ |
 | `displayMultipleSets` | | ✅ |

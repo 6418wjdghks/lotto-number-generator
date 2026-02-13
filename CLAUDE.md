@@ -17,9 +17,9 @@
 
 | 함수 | 설명 |
 |------|------|
-| `generateLottoNumbers()` | 메인 진입점. 세트 수 조회 → 생성 → 표시 → 이력 저장 |
-| `generateSingleSet()` | Fisher-Yates 셔플로 6개 숫자 생성, 오름차순 정렬 |
-| `generateMultipleSets(count)` | count개 세트 생성 (1~5) |
+| `generateLottoNumbers()` | 메인 진입점. 제외 번호 확인 → 부족 시 중단 → 세트 수 조회 → 생성 → 표시 → 이력 저장 |
+| `generateSingleSet(excludedNumbers)` | Fisher-Yates 셔플로 6개 숫자 생성, 오름차순 정렬 |
+| `generateMultipleSets(count, excludedNumbers)` | count개 세트 생성 (1~5) |
 | `getSelectedSetCount()` | `#setCount` 드롭다운 값 반환 |
 | `displayMultipleSets(sets)` | 세트 카드 DOM 생성 (라벨/뱃지/복사버튼) |
 | `displayHistory()` | (async) 이력 목록 DOM 렌더링, 빈 상태 처리 |
