@@ -113,6 +113,7 @@ function displayMultipleSets(sets) {
     const copyBtn = document.createElement('button');
     copyBtn.className = 'copy-btn';
     copyBtn.textContent = '📋 복사';
+    copyBtn.type = 'button';
     copyBtn.onclick = () => copyToClipboard(numbers, setIndex + 1);
 
     setCard.appendChild(setLabel);

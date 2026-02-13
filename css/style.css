@@ -161,17 +161,6 @@ h1 {
   font-size: var(--font-size-small);
 }
 
-/* Numbers Container */
-.numbers-container {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-xs);
-  margin: var(--space-md) 0;
-  flex-wrap: wrap;
-  min-height: 80px;
-  align-items: center;
-}
-
 /* Number Badge */
 .number {
   width: 60px;
