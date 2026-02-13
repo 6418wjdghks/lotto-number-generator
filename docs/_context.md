@@ -18,9 +18,13 @@
 
 ## 최근 변경 (3건)
 
-- 문서 구조 리팩터링: CLAUDE.md 경량화 (-55%), Progressive Context Loading 도입
-- 검증 체계 최적화 (ADR-021~029): 에이전트 9→5 병합, verify.js 신설 (13/13 PASS)
-- 프롬프트 추상화: 매직 넘버 전면 제거, verify.js 동적 파싱 비교 (ADR-029)
+- A2 에이전트 최적화: Grep→병렬Read 전략 전환, Tool -58%, 시간 -57% (ADR-030)
+- 검증 결과 기록 가이드라인: test/README.md에 성능 지표 테이블 추가
+- ADR-021~030 아카이브: decisions_021_030.md 생성, decisions.md 클린 상태
+
+## 정밀 검증 현황
+
+Tier 0: 13/13 PASS | Tier 1: 73/73 PASS | Tier 2: 5/5 ALL PASS, Warning 0건
 
 ## 다음 할 일
 
