@@ -44,7 +44,13 @@
 ├── css/
 │   └── style.css           # 스타일시트 (CSS Custom Properties)
 ├── js/
-│   ├── app.js              # JavaScript 로직 (34개 함수)
+│   ├── utils.js            # 공통 유틸 (UUID, 토스트, 클립보드)
+│   ├── theme.js            # 테마 (다크모드) 관리
+│   ├── exclude.js          # 번호 제외 기능
+│   ├── lottery.js          # 추첨 생성/표시
+│   ├── history.js          # 이력 저장/로드/표시
+│   ├── auth.js             # 사용자 인증
+│   ├── app.js              # 메인 진입점 (총 34개 함수, 7개 모듈)
 │   └── supabase-config.js  # Supabase REST API 래퍼
 ├── test/                   # 테스트 도구
 │   ├── test-logic.js       # CLI 테스트 (23개, Node.js)

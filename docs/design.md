@@ -149,7 +149,7 @@ main.container
 | `body` | flex center, pad 20 | — | — | — | primary gradient | — |
 | `.container` | max-w 500, pad 40 | — | 20px | `--shadow-high` | white | — |
 | `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold `var(--white)` |
-| `.set-selector` | flex, gap 10, center, align center | — | — | — | — | 16px bold |
+| `.set-selector` | flex, gap 10, center, align center, mb 20 | — | — | — | — | 16px bold |
 | `.set-selector select` | pad 8×12 | 2px solid #667eea | 8px | — | white | 16px text-primary |
 | `.sets-container` | grid auto-fit 280px, gap 20 | — | — | — | — | — |
 | `.set-card` | pad 20 | 2px #e0e0e0 | 15px | 0 4 12 0.1 | white | — |
@@ -160,7 +160,7 @@ main.container
 | `.toast.success` | — | — | — | — | #44bd32 | — |
 | `.toast.error` | — | — | — | — | #e84118 | — |
 | `.history-section` | mt 30, pt 20 | top 1px #e0e0e0 | — | — | — | — |
-| `.history-list` | max-h 300, scroll | — | 10px | — | #f9f9f9 | — |
+| `.history-list` | max-h 300, scroll, pad 15 | — | 10px | — | #f9f9f9 | — |
 | `.history-item` | pad 12×15 | left 4px #667eea | 8px | — | white | 14px |
 | `.history-time` | — | — | — | — | — | 12px #999 |
 | `.history-numbers` | — | — | — | — | — | 15px bold #333 |
@@ -169,7 +169,7 @@ main.container
 | `.hidden` | display none | — | — | — | — | — |
 | `.exclude-section` | m 20×0 | — | — | — | — | — |
 | `.exclude-panel` | pad 15 | — | 10px | — | #f9f9f9 | — |
-| `.exclude-info` | flex between | — | — | — | — | 13px #666 |
+| `.exclude-info` | flex between, align center, mb 15 | — | — | — | — | 13px #666 |
 | `.exclude-grid` | grid 9col, gap 6 | — | — | — | — | — |
 | `.exclude-btn` | aspect 1:1 | 2px #667eea | 50% | — | white | 14px bold |
 | `.exclude-btn.excluded` | — | 2px #999 | 50% | — | #ccc | line-through, opacity 0.6 |
