@@ -79,20 +79,48 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | 함수 목록/수 | CLAUDE.md API 테이블 |
 | 테스트 수/항목 | test/README.md |
 
-### 문서-구현 검증 (서브 에이전트 위임)
+### 검증 체계 (서브 에이전트 위임)
 
-문서 전체 검증 시 메인 컨텍스트에서 모든 파일을 읽지 말 것. 서브 에이전트에 위임하여 토큰 효율화:
+검증 시 메인 컨텍스트에서 파일을 직접 읽지 말 것. `Task(subagent_type="general-purpose")` 병렬 위임으로 토큰 효율화 (메인 컨텍스트 96% 절감).
 
-```
-메인 Agent: Task(subagent_type="general-purpose") × N개 병렬 실행
-├── Agent A: tech.md ↔ app.js, style.css, index.html, supabase-config.js
-├── Agent B: spec.md ↔ index.html, app.js
-├── Agent C: CLAUDE.md ↔ app.js (API 테이블 vs 함수 시그니처)
-├── Agent D: README.md ↔ 전체 파일 구조, test/README.md
-├── Agent E: design.md ↔ style.css
-└── Agent F: test/README.md ↔ test-logic.js, test-dom.js, app.js
-→ 메인은 각 Agent의 불일치 목록(요약)만 수신 → 취합 후 보고/수정
-```
+**공통 규칙**: 각 에이전트는 불일치 목록만 반환, 메인은 취합 후 보고/수정.
+
+#### A. 문서 검증 (문서 ↔ 소스코드)
+
+| 에이전트 | 문서 | 비교 소스 |
+|----------|------|----------|
+| Agent 1 | tech.md | app.js, style.css, index.html, supabase-config.js |
+| Agent 2 | spec.md | index.html, app.js |
+| Agent 3 | CLAUDE.md | app.js (API 테이블 vs 함수 시그니처) |
+| Agent 4 | README.md | 파일 구조(Glob), test/README.md, package.json |
+| Agent 5 | design.md | style.css, index.html |
+| Agent 6 | test/README.md | test-logic.js, test-dom.js, app.js, package.json |
+
+#### B. 디자인 검증 (design.md ↔ CSS)
+
+| 에이전트 | 검증 항목 | 비교 소스 |
+|----------|----------|----------|
+| Agent 1 | 색상/토큰/간격/그림자 변수값 | style.css :root, html[data-theme] |
+| Agent 2 | 컴포넌트 명세 테이블 (크기/테두리/배경) | style.css 각 선택자 |
+| Agent 3 | 반응형 @media 변경 항목 | style.css @media 블록 |
+| Agent 4 | 인터랙션/애니메이션 명세 | style.css hover/active/keyframes |
+
+#### C. 구현 검증 (spec.md ↔ 실제 동작)
+
+| 에이전트 | 검증 항목 | 비교 소스 |
+|----------|----------|----------|
+| Agent 1 | F-001~F-004 동작/UI/DOM | app.js, index.html |
+| Agent 2 | F-005~F-008 동작/UI/DOM | app.js, index.html |
+| Agent 3 | ARIA/접근성 속성 | index.html, app.js |
+| Agent 4 | Supabase API 흐름 | supabase-config.js, app.js |
+
+#### D. 테스트 검증 (test/README.md ↔ 실제 테스트)
+
+| 에이전트 | 검증 항목 | 비교 소스 |
+|----------|----------|----------|
+| Agent 1 | CLI 테스트 항목/수 (23개) | test-logic.js |
+| Agent 2 | DOM/UI 테스트 항목/수 (50개) | test.html, test-dom.js |
+| Agent 3 | 함수 커버리지 테이블 vs app.js 함수 | app.js, test-logic.js, test.html |
 
 ### Git 정책
 
