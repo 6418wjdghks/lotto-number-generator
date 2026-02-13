@@ -1,6 +1,6 @@
 # 로또번호 추첨기 - 디자인 명세서
 
-**버전**: 4.1.0 | **최종 수정**: 2026-02-12
+**버전**: 4.2.0 | **최종 수정**: 2026-02-13
 
 > CSS 구현 상세는 `css/style.css` 참조. 본 문서는 디자인 시스템과 컴포넌트 명세만 기술.
 > `:root` 디자인 토큰이 CSS에 적용되어 있으며, 모든 주요 값은 변수로 관리됨.
@@ -43,6 +43,22 @@
 | 6 | `--number-6` | `#8c7ae6` | Purple |
 
 모든 색상은 흰색 텍스트와 WCAG AA 기준 대비 충족 (최소 4.5:1).
+
+### 다크 모드 색상
+
+`html[data-theme="dark"]`에서 CSS 변수를 오버라이드하여 전체 앱에 적용.
+
+| 변수 | Light | Dark |
+|------|-------|------|
+| `--white` (카드 배경) | `#ffffff` | `#1e1e2e` |
+| `--text-primary` | `#333333` | `#e0e0e0` |
+| `--text-secondary` | `#666666` | `#b0b0b0` |
+| `--text-tertiary` | `#999999` | `#808080` |
+| `--bg-light` | `#f9f9f9` | `#252535` |
+| `--bg-subtle` | `#f0f0ff` | `#2a2a3e` |
+| `--bg-muted` | `#f0f0f0` | `#2e2e3e` |
+| `--border-color` | `#e0e0e0` | `#3a3a4a` |
+| body 배경 | 보라 그라데이션 | `#2a2d4a → #1a1a2e` |
 
 ---
 
@@ -132,6 +148,8 @@
 | `.btn-auth` | flex 1, pad 10×20 | none | 25px | — | primary gradient | 14px white |
 | `.btn-auth-secondary` | flex 1, pad 10×20 | 2px #667eea | 25px | — | white | 14px #667eea |
 | `.auth-user-info` | pad 10×15, flex between | — | 10px | — | #f0f0ff | 14px |
+| `.header` | relative, flex center | — | — | — | — | — |
+| `.theme-toggle` | abs right, 40×40 | 2px border-color | 50% | — | none | 20px |
 
 ---
 
@@ -150,6 +168,8 @@
 | `.auth-input` | focus | border #667eea, shadow 3px rgba | 즉시 |
 | 모든 버튼 | focus-visible | outline 3px solid primary, offset 2px | 즉시 |
 | `.exclude-reset-btn` | focus-visible | outline 3px solid #e84118, offset 2px | 즉시 |
+| `.theme-toggle` | hover | scale(1.1), border primary | 0.2s |
+| `.theme-toggle` | focus-visible | outline 3px solid primary, offset 2px | 즉시 |
 
 ---
 

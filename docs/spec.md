@@ -128,6 +128,28 @@ Clipboard API로 추첨 결과를 복사. 개별 세트 복사만 지원 (전체
 
 ---
 
+## F-008: 다크 모드
+
+**Phase**: 3 (확장) | **상태**: ✅ 완료
+
+라이트/다크 테마 전환. 사용자 선택을 LocalStorage에 저장하여 세션 유지.
+
+**우선순위**: LocalStorage 저장값 > 시스템 설정(`prefers-color-scheme`) > light 기본값
+
+**제약사항**:
+- FOUC(Flash of Unstyled Content) 방지: CSS 로드 전에 테마 적용
+- 모든 텍스트/뱃지 가독성 유지
+- 480px 반응형에서도 정상 작동
+
+**UI 요구사항**:
+- 타이틀 오른쪽 토글 버튼 (🌙 / ☀️)
+- 다크 모드 시 어두운 배경/카드, 밝은 텍스트
+- 전환 트랜지션 (0.3s)
+
+**데이터**: LocalStorage 키 `lotto_theme`, 값 `'light'` | `'dark'`
+
+---
+
 ## 비기능 요구사항
 
 | 항목 | 기준 |

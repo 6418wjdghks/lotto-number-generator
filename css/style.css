@@ -1,3 +1,30 @@
+/* Dark Mode */
+html[data-theme="dark"] {
+  --white: #1e1e2e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --bg-light: #252535;
+  --bg-subtle: #2a2a3e;
+  --bg-muted: #2e2e3e;
+  --border-color: #3a3a4a;
+  --error-bg: #3a1a1a;
+  --disabled-bg: #444455;
+  --disabled-text: #777788;
+  --disabled-hover: #555566;
+  --focus-shadow: rgba(102, 126, 234, 0.2);
+  --shadow-primary-glow: rgba(102, 126, 234, 0.4);
+  --shadow-card: rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: rgba(102, 126, 234, 0.3);
+  --shadow-toast: rgba(0, 0, 0, 0.5);
+  --shadow-high: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-medium: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme="dark"] body {
+  background: linear-gradient(135deg, #2a2d4a 0%, #1a1a2e 100%);
+}
+
 /* Reset & Base Styles */
 * {
   margin: 0;
@@ -52,6 +79,13 @@
   /* Disabled */
   --disabled-bg: #cccccc;
   --disabled-text: #999999;
+  --disabled-hover: #bbbbbb;
+  /* Dynamic Shadows */
+  --focus-shadow: rgba(102, 126, 234, 0.1);
+  --shadow-primary-glow: rgba(102, 126, 234, 0.3);
+  --shadow-card: rgba(0, 0, 0, 0.1);
+  --shadow-card-hover: rgba(102, 126, 234, 0.2);
+  --shadow-toast: rgba(0, 0, 0, 0.3);
 }
 
 body {
@@ -62,6 +96,7 @@ body {
   justify-content: center;
   align-items: center;
   padding: var(--space-sm);
+  transition: background 0.3s ease;
 }
 
 /* Container */
@@ -73,13 +108,51 @@ body {
   text-align: center;
   max-width: 500px;
   width: 100%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Header */
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-md);
 }
 
 /* Typography */
 h1 {
   color: var(--text-primary);
-  margin-bottom: var(--space-md);
   font-size: var(--font-size-title);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  position: absolute;
+  right: 0;
+  background: none;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-full);
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  border-color: var(--primary-start);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--primary-start);
+  outline-offset: 2px;
 }
 
 .info {
@@ -216,7 +289,7 @@ h1 {
 .auth-input:focus {
   outline: none;
   border-color: var(--primary-start);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
 .auth-buttons {
@@ -240,7 +313,7 @@ h1 {
 
 .btn-auth:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px var(--shadow-primary-glow);
 }
 
 .btn-auth-secondary {
@@ -314,7 +387,7 @@ h1 {
 .set-selector select:focus {
   outline: none;
   border-color: var(--primary-start);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
 /* Sets Container */
@@ -331,14 +404,14 @@ h1 {
   border: 2px solid var(--border-color);
   border-radius: 15px;
   padding: var(--space-sm);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-card);
   transition: all 0.2s;
   animation: fadeIn 0.3s ease;
 }
 
 .set-card:hover {
   border-color: var(--primary-start);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 6px 16px var(--shadow-card-hover);
 }
 
 .set-label {
@@ -409,7 +482,7 @@ h1 {
   color: var(--white);
   padding: 15px 25px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--shadow-toast);
   font-size: var(--font-size-small);
   z-index: 1000;
   animation: slideUp 0.3s ease;
@@ -517,7 +590,7 @@ h1 {
 }
 
 .exclude-btn.excluded:hover {
-  background: #bbb;
+  background: var(--disabled-hover);
   opacity: 0.8;
 }
 
@@ -634,6 +707,12 @@ h1 {
 
   h1 {
     font-size: 1.5em;
+  }
+
+  .theme-toggle {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
   }
 
   .number {

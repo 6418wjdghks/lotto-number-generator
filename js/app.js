@@ -7,6 +7,7 @@
 // LocalStorage 키
 const STORAGE_KEY = 'lotto_history';
 const EXCLUDED_KEY = 'lotto_excluded';
+const THEME_KEY = 'lotto_theme';
 const MAX_HISTORY = 20;
 
 /**
@@ -514,6 +515,78 @@ function showToast(message, type = 'success', duration = 2000) {
 }
 
 // ============================================================
+// 테마 (다크 모드)
+// ============================================================
+
+/**
+ * 테마 적용
+ * @param {string} theme - 'light' 또는 'dark'
+ */
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  updateThemeToggle(theme);
+}
+
+/**
+ * 토글 버튼 아이콘/aria-label 업데이트
+ * @param {string} theme - 'light' 또는 'dark'
+ */
+function updateThemeToggle(theme) {
+  const btn = document.getElementById('btnThemeToggle');
+  if (!btn) return;
+  if (theme === 'dark') {
+    btn.textContent = '☀️';
+    btn.setAttribute('aria-label', '라이트 모드 전환');
+  } else {
+    btn.textContent = '🌙';
+    btn.setAttribute('aria-label', '다크 모드 전환');
+  }
+}
+
+/**
+ * 테마 토글 (현재 테마 반전 + 저장)
+ */
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  saveTheme(next);
+}
+
+/**
+ * 테마 로드 (LocalStorage → 시스템설정 → light)
+ * @returns {string} 'light' 또는 'dark'
+ */
+function loadTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+  } catch (error) {
+    console.error('테마 로드 실패:', error);
+  }
+  if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+  return 'light';
+}
+
+/**
+ * 테마 저장
+ * @param {string} theme - 'light' 또는 'dark'
+ */
+function saveTheme(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (error) {
+    console.error('테마 저장 실패:', error);
+  }
+}
+
+// ============================================================
 // 인증 핸들러
 // ============================================================
 
@@ -648,8 +721,13 @@ function updateAuthUI() {
  * 페이지 로드 시 세션 확인 및 UI 초기화
  */
 function initApp() {
+  // 테마 초기화
+  const theme = loadTheme();
+  applyTheme(theme);
+
   // 이벤트 바인딩
   document.getElementById('btnGenerate').addEventListener('click', generateLottoNumbers);
+  document.getElementById('btnThemeToggle').addEventListener('click', toggleTheme);
   document.getElementById('btnToggleAuth').addEventListener('click', toggleAuthForm);
   document.getElementById('btnSignIn').addEventListener('click', handleSignIn);
   document.getElementById('btnSignUp').addEventListener('click', handleSignUp);
@@ -658,6 +736,14 @@ function initApp() {
   document.getElementById('btnResetExclude').addEventListener('click', resetExcludedNumbers);
   document.getElementById('btnToggleHistory').addEventListener('click', toggleHistoryView);
   document.getElementById('btnClearHistory').addEventListener('click', clearHistory);
+
+  // 시스템 테마 변경 감지
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+    // LocalStorage에 저장된 값이 없을 때만 시스템 설정 반영
+    if (!localStorage.getItem(THEME_KEY)) {
+      applyTheme(e.matches ? 'dark' : 'light');
+    }
+  });
 
   // 인증 상태 확인
   if (typeof window !== 'undefined' && window.supabase) {
@@ -675,6 +761,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     STORAGE_KEY,
     EXCLUDED_KEY,
+    THEME_KEY,
     MAX_HISTORY,
     generateSingleSet,
     generateMultipleSets,

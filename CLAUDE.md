@@ -40,6 +40,11 @@
 | `loadExcludedNumbers()` | LocalStorage에서 제외 번호 로드, 에러 시 빈 배열 |
 | `clearExcludedNumbers()` | LocalStorage 제외 번호 삭제 |
 | `showToast(message, type, duration)` | 토스트 메시지 생성/자동 제거 |
+| `applyTheme(theme)` | `data-theme` 속성 설정/제거 + 버튼 업데이트 |
+| `updateThemeToggle(theme)` | 아이콘/aria-label 전환 (🌙↔☀️) |
+| `toggleTheme()` | 현재 테마 반전 + 저장 |
+| `loadTheme()` | LocalStorage → 시스템설정 → light 순 로드 |
+| `saveTheme(theme)` | LocalStorage에 테마 저장 |
 | `toggleAuthForm()` | 로그인 폼 표시/숨김 토글 |
 | `handleSignIn()` | (async) 로그인 처리 + UI 전환 |
 | `handleSignUp()` | (async) 회원가입 처리 |

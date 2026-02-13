@@ -152,6 +152,18 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 | `resetExcludedNumbers` | | ✅ |
 | `generateLottoNumbers` | | ✅ |
 
+### 테마 함수 (5개 — 미작성)
+
+브라우저 환경(`localStorage`, `document.documentElement`, `matchMedia`) 의존으로 테스트 미작성 상태.
+
+| 함수 | CLI | 브라우저 | 비고 |
+|------|-----|---------|------|
+| `applyTheme` | | ❌ 미작성 | DOM data-theme 조작 |
+| `updateThemeToggle` | | ❌ 미작성 | 버튼 텍스트/aria-label 변경 |
+| `toggleTheme` | | ❌ 미작성 | applyTheme + saveTheme 호출 |
+| `loadTheme` | | ❌ 미작성 | localStorage + matchMedia 의존 |
+| `saveTheme` | | ❌ 미작성 | localStorage 저장 |
+
 ### 제외 번호 저장 함수 (3개 — 미작성)
 
 브라우저 환경(LocalStorage) 의존으로 테스트 미작성 상태. 향후 브라우저 테스트(`test.html`)에 추가 예정.

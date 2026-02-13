@@ -5,11 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="1부터 45까지의 숫자 중 6개를 무작위로 추첨하는 웹 기반 로또번호 추첨기">
   <title>로또번호 추첨기</title>
+  <script>
+    (function() {
+      var theme = localStorage.getItem('lotto_theme');
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <main class="container">
-    <h1>🎰 로또번호 추첨기</h1>
+    <div class="header">
+      <h1>🎰 로또번호 추첨기</h1>
+      <button class="theme-toggle" id="btnThemeToggle" aria-label="다크 모드 전환">🌙</button>
+    </div>
 
     <!-- Auth Section -->
     <div class="auth-section" id="authSection">

@@ -1,6 +1,6 @@
 # 로또번호 추첨기 - 기술 명세서
 
-**버전**: 3.0.0 | **최종 수정**: 2026-02-12 | **상태**: Phase 4 진행 중
+**버전**: 3.1.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
 
 ---
 
@@ -60,10 +60,12 @@ HelloClaude/
 | 간격 | `--space-xs` ~ `--space-lg` | `10px` ~ `40px` |
 | 폰트 | `--font-family`, `--font-size-*` | `'Segoe UI'`, `2em` ~ `14px` |
 | 테두리 | `--radius-full`, `--radius-large`, `--radius-medium` | `50%`, `50px`, `20px` |
-| 그림자 | `--shadow-high`, `--shadow-medium` | 고/중 강도 box-shadow |
+| 그림자 | `--shadow-high`, `--shadow-medium`, `--shadow-card` 등 | 고/중 강도 box-shadow |
 | 표면(Surfaces) | `--border-color`, `--bg-light`, `--bg-subtle`, `--bg-muted` | `#e0e0e0`, `#f9f9f9` |
 | 상태(Status) | `--color-error`, `--color-success`, `--error-bg` | `#e84118`, `#44bd32` |
-| 비활성(Disabled) | `--disabled-bg`, `--disabled-text` | `#cccccc`, `#999999` |
+| 비활성(Disabled) | `--disabled-bg`, `--disabled-text`, `--disabled-hover` | `#cccccc`, `#999999` |
+
+다크 모드 시 `html[data-theme="dark"]`에서 변수를 오버라이드하여 전체 UI 전환. 색상 팔레트는 `docs/design.md` 참조.
 
 ### 버튼 클래스 체계
 
@@ -177,6 +179,24 @@ css/style.css
 
 **`generateUUID()`** → `string` — UUID v4 (`Math.random()` 기반)
 
+### 테마 함수 (다크 모드)
+
+**`applyTheme(theme)`**
+- `data-theme` 속성 설정(`dark`) 또는 제거(`light`) + `updateThemeToggle()` 호출
+
+**`updateThemeToggle(theme)`**
+- 토글 버튼 아이콘(🌙/☀️) 및 `aria-label` 업데이트
+
+**`toggleTheme()`**
+- 현재 테마 반전 + `applyTheme()` + `saveTheme()`
+
+**`loadTheme()`**
+- **반환**: `string` — `'light'` | `'dark'`
+- 우선순위: LocalStorage(`lotto_theme`) → `prefers-color-scheme` → `'light'`
+
+**`saveTheme(theme)`**
+- LocalStorage에 테마 저장. 키: `lotto_theme`
+
 ### 인증 함수 (Phase 4)
 
 **`toggleAuthForm()`** — 로그인 폼 토글
@@ -243,6 +263,19 @@ css/style.css
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | (루트) | number[] | 제외된 번호 배열 (1~45 중 선택) |
+
+### LocalStorage — 테마 (`lotto_theme`)
+
+```
+"dark"
+```
+
+| 값 | 설명 |
+|------|------|
+| `"light"` | 라이트 모드 |
+| `"dark"` | 다크 모드 |
+
+저장되지 않은 경우 시스템 `prefers-color-scheme` 설정을 따르며, 그것도 없으면 `light` 기본값.
 
 ### LocalStorage — 세션 (`supabase_session`)
 

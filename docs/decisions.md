@@ -18,6 +18,7 @@
 | [016](#adr-016) | Supabase REST API 직접 호출 (SDK 미사용) | 유지 | 2026-02-12 |
 | [017](#adr-017) | 문서 전면 구조 개편 — 토큰 사용량 48% 감소 | 적용 완료 | 2026-02-12 |
 | [018](#adr-018) | DOM/UI 테스트 CLI 러너 (puppeteer-core + Edge headless) | 유지 | 2026-02-13 |
+| [019](#adr-019) | 다크 모드: `html[data-theme]` + FOUC 방지 인라인 스크립트 | 유지 | 2026-02-13 |
 
 ---
 
@@ -200,3 +201,30 @@ Phase 4에서 Supabase를 백엔드로 도입할 때, SDK(`@supabase/supabase-js
 - **Playwright**: 더 풍부한 API지만, 단순 테스트 러너에는 과도함. 별도 브라우저 설치 필요
 - **JSDOM**: DOM 시뮬레이션. CSS 렌더링/시각적 테스트 불가
 - **overridePermissions**: headless 모드에서 writeText까지 깨뜨림. CDP 직접 호출로 해결
+
+---
+
+## ADR-019: 다크 모드: `html[data-theme]` + FOUC 방지 인라인 스크립트
+
+**날짜**: 2026-02-13
+**상태**: 유지
+**명세**: `docs/spec.md` F-008
+
+### 맥락
+Phase 3 미착수 항목인 다크 모드를 구현해야 했다. 현재 모든 색상이 CSS 변수(`:root`)로 관리되어 있어, 변수를 오버라이드하는 방식으로 전체 앱을 전환할 수 있었다.
+
+### 결정
+1. **테마 선택자**: `html[data-theme="dark"]` — `:root`보다 특이성이 높아 변수 오버라이드가 자연스러움
+2. **저장**: LocalStorage 키 `lotto_theme` (기존 `lotto_history`, `lotto_excluded` 패턴 준수)
+3. **FOUC 방지**: `<head>`에서 `<link>` 태그 앞에 인라인 `<script>`로 `data-theme` 설정
+4. **우선순위**: LocalStorage > `prefers-color-scheme` > light 기본값
+
+### 사유
+- **CSS 변수 활용**: 기존 `:root` 토큰 구조 덕분에 `html[data-theme="dark"]`에서 변수만 재정의하면 전체 UI 전환. 개별 클래스/선택자 추가 불필요
+- **FOUC 방지**: CSS 파싱 전에 `data-theme`을 설정하여 다크 모드 사용자에게 밝은 화면이 잠깐 보이는 문제 방지
+- **`prefers-color-scheme` 연동**: 저장값이 없을 때만 시스템 설정 반영. `matchMedia` change 리스너로 실시간 감지
+
+### 검토한 대안
+- **`body.dark` 클래스**: `body`는 DOM 로드 후 접근 가능하여 FOUC 방지 어려움
+- **`:root.dark`**: `:root`와 같은 특이성이라 오버라이드 충돌 가능
+- **CSS `@media (prefers-color-scheme)` only**: 사용자가 수동 전환할 수 없음
