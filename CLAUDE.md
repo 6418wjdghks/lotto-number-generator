@@ -118,13 +118,13 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | `style` | B | — | ~15K |
 | `code` | A, C | — | ~40K |
 | `test` | D | — | ~15K |
-| `doc:api` | — | A | ~196K |
+| `doc:api` | — | A | ~190K |
 | `doc:design` | — | B | ~34K |
 | `doc:spec` | — | C | ~43K |
 | `doc:test` | — | D | ~77K |
 | `doc:track` | — | — | 0K |
 | `config` | — | — | 0K |
-| 릴리스 전 | — | A+B+C+D | ~350K |
+| 릴리스 전 | — | A+B+C+D | ~340K |
 
 **복합 변경 규칙**:
 1. 변경된 파일들의 Label을 수집
@@ -155,18 +155,26 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 - 함수 카운트 규칙: `function` + `async function` 모두 포함 (Grep 패턴: `^(async )?function`, 대상: `js/` 디렉토리)
 - 기대값: 34개 (function 26 + async function 8), 7개 모듈에 분산
 
-**Tier 2** (5 에이전트, ~196K):
+**Tier 2** (5 에이전트, ~190K):
 
 | 에이전트 | 문서 | 비교 소스 |
 |----------|------|----------|
-| Agent 1 | tech.md | js/*.js, style.css, index.html |
+| Agent 1 | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API 테이블) |
 | Agent 2 | spec.md | index.html, js/*.js |
-| Agent 3 | CLAUDE.md + README.md | Grep(`js/`), Glob, package.json, test/README.md |
+| Agent 3 | CLAUDE.md(비API) + README.md | Glob |
 | Agent 4 | design.md | style.css, index.html |
-| Agent 5 | test/README.md | test-logic.js, test-dom.js, js/app.js, package.json |
+| Agent 5 | test/README.md | test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) |
 
 > `js/*.js` = utils, theme, exclude, lottery, history, auth, app (7개 모듈)
+> Agent 1 확장: CLAUDE.md API 테이블 함수 목록(34개)이 tech.md 함수 목록과 일치하는지 교차 검증
+> Agent 3 경량화: 함수 카운트→A1, 테스트 수·package.json→A5 위임. 잔여: 파일 타입 테이블(Glob) + README.md
+> Agent 5 확장: CLAUDE.md 테스트 수 기대값(73=23+50) + package.json 스크립트 참조 교차 검증
 > Agent 5: test-logic.js는 `require('../js/app.js')` 경유로 전 모듈 접근 → app.js만 참조 충분
+
+**Agent 3 프롬프트 최적화**:
+- 기대값 명시: js/ 모듈 7개, 파일 타입 분류 파일 수를 프롬프트에 포함 (탐색 Grep 제거)
+- 배치 가이드: CLAUDE.md + README.md 병렬 Read → Glob 1~2회 → 완료
+- 목표: Tool 22→10회, 시간 107→50s, 토큰 49K→33K
 
 #### B. 디자인 검증 (design.md ↔ CSS)
 
