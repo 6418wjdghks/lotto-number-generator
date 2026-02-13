@@ -58,7 +58,7 @@ lottery.js(4) | history.js(8) | exclude.js(7) | utils.js(3) | theme.js(5) | auth
 | API/기술 상세 | `docs/tech.md` | ~440줄 |
 | UI/디자인 | `docs/design.md` | ~370줄 |
 | Phase 계획 | `docs/plan.md` | ~95줄 |
-| 설계 결정 (ADR) | `docs/decisions.md` | ~550줄 — 서브에이전트 권장 |
+| 설계 결정 (ADR) | `docs/decisions.md` | ~17줄 (활성 0, 아카이브 3개) |
 | Phase 4 아키텍처 | `docs/phase4-architecture.md` | ~615줄 — 서브에이전트 권장 |
 | 검증 체계 | `docs/verification.md` | ~190줄 |
 | 테스트 명세 | `test/README.md` | ~185줄 |
