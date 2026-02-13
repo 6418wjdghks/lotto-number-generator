@@ -1,6 +1,6 @@
 # 로또번호 추첨기 - 디자인 명세서
 
-**버전**: 4.2.0 | **최종 수정**: 2026-02-13
+**버전**: 4.3.0 | **최종 수정**: 2026-02-13
 
 > CSS 구현 상세는 `css/style.css` 참조. 본 문서는 디자인 시스템과 컴포넌트 명세만 기술.
 > `:root` 디자인 토큰이 CSS에 적용되어 있으며, 모든 주요 값은 변수로 관리됨.
@@ -58,6 +58,17 @@
 | `--bg-subtle` | `#f0f0ff` | `#2a2a3e` |
 | `--bg-muted` | `#f0f0f0` | `#2e2e3e` |
 | `--border-color` | `#e0e0e0` | `#3a3a4a` |
+| `--error-bg` | `#fff3f3` | `#3a1a1a` |
+| `--disabled-bg` | `#cccccc` | `#444455` |
+| `--disabled-text` | `#999999` | `#777788` |
+| `--disabled-hover` | `#bbbbbb` | `#555566` |
+| `--focus-shadow` | `rgba(102,126,234, 0.1)` | `rgba(102,126,234, 0.2)` |
+| `--shadow-primary-glow` | `rgba(102,126,234, 0.3)` | `rgba(102,126,234, 0.4)` |
+| `--shadow-card` | `rgba(0,0,0, 0.1)` | `rgba(0,0,0, 0.3)` |
+| `--shadow-card-hover` | `rgba(102,126,234, 0.2)` | `rgba(102,126,234, 0.3)` |
+| `--shadow-toast` | `rgba(0,0,0, 0.3)` | `rgba(0,0,0, 0.5)` |
+| `--shadow-high` | `0 20px 60px rgba(0,0,0,0.3)` | `0 20px 60px rgba(0,0,0,0.5)` |
+| `--shadow-medium` | `0 10px 20px rgba(0,0,0,0.2)` | `0 10px 20px rgba(0,0,0,0.4)` |
 | body 배경 | 보라 그라데이션 | `#2a2d4a → #1a1a2e` |
 
 ---
@@ -87,13 +98,35 @@
 │   │         CARD CONTAINER          │   │
 │   │    🎰 로또번호 추첨기          │   │
 │   │    [인증 섹션]                  │   │
-│   │    세트 수: [▼]  [추첨하기]     │   │
-│   │    ⭕ ⭕ ⭕ ⭕ ⭕ ⭕           │   │
+│   │    세트 수: [▼]                 │   │
 │   │    [번호 제외 설정 ▼]           │   │
-│   │    [이력 보기 ▼]               │   │
+│   │    [추첨하기]                   │   │
+│   │    (안내 텍스트)                │   │
+│   │    ⭕ ⭕ ⭕ ⭕ ⭕ ⭕           │   │
+│   │    [이력 보기 ▼] [전체 삭제]    │   │
 │   └─────────────────────────────────┘   │
 └─────────────────────────────────────────┘
 ```
+
+### DOM 순서 (정확한 배치)
+
+```
+main.container
+├── .header (h1 + .theme-toggle)
+├── .auth-section
+│   ├── #authGuest (토글 버튼 + 폼)
+│   └── #authUser (이메일 + 로그아웃)
+├── .set-selector (label + select)      ← 추첨 버튼과 분리
+├── .exclude-section (토글 버튼 + 패널)
+├── .btn-primary#btnGenerate            ← 단독 배치
+├── p.info                              ← 안내 텍스트
+├── .sets-container#setsContainer       ← 결과 영역
+└── .history-section
+    ├── .history-controls (이력 보기 + 전체 삭제)
+    └── .history-list#historyList
+```
+
+**주의**: 추첨 버튼은 `.set-selector` 내부가 **아닌** 독립 요소로 배치됨
 
 ### 여러 세트 레이아웃
 
@@ -115,13 +148,13 @@
 |----------|----------|--------|--------|--------|------|------|
 | `body` | flex center, pad 20 | — | — | — | primary gradient | — |
 | `.container` | max-w 500, pad 40 | — | 20px | `--shadow-high` | white | — |
-| `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold white |
+| `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold `var(--white)` |
 | `.set-selector` | flex, gap 10 | — | — | — | — | 16px bold |
 | `.set-selector select` | pad 8×12 | 2px #667eea | 8px | — | white | 16px text-primary |
 | `.sets-container` | grid auto-fit 280px, gap 20 | — | — | — | — | — |
 | `.set-card` | pad 20 | 2px #e0e0e0 | 15px | 0 4 12 0.1 | white | — |
 | `.set-label` | — | — | — | — | — | 14px bold #667eea |
-| `.set-numbers .number` | 50×50 | — | 50% | — | 위치별 색상 | 20px bold white |
+| `.set-numbers .number` | 50×50 | — | 50% | — | 위치별 색상 | 20px bold `var(--white)` |
 | `.copy-btn` | w 100%, pad 6×12 | 1px #667eea | 15px | — | #f0f0f0 | 12px #667eea |
 | `.toast` | fixed bottom 30, center | — | 8px | 0 4 12 0.3 | #333 | 14px white |
 | `.toast.success` | — | — | — | — | #44bd32 | — |
@@ -148,6 +181,10 @@
 | `.btn-auth` | flex 1, pad 10×20 | none | 25px | — | primary gradient | 14px white |
 | `.btn-auth-secondary` | flex 1, pad 10×20 | 2px #667eea | 25px | — | white | 14px #667eea |
 | `.auth-user-info` | pad 10×15, flex between | — | 10px | — | #f0f0ff | 14px |
+| `.set-numbers` | flex center, gap 8, wrap | — | — | — | — | — |
+| `.history-controls` | flex, space-between, gap 10, mb 15 | — | — | — | — | — |
+| `.history-item:last-child` | mb 0 | — | — | — | — | — |
+| `.auth-user-info span` | — | — | — | — | — | bold, primary-start, overflow ellipsis |
 | `.header` | relative, flex center | — | — | — | — | — |
 | `.theme-toggle` | abs right, 40×40 | 2px border-color | 50% | — | none | 20px |
 
@@ -164,6 +201,7 @@
 | `.copy-btn` | active | scale(0.95) | 즉시 |
 | `.btn-secondary` | hover | bg #667eea, color white | 0.2s |
 | `.exclude-btn` | hover | bg #f0f0ff, scale(1.1) | 0.15s |
+| `.exclude-btn.excluded` | hover | bg disabled-hover, opacity 0.8 | 0.15s |
 | `.exclude-reset-btn` | hover | bg #e84118, color white | 0.2s |
 | `.auth-input` | focus | border #667eea, shadow 3px rgba | 즉시 |
 | 모든 버튼 | focus-visible | outline 3px solid primary, offset 2px | 즉시 |
@@ -178,9 +216,18 @@
 | 이름 | 대상 | 설명 | 지속 | 이징 |
 |------|------|------|------|------|
 | `pop` | `.number` | scale 0→1.2→1 | 0.5s | ease |
-| `fadeIn` | `.set-card` | opacity 0→1 | 0.3s | ease |
-| `slideUp` | `.toast` | opacity/translateY 20→0 | 0.3s | ease |
-| `fadeOut` | `.toast` (제거) | opacity 1→0, translateY 10 | 0.3s | ease |
+| `fadeIn` | `.set-card` | opacity 0→1, translateY 10→0 | 0.3s | ease |
+| `slideUp` | `.toast` (등장) | opacity 0→1, translate(-50%, 20px→0) | 0.3s | ease |
+| `fadeOut` | `.toast` (제거) | opacity 1→0, translate(-50%, 0→10px) | 0.3s | ease |
+
+### 키프레임 상세
+
+| 이름 | 키프레임 | 비고 |
+|------|---------|------|
+| `pop` | 0%: `scale(0)` → 50%: `scale(1.2)` → 100%: `scale(1)` | opacity 변경 없음 |
+| `fadeIn` | from: `opacity: 0; translateY(10px)` → to: `opacity: 1; translateY(0)` | Y축 이동 포함 |
+| `slideUp` | from: `opacity: 0; translate(-50%, 20px)` → to: `opacity: 1; translate(-50%, 0)` | 토스트 `left: 50%` 중앙정렬 유지 |
+| `fadeOut` | from: `opacity: 1` → to: `opacity: 0; translate(-50%, 10px)` | 토스트 중앙정렬 유지 |
 
 숫자 뱃지 딜레이: `(setIndex * 0.1) + (numIndex * 0.05)s` (JS에서 동적 설정)
 
@@ -264,6 +311,13 @@
   /* Disabled */
   --disabled-bg: #cccccc;
   --disabled-text: #999999;
+  --disabled-hover: #bbbbbb;
+  /* Dynamic Shadows */
+  --focus-shadow: rgba(102, 126, 234, 0.1);
+  --shadow-primary-glow: rgba(102, 126, 234, 0.3);
+  --shadow-card: rgba(0, 0, 0, 0.1);
+  --shadow-card-hover: rgba(102, 126, 234, 0.2);
+  --shadow-toast: rgba(0, 0, 0, 0.3);
 }
 ```
 
@@ -273,9 +327,32 @@
 
 | 디바이스 | 범위 | 주요 변경 |
 |----------|------|----------|
-| 모바일 | < 480px | container pad 30×20, .number 50×50/20px, h1 1.5em, .btn-primary 12×30/16px, grid→1열, exclude-grid→5열 |
+| 모바일 | < 480px | 아래 상세 테이블 참조 |
 | 태블릿 | 480-768px | 기본 유지 |
 | 데스크톱 | > 768px | 기본 (최적화됨) |
+
+### 모바일 (< 480px) 변경 항목
+
+| 컴포넌트 | 변경 사항 |
+|----------|----------|
+| `.container` | `padding: 30px 20px` |
+| `h1` | `font-size: 1.5em` |
+| `.theme-toggle` | `34×34px`, `font-size: 16px` |
+| `.number` | `50×50px`, `font-size: 20px` |
+| `.btn-primary` | `padding: 12px 30px`, `font-size: 16px` |
+| `.set-selector` | `flex-direction: column`, `align-items: flex-start` |
+| `.sets-container` | `grid-template-columns: 1fr` (1열) |
+| `.set-numbers .number` | `45×45px`, `font-size: 18px` |
+| `.copy-btn` | `font-size: 11px`, `padding: 5px 10px` |
+| `.toast` | `bottom: 20px`, `max-width: 90%`, `font-size: 13px` |
+| `.exclude-grid` | `5열`, `gap: 5px` |
+| `.exclude-btn` | `font-size: 12px` |
+| `.exclude-info` | `font-size: 12px`, `flex-wrap: wrap`, `gap: 5px` |
+| `.auth-buttons` | `flex-direction: column` |
+| `.auth-user-info` | `flex-direction: column`, `text-align: center` |
+| `.history-controls` | `flex-direction: column` |
+| `.history-item` | `padding: 10px 12px` |
+| `.history-numbers` | `font-size: 14px` |
 
 ---
 

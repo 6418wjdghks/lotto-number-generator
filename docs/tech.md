@@ -1,6 +1,6 @@
 # 로또번호 추첨기 - 기술 명세서
 
-**버전**: 3.1.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
+**버전**: 3.2.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
 
 ---
 
@@ -102,6 +102,17 @@ css/style.css
 
 ---
 
+## HTML ID 네이밍 규칙
+
+| 패턴 | 규칙 | 예시 |
+|------|------|------|
+| 버튼 | `btn` 접두어 + PascalCase 동작 | `btnGenerate`, `btnThemeToggle`, `btnToggleAuth`, `btnSignIn`, `btnSignUp`, `btnSignOut`, `btnToggleExclude`, `btnResetExclude`, `btnToggleHistory`, `btnClearHistory` |
+| 토글 텍스트 | 버튼 내부 `<span>` 분리, ID는 `xxxText` | `#historyToggleText`, `#excludeToggleText`, `#authToggleText` |
+| 컨테이너/패널 | camelCase 설명명 | `#setsContainer`, `#excludePanel`, `#excludeGrid`, `#historyList` |
+| 인증 | `auth` 접두어 | `#authGuest`, `#authUser`, `#authForm`, `#authEmail`, `#authPassword`, `#authUserEmail` |
+
+---
+
 ## JavaScript API (`js/app.js`)
 
 > 함수 요약: CLAUDE.md API 테이블 참조. 아래는 상세 명세.
@@ -118,7 +129,8 @@ css/style.css
 - **반환**: `Array<Array<number>>` — count개 세트
 
 **`getSelectedSetCount()`**
-- **반환**: `number` — `#setCount` 드롭다운 값
+- **반환**: `number` — `#setCount` 드롭다운 값 (`parseInt(select.value, 10)`)
+- 드롭다운 옵션 텍스트: `"1개"`, `"2개"`, `"3개"`, `"4개"`, `"5개"` (value: `"1"`~`"5"`, `"1"` selected)
 
 **`generateLottoNumbers()`**
 - 메인 진입점. `getSelectedSetCount()` → `generateMultipleSets()` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
@@ -132,7 +144,9 @@ css/style.css
 - `loadHistory()` → DOM 렌더링, 빈 상태 처리
 
 **`showToast(message, type = 'success', duration = 2000)`**
-- 토스트 메시지 생성, `duration`ms 후 자동 제거. type: `'success'` | `'error'`
+- `document.body`에 append. 새 토스트 생성 전 기존 `.toast` 요소 제거 (화면에 항상 1개만 존재)
+- `duration`ms 후 `fadeOut` 0.3s 애니메이션 적용 → 300ms 후 DOM에서 `remove()`
+- type: `'success'` | `'error'` (CSS 클래스로 배경색 분기)
 
 ### 이력 함수 (듀얼 모드)
 
@@ -154,7 +168,7 @@ css/style.css
 
 **`clearHistoryLocal()`** — LocalStorage 이력 삭제
 
-**`toggleHistoryView()`** — 이력 영역 표시/숨김 토글
+**`toggleHistoryView()`** — 이력 영역 표시/숨김 토글. `#historyToggleText` span의 textContent를 `"이력 보기 ▼"` / `"이력 숨기기 ▲"`로 전환
 
 ### 제외 함수
 
@@ -172,10 +186,21 @@ css/style.css
 
 **`clearExcludedNumbers()`** — LocalStorage 제외 번호 삭제
 
+### 방어적 코딩 패턴
+
+| 함수 | 방어 로직 |
+|------|----------|
+| `copyToClipboard` | `navigator.clipboard` 존재 확인 (미지원 시 토스트 에러), catch에서 `error.name === 'NotAllowedError'` 분기 처리 |
+| `loadHistoryLocal` | `version !== '1.0'` 검증, 불일치 시 콘솔 경고 + 빈 배열 반환 |
+| `clearHistory` | 빈 이력 사전 확인 → `alert('삭제할 이력이 없습니다.')`, 이후 `confirm()` → 삭제 → `alert('이력이 삭제되었습니다.')` |
+| `saveToHistory` | 저장 후 `#historyList`가 `hidden` 미포함이면 `displayHistory()` 자동 호출 |
+| `handleSignIn/Up/Out` | `window.supabase` 존재 확인 후 호출, 미존재 시 토스트 에러 |
+
 ### 복사 / 유틸리티
 
 **`copyToClipboard(numbers, setNumber = null)`** → `Promise<boolean>`
 - Clipboard API 사용. 형식: `"3, 12, 19, 27, 38, 42"`
+- 방어: `navigator.clipboard` 존재 확인, `NotAllowedError` 분기 처리
 
 **`generateUUID()`** → `string` — UUID v4 (`Math.random()` 기반)
 
@@ -212,17 +237,19 @@ css/style.css
 
 전역 객체 `window.supabase`로 노출. 설정: `SUPABASE_URL`, `SUPABASE_ANON_KEY` (플레이스홀더).
 
+**에러 처리 패턴**: Auth API (`signUp`, `signIn`, `signOut`)는 `{ success: boolean, data?, error? }` 객체를 반환. **절대 throw하지 않음**. 호출자는 `result.success`로 분기. History API (`fetchHistory`, `insertHistory`, `deleteAllHistory`)는 실패 시 `throw new Error()`로 예외 발생 — 호출자(`saveToHistory`, `loadHistory`, `clearHistory`)가 try-catch로 처리.
+
 | 함수 | 설명 |
 |------|------|
 | `getSession()` | LocalStorage에서 세션(토큰/유저) 반환 |
 | `saveSession(data)` | 세션 저장 |
 | `clearSession()` | 세션 삭제 |
-| `isLoggedIn()` | 세션 존재 + access_token 유무 |
+| `isLoggedIn()` | `getSession() !== null` — 세션 객체 존재 여부만 확인 |
 | `signUp(email, password)` | (async) `/auth/v1/signup` |
 | `signIn(email, password)` | (async) `/auth/v1/token?grant_type=password` |
 | `signOut()` | (async) `/auth/v1/logout` + 세션 삭제 |
 | `getUser()` | (async) `/auth/v1/user` |
-| `fetchHistory(limit)` | (async) `/rest/v1/lottery_history` 조회 |
+| `fetchHistory(limit=50)` | (async) `/rest/v1/lottery_history?user_id=eq.${session.user.id}&order=created_at.desc&limit=${limit}` 조회 |
 | `insertHistory(numbers, setCount)` | (async) 이력 POST |
 | `deleteAllHistory()` | (async) 전체 이력 DELETE |
 
@@ -286,6 +313,29 @@ css/style.css
 DB 스키마 상세: `docs/phase4-architecture.md` 참조.
 - `lottery_history`: 서버 측 추첨 이력 (user_id, numbers, set_count, created_at)
 - `lottery_results`, `winning_history`, `users`: Phase 4 후반 구현 예정
+
+---
+
+## Node.js 테스트용 Module Exports
+
+`app.js` 하단에서 `typeof module !== 'undefined'` 조건으로 Node.js 환경에서만 내보냄. **테스트 호환성을 위해 Local(동기) 버전**을 내보냄:
+
+```javascript
+module.exports = {
+  STORAGE_KEY,        // 'lotto_history'
+  EXCLUDED_KEY,       // 'lotto_excluded'
+  THEME_KEY,          // 'lotto_theme'
+  MAX_HISTORY,        // 20
+  generateSingleSet,
+  generateMultipleSets,
+  generateUUID,
+  loadHistory: loadHistoryLocal,   // 동기 버전으로 alias
+  saveToHistory: saveToHistoryLocal, // 동기 버전으로 alias
+  saveExcludedNumbers,
+  loadExcludedNumbers,
+  clearExcludedNumbers,
+};
+```
 
 ---
 

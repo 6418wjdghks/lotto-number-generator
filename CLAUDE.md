@@ -88,8 +88,17 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 ## 코딩 규칙
 
-- **JavaScript**: Vanilla JS, ES6+, `function` 키워드, 2 spaces, 작은따옴표/백틱, 세미콜론 사용
+- **JavaScript**: Vanilla JS, ES6+, `function` 키워드 (톱레벨 함수 선언), 2 spaces, 작은따옴표/백틱, 세미콜론 사용
+  - `const`/`let` 사용 (`var` 금지)
+  - 화살표 함수: 콜백, `forEach`, `map`, `filter` 등에 사용
+  - 템플릿 리터럴: 문자열 연결(`+`) 대신 백틱(`` ` ``) 사용
+  - 구조분해 할당: `[array[i], array[j]] = [array[j], array[i]]`
+  - ES6 메서드: `Array.from`, `includes`, `padStart`, `String.prototype.trim` 등
+  - 기본 매개변수: `function fn(excludedNumbers = [])`
 - **HTML**: 2 spaces, ID는 camelCase, 클래스는 kebab-case
+  - 토글 버튼: 텍스트를 `<span id="xxxText">` 로 분리 (JS에서 `span.textContent` 변경)
+  - 동적 생성 버튼: `type="button"` 명시
+  - 버튼 ID: `btn` 접두어 (`btnGenerate`, `btnToggleHistory`, `btnThemeToggle` 등)
 - **CSS**: 2 spaces, 선택자 순서 요소→클래스→ID, 섹션별 주석
 - **보안**: `textContent` 사용 (innerHTML 금지), JSON.parse 시 try-catch
 
