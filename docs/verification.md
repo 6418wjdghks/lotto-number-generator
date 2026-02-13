@@ -54,6 +54,13 @@
 | `doc:track` | 문서(추적) | `plan.md`, `decisions.md`, `decisions_*_*.md`, `phase4-architecture.md`, `verification.md` |
 | `config` | 설정 | `package.json` |
 
+## 검증 수준
+
+| 수준 | 별칭 | 구성 | 에이전트 | 용도 |
+|------|------|------|---------|------|
+| **보통 검증** | 일반 검증, 간편 검증 | Tier 0 + `npm test` | 없음 | 일상 변경 확인 |
+| **정밀 검증** | 전수 검증 | Tier 0 + `npm test` + Tier 2 에이전트 | 5개 (백그라운드) | 문서 변경 / 릴리스 전 |
+
 ## 2계층 검증
 
 | 계층 | 방식 | 빈도 |
