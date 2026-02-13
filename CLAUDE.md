@@ -54,7 +54,7 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 ## 개발 워크플로우
 
 **1단계 준비**: CLAUDE.md 확인 → 관련 문서 읽기 → `git log --oneline -5`
-**2단계 구현**: 기능 구현 → 테스트 (`node --test test/test-logic.js`, `test/test.html`)
+**2단계 구현**: 기능 구현 → 테스트 (`npm test` 또는 개별: `npm run test:logic`, `npm run test:dom`)
 **3단계 마무리**: 명세-구현 검증 → 문서 업데이트 → 결과 요약 → 사용자 승인 후 커밋
 
 ### 문서 업데이트 매트릭스

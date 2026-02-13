@@ -2,23 +2,34 @@
 
 로또번호 추첨기의 자동 테스트 도구입니다.
 
-## 테스트 2계층 구조
+## 테스트 3계층 구조
 
-| 계층 | 파일 | 실행 환경 | 대상 | 테스트 수 |
-|------|------|----------|------|-----------|
+| 계층 | 파일 | 실행 환경 | 대상 | 검증 수 |
+|------|------|----------|------|---------|
 | **순수 로직** | `test-logic.js` | Node.js (CLI) | 순수 함수, localStorage 로직 | 23개 |
-| **DOM/UI** | `test.html` | 브라우저 | DOM 렌더링, 토스트, 클립보드 등 | 11개 |
+| **DOM/UI (CLI)** | `test-dom.js` | Node.js + Edge headless | DOM 렌더링, 토스트, 클립보드 등 | 50개 |
+| **DOM/UI (브라우저)** | `test.html` | 브라우저 직접 | 위와 동일 (시각적 확인용) | 50개 |
 
-중복 없음: 순수 로직은 CLI에서만, DOM 의존 기능은 브라우저에서만 테스트합니다.
+중복 없음: 순수 로직은 CLI에서만, DOM 의존 기능은 브라우저(또는 headless)에서만 테스트합니다.
+`test-dom.js`는 `test.html`을 Edge headless로 실행하는 래퍼입니다.
 
 ## 실행 방법
 
-### CLI 자동 테스트 (Node.js 18+)
+### npm 통합 명령 (권장)
 ```bash
-node --test test/test-logic.js
+npm test                    # 로직 + DOM 테스트 순차 실행
+npm run test:logic          # 순수 로직만
+npm run test:dom            # DOM/UI (Edge headless)
+npm run test:dom:screenshot # DOM/UI + 스크린샷 저장
 ```
-- 외부 의존성 없음 (Node.js 내장 `node:test` 사용)
-- exit code 0/1로 CI 연동 가능
+
+### CLI 직접 실행
+```bash
+node --test test/test-logic.js          # 순수 로직 (Node.js 18+)
+node test/test-dom.js                   # DOM/UI (puppeteer-core 필요)
+node test/test-dom.js --screenshot      # 스크린샷: test/screenshot.png
+node test/test-dom.js --screenshot=path # 스크린샷: 지정 경로
+```
 
 ### 브라우저 DOM/UI 테스트
 ```bash
@@ -82,21 +93,24 @@ open test/test.html   # macOS
 
 ---
 
-## 브라우저 테스트 항목 (test.html, 11개)
+## DOM/UI 테스트 항목 (test.html + test-dom.js, 11그룹 50개 검증)
 
-| # | 검증 내용 | 의존 |
-|---|-----------|------|
-| 1 | `clearHistory()` - 빈 이력 경고, confirm 승인/거부, 완료 알림 | alert/confirm |
-| 2 | `getSelectedSetCount()` - DOM select 연동, 타입 검증 | DOM |
-| 3 | `copyToClipboard()` - 성공/실패, 클립보드 내용, setNumber 토스트 | Clipboard API |
-| 4 | `showToast()` - success/error 타입, 메시지 일치, 자동 제거 | DOM |
-| 5 | `displayMultipleSets()` - 카드, 라벨, 뱃지, textContent, 복사버튼 | DOM |
-| 6 | `displayHistory()` - 빈 이력 메시지, 숫자/시간 표시, setCount | DOM |
-| 7 | `toggleHistoryView()` - hidden 토글, 버튼 텍스트 변경 | DOM |
-| 8 | `toggleExcludeView()` - 패널 토글, 45개 버튼, 클릭 제외, 카운터 | DOM |
-| 9 | `resetExcludedNumbers()` - 초기화 후 제외 0개, 카운터 리셋 | DOM |
-| 10 | 제외 39개 초과 시 경고 표시/숨김 | DOM |
-| 11 | `generateLottoNumbers()` - 1세트/3세트 end-to-end | DOM + 통합 |
+| # | 테스트 그룹 | 검증 수 | 의존 |
+|---|------------|---------|------|
+| 1 | `clearHistory()` — 빈 이력 경고, confirm 승인/거부, 완료 알림 | 4 | alert/confirm |
+| 2 | `getSelectedSetCount()` — 기본값, 최대값, 반환 타입 | 3 | DOM |
+| 3 | `copyToClipboard()` — 복사 성공, 클립보드 내용 일치, setNumber 토스트 | 3 | Clipboard API |
+| 4 | `showToast()` — success/error 타입, 메시지, 자동 제거, 연속 교체 | 6 | DOM |
+| 5 | `displayMultipleSets()` — 카드, 라벨, 뱃지, textContent, 복사버튼, 초기화 | 6 | DOM |
+| 6 | `displayHistory()` — 빈 이력 메시지, 항목 렌더링, 숫자/시간/setCount | 5 | DOM |
+| 7 | `toggleHistoryView()` — 초기 상태, hidden 토글, 텍스트 변경 (2회) | 6 | DOM |
+| 8 | `toggleExcludeView()` — 패널 토글, 45개 버튼, 클릭 제외, 카운터, 재토글 | 6 | DOM |
+| 9 | `resetExcludedNumbers()` — 제외 설정, 초기화, 카운터 리셋 | 3 | DOM |
+| 10 | 제외 경고 — 40개 제외 시 경고 표시, 39개 시 숨김 | 2 | DOM |
+| 11 | `generateLottoNumbers()` — 1세트/3세트 카드, 이력, setCount, 숫자 유효 | 6 | DOM + 통합 |
+| | **합계** | **50** | |
+
+> Test 3: CLI 러너는 CDP로 클립보드 권한을 부여하여 3개 모두 실행. 브라우저에서 readText 권한이 없으면 내용 검증을 스킵하고 2개 실행.
 
 추가로 분포 통계 시각화(1000회)를 참고 도구로 제공합니다 (테스트 검증 아님).
 
@@ -108,6 +122,7 @@ open test/test.html   # macOS
 - **resetFixture()**: 테스트 간 상태 격리 — `lotto_history`, `lotto_excluded` LocalStorage 초기화 + DOM 리셋
 - **localStorage 모킹** (`test-logic.js`): `global.localStorage`/`global.document` 최소 모킹
 - **비동기 처리**: `runAllTests()`가 async, Clipboard/Toast 테스트를 `await`로 순차 실행
+- **CLI 러너** (`test-dom.js`): puppeteer-core + Edge headless로 test.html 실행. `console.log` 이벤트로 실시간 CLI 출력, `dataset` 완료 시그널로 종료 감지
 
 ---
 
@@ -153,4 +168,4 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 
 ---
 
-**최종 업데이트**: 2026-02-13 (v4.1) — resetFixture() 제외 번호 초기화 버그 수정
+**최종 업데이트**: 2026-02-13 (v4.3) — DOM/UI 테스트 CLI 러너 추가, 클립보드 검증 복원 (50개)

@@ -17,6 +17,7 @@
 | [015](#adr-015) | 파생 수치 단일 소스 규칙 | 유지 | 2026-02-11 |
 | [016](#adr-016) | Supabase REST API 직접 호출 (SDK 미사용) | 유지 | 2026-02-12 |
 | [017](#adr-017) | 문서 전면 구조 개편 — 토큰 사용량 48% 감소 | 적용 완료 | 2026-02-12 |
+| [018](#adr-018) | DOM/UI 테스트 CLI 러너 (puppeteer-core + Edge headless) | 유지 | 2026-02-13 |
 
 ---
 
@@ -172,3 +173,30 @@ Phase 4에서 Supabase를 백엔드로 도입할 때, SDK(`@supabase/supabase-js
 - **역할 명확화**: spec.md = WHAT, tech.md = HOW
 - **CSS 중복 제거**: design.md에서 style.css 복사본 ~800줄 삭제
 - **사문화 방지**: 미채택 옵션, 완료된 체크리스트 정리
+
+---
+
+## ADR-018: DOM/UI 테스트 CLI 러너 (puppeteer-core + Edge headless)
+
+**날짜**: 2026-02-13
+**상태**: 유지
+**코드**: `test/test-dom.js`
+
+### 맥락
+기존 DOM/UI 테스트(`test/test.html`)는 브라우저에서만 실행 가능하여 CLI에서 결과를 확인할 수 없었다. `npm test` 한 번으로 전체 테스트를 실행할 수 있어야 했다.
+
+### 결정
+`puppeteer-core`로 시스템에 설치된 Edge를 headless 모드로 실행하여 `test/test.html`의 테스트 결과를 CLI에 텍스트로 출력한다.
+
+### 사유
+- **puppeteer-core** (Chromium 미포함): 번들 크기 ~3MB (puppeteer full ~170MB)
+- **Edge 재사용**: Windows 11에 기본 설치된 Edge를 활용. 별도 브라우저 다운로드 불필요
+- **test.html 최소 수정**: `console.log` 1줄 + `dataset` 완료 시그널 4줄 + `readText` try-catch 분리. 기존 브라우저 동작 유지
+- **HTTP 서버 내장**: `node:http`로 프로젝트 루트를 정적 서빙. file:// 프로토콜 제한 회피
+- **CDP 권한 부여**: `Browser.grantPermissions`로 `clipboardReadWrite` 부여. `overridePermissions`는 headless 클립보드 mock을 방해하여 부적합
+
+### 검토한 대안
+- **puppeteer (full)**: Chromium 내장. 용량이 크고 이미 Edge가 있으므로 불필요
+- **Playwright**: 더 풍부한 API지만, 단순 테스트 러너에는 과도함. 별도 브라우저 설치 필요
+- **JSDOM**: DOM 시뮬레이션. CSS 렌더링/시각적 테스트 불가
+- **overridePermissions**: headless 모드에서 writeText까지 깨뜨림. CDP 직접 호출로 해결

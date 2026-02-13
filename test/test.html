@@ -199,6 +199,7 @@
     let testResults = [];
 
     function log(message, type = 'info') {
+      console.log(`[${type.toUpperCase()}] ${message}`);
       const resultsDiv = document.getElementById('testResults');
       const resultDiv = document.createElement('div');
       resultDiv.className = `result ${type}`;
@@ -260,6 +261,11 @@
         <span>${failCount > 0 ? '❌ ' + failCount + ' 실패' : ''}</span>
         <span>총 ${total}개 검증</span>
       `;
+
+      document.body.dataset.testComplete = 'true';
+      document.body.dataset.testFailed = String(failCount > 0);
+      document.body.dataset.testPassCount = String(passCount);
+      document.body.dataset.testFailCount = String(failCount);
     }
 
     /** 분포 통계 시각화 (테스트가 아닌 참고 도구) */
@@ -416,32 +422,32 @@
         return;
       }
 
+      const result = await copyToClipboard(testNumbers);
+
+      if (result === true) {
+        log('✅ PASS: 복사 성공 (true 반환)', 'pass');
+      } else {
+        log('❌ FAIL: 복사 실패', 'fail');
+      }
+
       try {
-        const result = await copyToClipboard(testNumbers);
-
-        if (result === true) {
-          log('✅ PASS: 복사 성공 (true 반환)', 'pass');
-        } else {
-          log('❌ FAIL: 복사 실패', 'fail');
-        }
-
         const clipText = await navigator.clipboard.readText();
         if (clipText === '3, 12, 19, 27, 38, 42') {
           log('✅ PASS: 클립보드 내용 일치', 'pass');
         } else {
           log(`❌ FAIL: 클립보드 내용 불일치 ("${clipText}")`, 'fail');
         }
-
-        await copyToClipboard(testNumbers, 2);
-        await waitFor(50);
-        const toast = document.querySelector('.toast');
-        if (toast && toast.textContent.includes('2회차')) {
-          log('✅ PASS: setNumber 반영된 토스트 메시지', 'pass');
-        } else {
-          log('❌ FAIL: setNumber 미반영', 'fail');
-        }
       } catch (error) {
-        log(`⚠️ INFO: 복사 테스트 제한 (${error.message})`, 'info');
+        log('⚠️ INFO: 클립보드 읽기 권한 없음 - 내용 검증 스킵', 'info');
+      }
+
+      await copyToClipboard(testNumbers, 2);
+      await waitFor(50);
+      const toast = document.querySelector('.toast');
+      if (toast && toast.textContent.includes('2회차')) {
+        log('✅ PASS: setNumber 반영된 토스트 메시지', 'pass');
+      } else {
+        log('❌ FAIL: setNumber 미반영', 'fail');
       }
 
       document.querySelectorAll('.toast').forEach(t => t.remove());
