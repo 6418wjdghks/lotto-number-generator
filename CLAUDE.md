@@ -118,28 +118,29 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | `style` | B | — | ~15K |
 | `code` | A, C | — | ~40K |
 | `test` | D | — | ~15K |
-| `doc:api` | — | A | ~190K |
-| `doc:design` | — | B | ~34K |
-| `doc:spec` | — | C | ~43K |
-| `doc:test` | — | D | ~77K |
+| `doc:api` | — | A1, A3 | ~89K |
+| `doc:design` | — | B | ~51K |
+| `doc:spec` | — | A2 | ~63K |
+| `doc:test` | — | A3, D | ~95K |
 | `doc:track` | — | — | 0K |
 | `config` | — | — | 0K |
-| 릴리스 전 | — | A+B+C+D | ~340K |
+| 릴리스 전 | — | A1+A2+A3+B+D (5) | ~254K |
 
 **복합 변경 규칙**:
 1. 변경된 파일들의 Label을 수집
-2. 각 Label의 검증 카테고리를 합집합(Union)
-3. 같은 카테고리에 Tier 1 + Tier 2 → **Tier 2만 실행** (Tier 2 ⊃ Tier 1)
+2. 각 Label의 Tier 2 에이전트를 합집합(Union)
+3. 같은 에이전트에 Tier 1 + Tier 2 → **Tier 2만 실행** (Tier 2 ⊃ Tier 1)
 
 #### 모델 선택 가이드
 
-| 모델 | 토큰 (A-Tier2 기준) | 정확도 | 권장 용도 |
-|------|---------------------|--------|----------|
-| **Opus** | ~263K (기준) | 최고 (오탐 0) | 릴리스 전 최종 검증 |
-| **Sonnet** | ~225K (-14%) | 양호 | 일상 검증 (권장) |
-| **Haiku** | ~198K (-25%) | 기초 | Tier 1 전용 |
+| 모델 | 정확도 | 권장 용도 |
+|------|--------|----------|
+| **Opus** | 최고 (오탐 0) | 릴리스 전 최종 검증 |
+| **Sonnet** | 양호 | 복합 검증 에이전트 (A1, A2, B) |
+| **Haiku** | 기초 | 경량 에이전트 (A3, D), Tier 1 |
 
 **모델 지정**: `Task(model="sonnet")` — 미지정 시 메인 모델 상속
+**혼합 전략 (ADR-024)**: 복합 검증은 Sonnet, 경량/단순 대조는 Haiku로 에이전트별 분리
 
 #### 에이전트 분할/병합 기준
 
@@ -155,26 +156,30 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 - 함수 카운트 규칙: `function` + `async function` 모두 포함 (Grep 패턴: `^(async )?function`, 대상: `js/` 디렉토리)
 - 기대값: 34개 (function 26 + async function 8), 7개 모듈에 분산
 
-**Tier 2** (5 에이전트, ~190K):
+**Tier 2** (3 에이전트, ~152K — ADR-024 병합):
 
-| 에이전트 | 문서 | 비교 소스 |
-|----------|------|----------|
-| Agent 1 | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API 테이블) |
-| Agent 2 | spec.md | index.html, js/*.js |
-| Agent 3 | CLAUDE.md(비API) + README.md | Glob |
-| Agent 4 | design.md | style.css, index.html |
-| Agent 5 | test/README.md | test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) |
+| 에이전트 | 모델 | 문서 | 비교 소스 | 병합 이력 |
+|----------|------|------|----------|----------|
+| A1 | Sonnet | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API 테이블) | — |
+| A2 | Sonnet | spec.md | index.html, js/*.js (양방향) | old-A2 + old-C |
+| A3 | Haiku | CLAUDE.md(비API) + README.md + test/README.md | Glob, test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) | old-A3 + old-A5 |
 
 > `js/*.js` = utils, theme, exclude, lottery, history, auth, app (7개 모듈)
-> Agent 1 확장: CLAUDE.md API 테이블 함수 목록(34개)이 tech.md 함수 목록과 일치하는지 교차 검증
-> Agent 3 경량화: 함수 카운트→A1, 테스트 수·package.json→A5 위임. 잔여: 파일 타입 테이블(Glob) + README.md
-> Agent 5 확장: CLAUDE.md 테스트 수 기대값(73=23+50) + package.json 스크립트 참조 교차 검증
-> Agent 5: test-logic.js는 `require('../js/app.js')` 경유로 전 모듈 접근 → app.js만 참조 충분
+> A1: CLAUDE.md API 테이블 함수 목록(34개)과 tech.md 함수 목록 교차 검증
+> A2: spec.md 문서 정확성 + F-001~F-008 구현 준수 + ARIA/접근성 양방향 검증. 소스를 한 번만 읽고 양쪽 수행
+> A3: 파일 타입 테이블(Glob) + README.md + test/README.md ↔ 테스트 코드 + CLAUDE.md 수치 통합
 
-**Agent 3 프롬프트 최적화**:
-- 기대값 명시: js/ 모듈 7개, 파일 타입 분류 파일 수를 프롬프트에 포함 (탐색 Grep 제거)
-- 배치 가이드: CLAUDE.md + README.md 병렬 Read → Glob 1~2회 → 완료
-- 목표: Tool 22→10회, 시간 107→50s, 토큰 49K→33K
+**A2 프롬프트 설계** (old-A2 + old-C 병합):
+- 소스 읽기: spec.md + index.html + js/*.js 병렬 Read (한 번만)
+- 검증 1: spec.md가 소스를 정확히 기술하는지 (문서 정확성)
+- 검증 2: 소스가 F-001~F-008 요구사항을 구현하는지 (구현 준수)
+- 검증 3: ARIA/접근성 속성 전수 확인
+- **Bash 금지**: Read + Grep만 사용
+
+**A3 프롬프트 설계** (old-A3 + old-A5 병합):
+- 기대값 명시: js/ 모듈 7개, 파일 타입 분류 수, 테스트 수 73(=23+50)
+- 배치 가이드: CLAUDE.md + README.md + test/README.md 병렬 Read → test 파일 Read → Glob 1~2회 → 완료
+- CLAUDE.md 수치 교차 검증: 테스트 수 기대값(73) + package.json 스크립트 참조
 
 #### B. 디자인 검증 (design.md ↔ CSS)
 
@@ -183,19 +188,18 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 - design.md: 다크모드 비교 테이블 포함 모든 `--` 변수 행 카운트
 - 기대값: 고유 42개
 
-**Tier 2** (1 에이전트, ~34K): design.md ↔ style.css 전수 비교 (변수값 + 컴포넌트 + 반응형 + 애니메이션)
-
-**B-Tier2 프롬프트 최적화**:
-- **Bash 금지**: Bash(grep/sed/diff) 대신 Read + Grep 도구 사용 (Bash는 호출당 ~5-6s 오버헤드)
-- **배치 가이드**: design.md + style.css 병렬 Read(2회) → Grep으로 변수/컴포넌트 교차 검증 → 완료
+**Tier 2** (1 에이전트, Sonnet, ~51K): design.md ↔ style.css + index.html 전수 비교 (old-A4 + old-B 병합, ADR-024)
+- 검증 1: design.md가 실제 디자인을 정확히 기술하는지 (old-A4)
+- 검증 2: 변수값 + 컴포넌트 + 반응형 + 애니메이션 전수 비교 (old-B)
+- **Bash 금지**: Read + Grep만 사용
+- **배치 가이드**: design.md + style.css + index.html 병렬 Read(3회) → Grep으로 교차 검증 → 완료
 - **기대값 명시**: CSS 변수 고유 42개, :root 42개, dark 오버라이드 19개, keyframes 4개, 브레이크포인트 480px
-- 목표: Tool 49→6회, 시간 289→30s
 
 #### C. 구현 검증 (spec.md ↔ 실제 동작)
 
 **Tier 1** (1 에이전트, ~20K): 핵심 함수 존재 확인 (Grep `js/`) + ARIA 속성 존재 확인 (index.html)
 
-**Tier 2** (1 에이전트, ~43K): F-001~F-008 동작/UI/DOM + ARIA/접근성 전수 비교 (spec.md ↔ index.html + js/*.js)
+**Tier 2**: A2에 통합 (ADR-024). A2가 spec.md ↔ 소스코드 양방향 검증(문서 정확성 + 구현 준수 + ARIA/접근성) 수행.
 
 > Supabase API 흐름 검증은 별도 검토 시 추가 예정
 
@@ -203,14 +207,14 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 **Tier 1** (1 에이전트, ~15K): `npm test` 실행 → 23 CLI pass + 50 DOM pass, 0 fail 확인
 
-**Tier 2** (2 에이전트, ~77K):
+**Tier 2** (1 에이전트, Haiku, ~51K): CLI + DOM/UI 테스트 통합 검증 (old-D1 + old-D2 병합, ADR-024)
 
-| 에이전트 | 검증 항목 | 비교 소스 |
-|----------|----------|----------|
-| Agent 1 | CLI 테스트 항목/수 + 함수 커버리지 | test-logic.js, js/app.js, Grep(`js/`) |
-| Agent 2 | DOM/UI 테스트 항목/수 | test.html, test-dom.js |
+| 검증 항목 | 비교 소스 |
+|----------|----------|
+| CLI 테스트 항목/수 + 함수 커버리지 | test-logic.js, js/app.js, Grep(`js/`) |
+| DOM/UI 테스트 항목/수 | test.html, test-dom.js |
 
-> D-Agent 1: app.js의 module.exports로 export된 함수 목록 + Grep(`js/`)로 전체 함수 목록 비교하여 커버리지 판단
+> app.js의 module.exports로 export된 함수 목록 + Grep(`js/`)로 전체 함수 목록 비교하여 커버리지 판단
 
 ### ADR Chunk 규칙
 
