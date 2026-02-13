@@ -2,6 +2,8 @@
 
 간단한 웹 기반 로또번호 추첨 프로그램입니다.
 
+**라이브 데모**: https://6418wjdghks.github.io/lotto-number-generator/
+
 **GitHub 저장소**: https://github.com/6418wjdghks/lotto-number-generator
 
 ## 기능
