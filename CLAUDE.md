@@ -164,6 +164,9 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 #### B. 디자인 검증 (design.md ↔ CSS)
 
 **Tier 1** (1 에이전트, ~15K): CSS 변수 개수 + 주요 색상값 샘플 체크
+- 카운트 규칙: **고유 변수명 기준** (`:root`와 `[data-theme="dark"]`에 중복 정의 시 1개로 계산)
+- design.md: 다크모드 비교 테이블 포함 모든 `--` 변수 행 카운트
+- 기대값: 고유 42개
 
 **Tier 2** (1 에이전트, ~34K): design.md ↔ style.css 전수 비교 (변수값 + 컴포넌트 + 반응형 + 애니메이션)
 
