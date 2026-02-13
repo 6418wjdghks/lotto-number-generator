@@ -188,6 +188,16 @@
 - **행위 기반 프롬프트**: Tier 0 결과 활용 + 단일 소스 문서에서 기대값 파싱. 스냅샷 수치 하드코딩 금지 (ADR-029)
 - **Bash 금지 규칙**: CSS/문서 비교 에이전트에 "Bash 사용 금지, Read+Grep만 사용" 명시 필수 (ADR-023)
 
+## 검증 결과 기록
+
+정밀 검증(Tier 2) 성공 시 `test/README.md` "정밀 검증 결과" 섹션을 업데이트:
+
+1. **검증 항목 테이블**: 각 에이전트 결과(ALL PASS / Warning N건)
+2. **성능 지표 테이블**: Tool 호출 수, 토큰, 경과 시간, Warning 수
+3. **헤더**: 마지막 검증 날짜 + 커밋 해시
+4. Warning 정의: ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)
+5. 미실행 에이전트는 `—`으로 표기, 이전 값 유지 금지 (해당 세션 실측값만 기록)
+
 ## Permission 관리
 
 - settings.local.json 위치: `.claude/settings.local.json`
