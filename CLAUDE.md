@@ -118,13 +118,13 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | `style` | B | — | ~15K |
 | `code` | A, C | — | ~40K |
 | `test` | D | — | ~15K |
-| `doc:api` | — | A1, A3 | ~89K |
-| `doc:design` | — | B | ~51K |
-| `doc:spec` | — | A2 | ~63K |
-| `doc:test` | — | A3, D | ~95K |
+| `doc:api` | — | A1, A3 | ~110K |
+| `doc:design` | — | B | ~42K |
+| `doc:spec` | — | A2 | ~40K |
+| `doc:test` | — | A3, D | ~133K |
 | `doc:track` | — | — | 0K |
 | `config` | — | — | 0K |
-| 릴리스 전 | — | A1+A2+A3+B+D (5) | ~254K |
+| 릴리스 전 | — | A1+A2+A3+B+D (5) | ~270K |
 
 **복합 변경 규칙**:
 1. 변경된 파일들의 Label을 수집
@@ -136,11 +136,10 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | 모델 | 정확도 | 권장 용도 |
 |------|--------|----------|
 | **Opus** | 최고 (오탐 0) | 릴리스 전 최종 검증 |
-| **Sonnet** | 양호 | 복합 검증 에이전트 (A1, A2, B) |
-| **Haiku** | 기초 | 경량 에이전트 (A3, D), Tier 1 |
+| **Sonnet** | 양호 | Tier 2 전 에이전트 (권장) |
+| **Haiku** | 기초 | Tier 1 전용 |
 
 **모델 지정**: `Task(model="sonnet")` — 미지정 시 메인 모델 상속
-**혼합 전략 (ADR-024)**: 복합 검증은 Sonnet, 경량/단순 대조는 Haiku로 에이전트별 분리
 
 #### 에이전트 분할/병합 기준
 
@@ -156,13 +155,13 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 - 함수 카운트 규칙: `function` + `async function` 모두 포함 (Grep 패턴: `^(async )?function`, 대상: `js/` 디렉토리)
 - 기대값: 34개 (function 26 + async function 8), 7개 모듈에 분산
 
-**Tier 2** (3 에이전트, ~152K — ADR-024 병합):
+**Tier 2** (3 에이전트, ~150K — ADR-024 병합):
 
 | 에이전트 | 모델 | 문서 | 비교 소스 | 병합 이력 |
 |----------|------|------|----------|----------|
 | A1 | Sonnet | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API 테이블) | — |
 | A2 | Sonnet | spec.md | index.html, js/*.js (양방향) | old-A2 + old-C |
-| A3 | Haiku | CLAUDE.md(비API) + README.md + test/README.md | Glob, test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) | old-A3 + old-A5 |
+| A3 | Sonnet | CLAUDE.md(비API) + README.md + test/README.md | Glob, test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) | old-A3 + old-A5 |
 
 > `js/*.js` = utils, theme, exclude, lottery, history, auth, app (7개 모듈)
 > A1: CLAUDE.md API 테이블 함수 목록(34개)과 tech.md 함수 목록 교차 검증
@@ -188,7 +187,7 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 - design.md: 다크모드 비교 테이블 포함 모든 `--` 변수 행 카운트
 - 기대값: 고유 42개
 
-**Tier 2** (1 에이전트, Sonnet, ~51K): design.md ↔ style.css + index.html 전수 비교 (old-A4 + old-B 병합, ADR-024)
+**Tier 2** (1 에이전트, Sonnet, ~42K): design.md ↔ style.css + index.html 전수 비교 (old-A4 + old-B 병합, ADR-024)
 - 검증 1: design.md가 실제 디자인을 정확히 기술하는지 (old-A4)
 - 검증 2: 변수값 + 컴포넌트 + 반응형 + 애니메이션 전수 비교 (old-B)
 - **Bash 금지**: Read + Grep만 사용
@@ -207,7 +206,7 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 **Tier 1** (1 에이전트, ~15K): `npm test` 실행 → 23 CLI pass + 50 DOM pass, 0 fail 확인
 
-**Tier 2** (1 에이전트, Haiku, ~51K): CLI + DOM/UI 테스트 통합 검증 (old-D1 + old-D2 병합, ADR-024)
+**Tier 2** (1 에이전트, Sonnet, ~78K): CLI + DOM/UI 테스트 통합 검증 (old-D1 + old-D2 병합, ADR-024)
 
 | 검증 항목 | 비교 소스 |
 |----------|----------|

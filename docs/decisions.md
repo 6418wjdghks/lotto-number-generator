@@ -252,47 +252,44 @@ ADR-022, ADR-023 최적화 후에도 릴리스 전 전수 검증이 9개 에이�
 |----------|------|------|----------|
 | A1 | Sonnet | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API) |
 | A2 | Sonnet | spec.md | index.html, js/*.js (양방향: 문서 정확성 + 구현 준수 + ARIA) |
-| A3 | Haiku | CLAUDE.md(비API) + README.md + test/README.md | Glob, test files, package.json, CLAUDE.md(수치) |
+| A3 | Sonnet | CLAUDE.md(비API) + README.md + test/README.md | Glob, test files, package.json, CLAUDE.md(수치) |
 | B | Sonnet | design.md | style.css, index.html (전수) |
-| D | Haiku | CLI + DOM/UI 테스트 통합 | test-logic.js, test-dom.js, app.js, test.html |
+| D | Sonnet | CLI + DOM/UI 테스트 통합 | test-logic.js, test-dom.js, app.js, test.html |
 
-#### 2. Haiku 혼합 전략
+#### 2. 모델 통일 (Sonnet)
 
-경량/단순 대조 에이전트(A3, D)에 Haiku 적용. 복합 검증 에이전트(A1, A2, B)는 Sonnet 유지.
-
-- Haiku 토큰 절감: Sonnet 대비 ~25%
-- 대상: A3 (기대값 대조 + Glob), D (테스트 항목 대조)
-- 비대상: A1 (tech.md 전수), A2 (양방향 검증), B (CSS 전수) — 정확도 우선
+전 에이전트 Sonnet 사용. 초기에 A3, D를 Haiku로 운영하였으나, Haiku 오탐(D에서 테스트 미작성 vs 함수 미구현 혼동) 확인 후 정확도 우선으로 Sonnet 통일.
 
 ### 사유
 
 - **중복 읽기 제거**: 전체 토큰의 16%(~58K)가 같은 파일을 여러 에이전트가 반복 읽는 데 소비. 특히 A2와 C는 소스 100% 동일
 - **고정 오버헤드 절감**: 에이전트 4개 감소 × 10K = ~40K 절감
-- **Haiku 효율**: 경량 에이전트는 탐색보다 기대값 대조 위주 → Haiku 정확도로 충분
+- **Sonnet 통일**: 초기 Haiku 혼합 운영 후 오탐 확인 → 정확도 우선으로 전 에이전트 Sonnet 통일
 - **시간 제약 준수**: 병합으로 개별 에이전트 처리량 증가하나, 파일을 한 번만 읽으므로 예상 wall time +0~16% (20% 제약 이내)
 
-### 예상 결과
+### 실측 결과
 
-**릴리스 전 전수 검증 (Sonnet + Haiku 혼합)**:
+**릴리스 전 전수 검증 (Haiku 혼합 시 실측)**:
 
-| 지표 | 최적화 전 (ADR-023 후) | 최적화 후 | 개선 |
-|------|----------------------:|----------:|-----:|
+| 지표 | 최적화 전 (ADR-023 후) | 실측 | 개선 |
+|------|----------------------:|-----:|-----:|
 | 에이전트 수 | 9 | 5 | **-44%** |
-| 총 토큰 | ~364K | ~254K | **~-30%** |
-| Wall time | ~56s (C) | ~55-65s (A2) | **+0~16%** |
+| 총 토큰 | ~364K | 238.6K | **-34%** |
+| Wall time | ~56s (C) | 53.0s (B) | **-5%** |
+| Tool 호출 | ~63회 | 56회 | **-11%** |
 
-**개별 에이전트 토큰 추정**:
+**개별 에이전트 실측 (Haiku 혼합 → Sonnet 통일)**:
 
-| 에이전트 | 모델 | 추정 토큰 |
-|----------|------|----------:|
-| A1 | Sonnet | ~45K |
-| A2 | Sonnet | ~63K |
-| A3 | Haiku | ~44K |
-| B | Sonnet | ~51K |
-| D | Haiku | ~51K |
-| **합계** | | **~254K** |
+| 에이전트 | Haiku 혼합 실측 | Sonnet 추정 | Tool 호출 | 시간 |
+|----------|---------------:|-----------:|---------:|-----:|
+| A1 (Sonnet) | 54.9K | 55K | 12 | 38.6s |
+| A2 (Sonnet) | 39.7K | 40K | 9 | 22.4s |
+| A3 (Haiku→Sonnet) | 42.4K | ~55K | 18 | 29.6s |
+| B (Sonnet) | 41.7K | 42K | 3 | 53.0s |
+| D (Haiku→Sonnet) | 60.0K | ~78K | 14 | 33.7s |
+| **합계** | **238.6K** | **~270K** | **56** | **53.0s** |
 
-> 추정치는 병합 전 개별 에이전트 실측값 기반 계산. 실측 검증 후 보정 필요.
+> Sonnet 추정: Haiku 실측 × 1.3 (경험적 보정계수). A3, D의 정확한 Sonnet 토큰은 차기 실측 시 확인.
 
 ### 검토한 대안
 
