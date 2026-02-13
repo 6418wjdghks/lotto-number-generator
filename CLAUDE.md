@@ -86,22 +86,48 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 **공통 규칙**:
 - 각 에이전트는 불일치 목록만 반환, 메인은 취합 후 보고/수정
 - Grep 기반 타겟 읽기: 파일 전체 Read 대신 `Grep`으로 필요 데이터만 추출
+- `npm test`는 검증 체계가 아닌 개발 워크플로우(2단계)의 일부 — `code`/`test` 변경 시 항상 실행
+
+#### 파일 타입 분류
+
+| Label | 타입 | 포함 파일 |
+|-------|------|----------|
+| `style` | 스타일 | `style.css` |
+| `code` | 코드 | `app.js`, `supabase-config.js`, `index.html` |
+| `test` | 테스트 | `test-logic.js`, `test-dom.js`, `test.html` |
+| `doc:api` | 문서(API) | `tech.md`, `CLAUDE.md`, `README.md` |
+| `doc:design` | 문서(디자인) | `design.md` |
+| `doc:spec` | 문서(명세) | `spec.md` |
+| `doc:test` | 문서(테스트) | `test/README.md` |
+| `doc:track` | 문서(추적) | `plan.md`, `decisions.md`, `phase4-architecture.md` |
+| `config` | 설정 | `package.json` |
 
 #### 2계층 검증
 
-| 계층 | 방식 | 비용 | 빈도 |
-|------|------|------|------|
-| **Tier 1: 보편적** | 블랙박스 (실행 결과 vs 기대값, 핵심 수치 스팟체크) | ~70K | 매 변경 시 |
-| **Tier 2: 정밀** | 화이트박스 (소스 코드 vs 명세 전수 비교) | ~350K | 명세 변경 시 / 릴리스 전 |
+| 계층 | 방식 | 빈도 |
+|------|------|------|
+| **Tier 1** | 블랙박스 (핵심 수치 스팟체크) | 코드/스타일/테스트 변경 시 |
+| **Tier 2** | 화이트박스 (소스 ↔ 명세 전수 비교) | 문서 변경 시 / 릴리스 전 |
 
-**실행 전략**:
+#### Label → 검증 매핑
 
-| 상황 | 실행 범위 |
-|------|----------|
-| 일반 코드 변경 | Tier 1 전체 |
-| 테스트 파일 수정 | Tier 1 전체 + D-Tier 2 |
-| 명세/문서 수정 | Tier 1 전체 + 해당 카테고리 Tier 2 |
-| 릴리스 전 | Tier 2 전체 |
+| 변경 Label | Tier 1 | Tier 2 | 예상 토큰 |
+|------------|--------|--------|----------|
+| `style` | B | — | ~15K |
+| `code` | A, C | — | ~40K |
+| `test` | D | — | ~15K |
+| `doc:api` | — | A | ~196K |
+| `doc:design` | — | B | ~34K |
+| `doc:spec` | — | C | ~43K |
+| `doc:test` | — | D | ~77K |
+| `doc:track` | — | — | 0K |
+| `config` | — | — | 0K |
+| 릴리스 전 | — | A+B+C+D | ~350K |
+
+**복합 변경 규칙**:
+1. 변경된 파일들의 Label을 수집
+2. 각 Label의 검증 카테고리를 합집합(Union)
+3. 같은 카테고리에 Tier 1 + Tier 2 → **Tier 2만 실행** (Tier 2 ⊃ Tier 1)
 
 #### 모델 선택 가이드
 
