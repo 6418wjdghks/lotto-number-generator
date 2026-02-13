@@ -8,6 +8,14 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+
+# Local utilities
+nul
+start-claude.bat
+temp/
+
 # Dependencies
 node_modules/
 
