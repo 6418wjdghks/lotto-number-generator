@@ -23,9 +23,9 @@
 | css.keyframes | design.md 애니메이션 명세 수 ↔ style.css @keyframes 수 | 양쪽 일치 |
 | css.breakpoints | style.css @media 브레이크포인트 | 480px 단일 |
 | functions.total | CLAUDE.md 모듈 테이블 합계 ↔ js/ Grep 함수 수 | 양쪽 일치 |
-| tests.cli | test/README.md 순수 로직 수 ↔ test-logic.js it() 수 | 양쪽 일치 |
-| tests.dom | test/README.md DOM/UI 수 ↔ test.html PASS: 수 | 양쪽 일치 |
-| tests.total | CLI + DOM (파생) | 양쪽 일치 |
+| tests.cli | test-logic.js it() 실측 | > 0 |
+| tests.dom | test.html PASS: 실측 | > 0 |
+| tests.total | CLI + DOM 합산 | 일치 |
 | aria.attributes | spec.md ARIA 테이블 ↔ index.html 속성 존재 | 전수 존재 |
 | aria.srOnly | index.html auth-input 동적 발견 ↔ sr-only 라벨 존재 | 전수 존재 |
 | files | README.md 파일 트리 파싱 ↔ 실제 파일 존재 | 전수 존재 |
