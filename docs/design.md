@@ -151,7 +151,7 @@ main.container
 | 컴포넌트 | 크기/배치 | 테두리 | 모서리 | 그림자 | 배경 | 글자 |
 |----------|----------|--------|--------|--------|------|------|
 | `body` | flex center, pad 20 | — | — | — | primary gradient | — |
-| `.container` | max-w 500, pad 40 | — | 20px | `--shadow-high` | white | — |
+| `.container` | max-w 500, pad 40 (mobile: 30×20) | — | 20px | `--shadow-high` | white | — |
 | `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold `var(--white)` |
 | `.set-selector` | flex, gap 10, center, align center, mb 20 | — | — | — | — | 16px bold |
 | `.set-selector select` | pad 8×12 | 2px solid #667eea | 8px | — | white | 16px text-primary |
@@ -233,7 +233,7 @@ main.container
 | 이름 | 키프레임 | 비고 |
 |------|---------|------|
 | `pop` | 0%: `scale(0)` → 50%: `scale(1.2)` → 100%: `scale(1)` | opacity 변경 없음 |
-| `fadeIn` | from: `opacity: 0; translateY(10px)` → to: `opacity: 1; translateY(0)` | Y축 이동 포함 |
+| `fadeIn` | from: `opacity: 0; transform: translateY(10px)` → to: `opacity: 1; transform: translateY(0)` | Y축 이동 포함 |
 | `slideUp` | from: `opacity: 0; translate(-50%, 20px)` → to: `opacity: 1; translate(-50%, 0)` | 토스트 `left: 50%` 중앙정렬 유지 |
 | `fadeOut` | from: `opacity: 1` → to: `opacity: 0; translate(-50%, 10px)` | 토스트 중앙정렬 유지 |
 
@@ -360,7 +360,7 @@ main.container
 | `.auth-user-info` | `flex-direction: column`, `text-align: center` |
 | `.history-controls` | `flex-direction: column` |
 | `.history-item` | `padding: 10px 12px` |
-| `.history-numbers` | `font-size: 14px` |
+| `.history-numbers` | `font-size: var(--font-size-small)` |
 
 ---
 

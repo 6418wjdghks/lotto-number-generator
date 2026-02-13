@@ -3,9 +3,9 @@
 **버전**: 3.3.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
 
 > **섹션 인덱스** — `Read(offset, limit)` 참고
-> 기술스택 L12 | 파일구조 L21 | 아키텍처 L56 | CSS L64 | HTML-ID L128 | JS-API L141
-> └ 핵심생성 L146 | 표시 L162 | 이력 L175 | 제외 L198 | 방어 L214 | 유틸 L224 | 테마 L232 | 인증 L250 | 메인진입점 L258
-> Supabase L277 | 데이터구조 L299 | Exports L360 | 알고리즘 L385 | 보안 L413 | 성능 L422
+> 기술스택 L12 | 파일구조 L21 | 아키텍처 L56 | CSS L64 | HTML-ID L130 | JS-API L143
+> └ 핵심생성 L148 | 표시 L164 | 이력 L177 | 제외 L200 | 방어 L216 | 유틸 L226 | 테마 L234 | 인증 L252 | 메인진입점 L260
+> Supabase L279 | 데이터구조 L301 | Exports L362 | 알고리즘 L387 | 보안 L415 | 성능 L424
 
 ---
 
@@ -104,7 +104,9 @@ css/style.css
 ├── Reset & Base Styles       /* 전역 리셋 */
 ├── Design Tokens (:root)     /* CSS 변수 — 라이트 모드 */
 ├── Design Tokens (dark)      /* CSS 변수 — 다크 모드 (연속 배치) */
-├── Layout                    /* body, .container + @media */
+├── Base Layout               /* body + @media */
+├── Container                 /* .container + @media */
+├── Header                    /* .header */
 ├── Typography                /* h1 + @media, .info */
 ├── Theme Toggle              /* + @media */
 ├── Number Badge              /* + Number Colors + @media */
