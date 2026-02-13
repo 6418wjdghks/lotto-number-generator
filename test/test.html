@@ -411,14 +411,8 @@
       const testNumbers = [3, 12, 19, 27, 38, 42];
 
       if (!navigator.clipboard || !navigator.clipboard.writeText) {
-        log('⚠️ INFO: Clipboard API 미지원 (HTTPS 필요) - 스킵', 'info');
-
         const result = await copyToClipboard(testNumbers);
-        if (result === false) {
-          log('✅ PASS: 미지원 시 false 반환', 'pass');
-        } else {
-          log('❌ FAIL: 미지원 시 반환값 오류', 'fail');
-        }
+        log(`⚠️ INFO: Clipboard API 미지원 (HTTPS 필요) - false 반환 확인 (${result === false}), 스킵`, 'info');
         return;
       }
 

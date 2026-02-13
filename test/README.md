@@ -110,7 +110,7 @@ open test/test.html   # macOS
 | 11 | `generateLottoNumbers()` — 1세트/3세트 카드, 이력, setCount, 숫자 유효 | 6 | DOM + 통합 |
 | | **합계** | **50** | |
 
-> Test 3: CLI 러너는 CDP로 클립보드 권한을 부여하여 3개 모두 실행. 브라우저에서 readText 권한이 없으면 내용 검증을 스킵하고 2개 실행.
+> Test 3: Clipboard API 미지원 시 INFO 로그 후 스킵 (PASS 미계상). CLI 러너는 CDP로 클립보드 권한을 부여하여 3개 모두 실행. 브라우저에서 readText 권한이 없으면 내용 검증을 스킵하고 2개 실행.
 
 추가로 분포 통계 시각화(1000회)를 참고 도구로 제공합니다 (테스트 검증 아님).
 
