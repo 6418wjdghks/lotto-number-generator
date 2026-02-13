@@ -1,6 +1,6 @@
 # 로또번호 추첨기 - 디자인 명세서
 
-**버전**: 4.3.0 | **최종 수정**: 2026-02-13
+**버전**: 4.4.0 | **최종 수정**: 2026-02-13
 
 > CSS 구현 상세는 `css/style.css` 참조. 본 문서는 디자인 시스템과 컴포넌트 명세만 기술.
 > `:root` 디자인 토큰이 CSS에 적용되어 있으며, 모든 주요 값은 변수로 관리됨.
@@ -149,11 +149,11 @@ main.container
 | `body` | flex center, pad 20 | — | — | — | primary gradient | — |
 | `.container` | max-w 500, pad 40 | — | 20px | `--shadow-high` | white | — |
 | `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold `var(--white)` |
-| `.set-selector` | flex, gap 10 | — | — | — | — | 16px bold |
+| `.set-selector` | flex, gap 10, center, align center | — | — | — | — | 16px bold |
 | `.set-selector select` | pad 8×12 | 2px #667eea | 8px | — | white | 16px text-primary |
 | `.sets-container` | grid auto-fit 280px, gap 20 | — | — | — | — | — |
 | `.set-card` | pad 20 | 2px #e0e0e0 | 15px | 0 4 12 0.1 | white | — |
-| `.set-label` | — | — | — | — | — | 14px bold #667eea |
+| `.set-label` | mb 15, text-align center | — | — | — | — | 14px bold #667eea |
 | `.set-numbers .number` | 50×50 | — | 50% | — | 위치별 색상 | 20px bold `var(--white)` |
 | `.copy-btn` | w 100%, pad 6×12 | 1px #667eea | 15px | — | #f0f0f0 | 12px #667eea |
 | `.toast` | fixed bottom 30, center | — | 8px | 0 4 12 0.3 | #333 | 14px white |
@@ -176,6 +176,7 @@ main.container
 | `.exclude-reset-btn` | pad 4×12 | 1px #e84118 | 15px | — | white | 12px bold #e84118 |
 | `.exclude-warning` | pad 8 | 1px #e84118 | 8px | — | #fff3f3 | 13px bold #e84118 |
 | `.auth-section` | mb 20 | — | — | — | — | — |
+| `.auth-form` | mt 10 | — | — | — | — | — |
 | `.auth-input` | w 100%, pad 10×15 | 2px #e0e0e0 | 10px | — | white | 14px |
 | `.auth-buttons` | flex, gap 8 | — | — | — | — | — |
 | `.btn-auth` | flex 1, pad 10×20 | none | 25px | — | primary gradient | 14px white |
@@ -199,7 +200,10 @@ main.container
 | `.set-card` | hover | border #667eea, shadow 증가 | 0.2s |
 | `.copy-btn` | hover | bg #667eea, color white | 0.2s |
 | `.copy-btn` | active | scale(0.95) | 즉시 |
-| `.btn-secondary` | hover | bg #667eea, color white | 0.2s |
+| `.btn-secondary` | hover | bg #667eea, color white, translateY(-1px) | 0.2s |
+| `.set-selector select` | hover | border primary-end | 0.2s |
+| `.set-selector select` | focus | border primary, shadow 3px focus-shadow, outline none | 즉시 |
+| `.btn-secondary` | active | translateY(0) | 즉시 |
 | `.exclude-btn` | hover | bg #f0f0ff, scale(1.1) | 0.15s |
 | `.exclude-btn.excluded` | hover | bg disabled-hover, opacity 0.8 | 0.15s |
 | `.exclude-reset-btn` | hover | bg #e84118, color white | 0.2s |

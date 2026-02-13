@@ -1,6 +1,6 @@
 # 로또번호 추첨기 - 기술 명세서
 
-**버전**: 3.2.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
+**버전**: 3.3.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
 
 ---
 
@@ -108,7 +108,8 @@ css/style.css
 |------|------|------|
 | 버튼 | `btn` 접두어 + PascalCase 동작 | `btnGenerate`, `btnThemeToggle`, `btnToggleAuth`, `btnSignIn`, `btnSignUp`, `btnSignOut`, `btnToggleExclude`, `btnResetExclude`, `btnToggleHistory`, `btnClearHistory` |
 | 토글 텍스트 | 버튼 내부 `<span>` 분리, ID는 `xxxText` | `#historyToggleText`, `#excludeToggleText`, `#authToggleText` |
-| 컨테이너/패널 | camelCase 설명명 | `#setsContainer`, `#excludePanel`, `#excludeGrid`, `#historyList` |
+| 컨테이너/패널 | camelCase 설명명 | `#setsContainer`, `#excludePanel`, `#excludeGrid`, `#historyList`, `#excludeWarning` |
+| 카운터 | camelCase | `#excludeCount`, `#remainCount` |
 | 인증 | `auth` 접두어 | `#authGuest`, `#authUser`, `#authForm`, `#authEmail`, `#authPassword`, `#authUserEmail` |
 
 ---
@@ -121,7 +122,8 @@ css/style.css
 
 **`generateSingleSet(excludedNumbers = [])`**
 - **반환**: `Array<number>` — 6개 숫자, 1~45, 오름차순
-- **알고리즘**: Fisher-Yates 셔플 → 앞 6개 추출 → sort
+- **알고리즘**: Fisher-Yates 셔플을 **함수 내부에 인라인 구현** (별도 `shuffleArray` 함수 분리 금지)
+  - `Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !excludedNumbers.includes(n))` → for 루프 셔플 → `slice(0, 6).sort((a, b) => a - b)`
 - **제외**: `excludedNumbers` 배열의 번호를 1~45에서 제거 후 셔플
 
 **`generateMultipleSets(count, excludedNumbers = [])`**
@@ -155,6 +157,7 @@ css/style.css
 
 **`loadHistory()`** (async)
 - 로그인 → `supabase.fetchHistory()`, 비로그인 → `loadHistoryLocal()`
+- **Supabase 필드 매핑**: `fetchHistory()` 결과를 `HistoryItem` 형식으로 변환 — `item.created_at → timestamp`, `item.set_count → setCount` (Supabase DB 컬럼명 → 로컬 데이터 구조)
 - **반환**: `Array<HistoryItem>`
 
 **`clearHistory()`** (async)
@@ -225,11 +228,21 @@ css/style.css
 ### 인증 함수 (Phase 4)
 
 **`toggleAuthForm()`** — 로그인 폼 토글
-**`handleSignIn()`** (async) — 로그인 + UI 전환
-**`handleSignUp()`** (async) — 회원가입
-**`handleSignOut()`** (async) — 로그아웃 + UI 전환
+**`handleSignIn()`** (async) — 로그인 + `updateAuthUI()` + 이력 열려있으면 `displayHistory()` 갱신
+**`handleSignUp()`** (async) — 회원가입. `result.data.access_token` 존재 시 자동 로그인 + `updateAuthUI()`, 미존재 시 이메일 확인 안내 토스트 (4초)
+**`handleSignOut()`** (async) — 로그아웃 + `updateAuthUI()` + 이력 열려있으면 로컬 이력으로 `displayHistory()` 갱신
 **`updateAuthUI()`** — 로그인/비로그인 UI 상태 반영
-**`initApp()`** — 페이지 로드 시 이벤트 바인딩 + 세션 확인 + UI 초기화
+**`initApp()`** — 페이지 로드 시 초기화. 아래 순서로 실행:
+1. 테마 초기화: `loadTheme()` → `applyTheme()`
+2. 이벤트 바인딩: `getElementById` → `addEventListener('click', handler)` — **HTML에 onclick 속성 사용 금지**, JS에서만 바인딩
+   - `btnGenerate` → `generateLottoNumbers`, `btnThemeToggle` → `toggleTheme`
+   - `btnToggleAuth` → `toggleAuthForm`, `btnSignIn` → `handleSignIn`, `btnSignUp` → `handleSignUp`, `btnSignOut` → `handleSignOut`
+   - `btnToggleExclude` → `toggleExcludeView`, `btnResetExclude` → `resetExcludedNumbers`
+   - `btnToggleHistory` → `toggleHistoryView`, `btnClearHistory` → `clearHistory`
+3. 시스템 테마 변경 감지: `matchMedia('prefers-color-scheme: dark')` change 리스너 — LocalStorage 저장값 없을 때만 반영
+4. 인증 상태 확인: `window.supabase` 존재 시 `updateAuthUI()`
+
+**Node.js 호환 가드**: `typeof window !== 'undefined'` 조건으로 `DOMContentLoaded`, `matchMedia`, `window.supabase` 접근을 감싸야 함 (테스트 환경에서 window 미존재)
 
 ---
 
@@ -248,7 +261,7 @@ css/style.css
 | `signUp(email, password)` | (async) `/auth/v1/signup` |
 | `signIn(email, password)` | (async) `/auth/v1/token?grant_type=password` |
 | `signOut()` | (async) `/auth/v1/logout` + 세션 삭제 |
-| `getUser()` | (async) `/auth/v1/user` |
+| `getUser()` | (async) `/auth/v1/user` — `object\|null` 반환 (Auth `{success}` 패턴 아님) |
 | `fetchHistory(limit=50)` | (async) `/rest/v1/lottery_history?user_id=eq.${session.user.id}&order=created_at.desc&limit=${limit}` 조회 |
 | `insertHistory(numbers, setCount)` | (async) 이력 POST |
 | `deleteAllHistory()` | (async) 전체 이력 DELETE |
