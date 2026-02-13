@@ -31,7 +31,7 @@
 | `toggleHistoryView()` | 이력 영역 표시/숨김 토글 |
 | `clearHistory()` | (async) 듀얼 모드 전체 이력 삭제 (confirm 다이얼로그) |
 | `generateUUID()` | UUID v4 생성 |
-| `copyToClipboard(numbers, setNumber=null)` | Clipboard API 복사, 토스트 피드백 |
+| `copyToClipboard(numbers, setNumber=null)` | (async) Clipboard API 복사, 토스트 피드백 |
 | `getExcludedNumbers()` | 제외된 번호 배열 반환 |
 | `toggleExcludeView()` | 제외 패널 표시/숨김 토글, 그리드 생성 |
 | `updateExcludeCount()` | 제외/남은 카운터 업데이트, 경고 표시 |
@@ -83,44 +83,58 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 검증 시 메인 컨텍스트에서 파일을 직접 읽지 말 것. `Task(subagent_type="general-purpose")` 병렬 위임으로 토큰 효율화 (메인 컨텍스트 96% 절감).
 
-**공통 규칙**: 각 에이전트는 불일치 목록만 반환, 메인은 취합 후 보고/수정.
+**공통 규칙**:
+- 각 에이전트는 불일치 목록만 반환, 메인은 취합 후 보고/수정
+- Grep 기반 타겟 읽기: 파일 전체 Read 대신 `Grep`으로 필요 데이터만 추출
 
-#### A. 문서 검증 (문서 ↔ 소스코드)
+#### 모델 선택 가이드
+
+| 모델 | 토큰 (A 기준) | 정확도 | 오탐 특성 | 권장 용도 |
+|------|--------------|--------|----------|----------|
+| **Opus** | ~263K (기준) | 최고 (오탐 0) | — | 릴리스 전 최종 검증 |
+| **Sonnet** | ~225K (-14%) | 양호 | 의미론적 추론 한계 | 일상 개발 중 검증 (권장) |
+| **Haiku** | ~198K (-25%) | 기초 | 데이터 정밀도 부족 | 빠른 초벌 스캔 |
+
+**모델 지정**: `Task(model="sonnet")` — 미지정 시 메인 모델 상속
+
+#### 에이전트 분할/병합 기준
+
+| 원칙 | 기준 | 근거 |
+|------|------|------|
+| 최소 작업량 | 유효 토큰 ≥ 25K (총 ≥ 35K) | 고정 오버헤드(~10K) 비율 30% 이하 유지 |
+| 소스 겹침 | 주요 소스 파일 겹침 ≤ 1개 | 같은 파일 반복 읽기 = 토큰 낭비 |
+| 병렬 이점 | 에이전트당 예상 실행시간 ≥ 30초 | 너무 짧으면 병렬화 이점 없음 |
+
+#### A. 문서 검증 (문서 ↔ 소스코드) — 5 에이전트
 
 | 에이전트 | 문서 | 비교 소스 |
 |----------|------|----------|
 | Agent 1 | tech.md | app.js, style.css, index.html, supabase-config.js |
 | Agent 2 | spec.md | index.html, app.js |
-| Agent 3 | CLAUDE.md | app.js (API 테이블 vs 함수 시그니처) |
-| Agent 4 | README.md | 파일 구조(Glob), test/README.md, package.json |
-| Agent 5 | design.md | style.css, index.html |
-| Agent 6 | test/README.md | test-logic.js, test-dom.js, app.js, package.json |
+| Agent 3 | CLAUDE.md + README.md | app.js, Glob, package.json, test/README.md |
+| Agent 4 | design.md | style.css, index.html |
+| Agent 5 | test/README.md | test-logic.js, test-dom.js, app.js, package.json |
 
-#### B. 디자인 검증 (design.md ↔ CSS)
-
-| 에이전트 | 검증 항목 | 비교 소스 |
-|----------|----------|----------|
-| Agent 1 | 색상/토큰/간격/그림자 변수값 | style.css :root, html[data-theme] |
-| Agent 2 | 컴포넌트 명세 테이블 (크기/테두리/배경) | style.css 각 선택자 |
-| Agent 3 | 반응형 @media 변경 항목 | style.css @media 블록 |
-| Agent 4 | 인터랙션/애니메이션 명세 | style.css hover/active/keyframes |
-
-#### C. 구현 검증 (spec.md ↔ 실제 동작)
+#### B. 디자인 검증 (design.md ↔ CSS) — 1 에이전트
 
 | 에이전트 | 검증 항목 | 비교 소스 |
 |----------|----------|----------|
-| Agent 1 | F-001~F-004 동작/UI/DOM | app.js, index.html |
-| Agent 2 | F-005~F-008 동작/UI/DOM | app.js, index.html |
-| Agent 3 | ARIA/접근성 속성 | index.html, app.js |
-| Agent 4 | Supabase API 흐름 | supabase-config.js, app.js |
+| Agent 1 | 변수값 + 컴포넌트 + 반응형 + 애니메이션 전수 검증 | style.css (1회 읽기) |
 
-#### D. 테스트 검증 (test/README.md ↔ 실제 테스트)
+#### C. 구현 검증 (spec.md ↔ 실제 동작) — 1 에이전트
 
 | 에이전트 | 검증 항목 | 비교 소스 |
 |----------|----------|----------|
-| Agent 1 | CLI 테스트 항목/수 (23개) | test-logic.js |
-| Agent 2 | DOM/UI 테스트 항목/수 (50개) | test.html, test-dom.js |
-| Agent 3 | 함수 커버리지 테이블 vs app.js 함수 | app.js, test-logic.js, test.html |
+| Agent 1 | F-001~F-008 동작/UI/DOM + ARIA/접근성 | app.js, index.html |
+
+> Supabase API 흐름 검증은 별도 검토 시 추가 예정
+
+#### D. 테스트 검증 (test/README.md ↔ 실제 테스트) — 2 에이전트
+
+| 에이전트 | 검증 항목 | 비교 소스 |
+|----------|----------|----------|
+| Agent 1 | CLI 테스트 항목/수 + 함수 커버리지 | test-logic.js, app.js |
+| Agent 2 | DOM/UI 테스트 항목/수 | test.html, test-dom.js |
 
 ### Git 정책
 
