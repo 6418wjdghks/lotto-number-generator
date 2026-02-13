@@ -63,7 +63,8 @@
     ├── design.md           # 디자인 명세서
     ├── plan.md             # 프로젝트 계획서
     ├── decisions.md        # ADR (활성)
-    ├── decisions_001_010.md # ADR 아카이브
+    ├── decisions_001_010.md # ADR 아카이브 (001~010)
+    ├── decisions_011_020.md # ADR 아카이브 (011~020)
     └── phase4-architecture.md  # Phase 4 기술 설계
 ```
 

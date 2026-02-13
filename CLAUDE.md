@@ -185,6 +185,12 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 **Tier 2** (1 에이전트, ~34K): design.md ↔ style.css 전수 비교 (변수값 + 컴포넌트 + 반응형 + 애니메이션)
 
+**B-Tier2 프롬프트 최적화**:
+- **Bash 금지**: Bash(grep/sed/diff) 대신 Read + Grep 도구 사용 (Bash는 호출당 ~5-6s 오버헤드)
+- **배치 가이드**: design.md + style.css 병렬 Read(2회) → Grep으로 변수/컴포넌트 교차 검증 → 완료
+- **기대값 명시**: CSS 변수 고유 42개, :root 42개, dark 오버라이드 19개, keyframes 4개, 브레이크포인트 480px
+- 목표: Tool 49→6회, 시간 289→30s
+
 #### C. 구현 검증 (spec.md ↔ 실제 동작)
 
 **Tier 1** (1 에이전트, ~20K): 핵심 함수 존재 확인 (Grep `js/`) + ARIA 속성 존재 확인 (index.html)
