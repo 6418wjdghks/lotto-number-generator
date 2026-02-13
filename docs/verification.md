@@ -38,6 +38,7 @@
 **에이전트 부하 절감**:
 - B 에이전트: CSS 변수 전수 비교를 스크립트가 대체 → 컴포넌트/반응형/애니메이션 의미적 검증만 수행
 - A2 에이전트: ARIA/접근성 전수 확인을 스크립트가 대체 → 문서 정확성 + 구현 준수 검증만 수행
+- C Tier 1: 함수 카운트 + ARIA 확인을 스크립트가 대체 → Tier 0 PASS 시 별도 에이전트 불필요
 
 ## 파일 타입 분류
 
@@ -65,7 +66,7 @@
 | 변경 Label | Tier 1 | Tier 2 | 예상 토큰 |
 |------------|--------|--------|----------|
 | `style` | B | — | ~15K |
-| `code` | A, C | — | ~40K |
+| `code` | A | — | ~20K |
 | `test` | D | — | ~15K |
 | `doc:api` | — | A1, A3 | ~110K |
 | `doc:design` | — | B | ~42K |
@@ -105,18 +106,18 @@
 
 **Tier 2** (3 에이전트, ~150K — ADR-024 병합):
 
-| 에이전트 | 모델 | 문서 | 비교 소스 | 병합 이력 |
-|----------|------|------|----------|----------|
-| A1 | Sonnet | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API 테이블) | — |
-| A2 | Sonnet | spec.md | index.html, js/*.js (양방향) | old-A2 + old-C |
-| A3 | Sonnet | CLAUDE.md(비API) + README.md + test/README.md | Glob, test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) | old-A3 + old-A5 |
+| 에이전트 | 모델 | 문서 | 비교 소스 |
+|----------|------|------|----------|
+| A1 | Sonnet | tech.md | js/*.js, style.css, index.html, CLAUDE.md(API 테이블) |
+| A2 | Sonnet | spec.md | index.html, js/*.js (양방향) |
+| A3 | Sonnet | CLAUDE.md(비API) + README.md + test/README.md | Glob, test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) |
 
 > `js/*.js` = utils, theme, exclude, lottery, history, auth, app (7개 모듈)
 > A1: CLAUDE.md API 테이블과 tech.md 함수 목록을 양쪽 읽고 교차 비교. 각 모듈의 실제 소스와 대조
 > A2: spec.md 문서 정확성 + F-001~F-008 구현 준수 + ARIA/접근성 양방향 검증. 소스를 한 번만 읽고 양쪽 수행
 > A3: README.md 파일 트리 ↔ Glob 실제 파일, test/README.md ↔ 테스트 코드, CLAUDE.md 모듈 테이블 ↔ 실제 구조 교차 비교
 
-**A2 프롬프트 설계** (old-A2 + old-C 병합, ADR-028 강화):
+**A2 프롬프트 설계** (ADR-024, ADR-028):
 - 검증 1: spec.md가 소스를 정확히 기술하는지 (문서 정확성)
 - 검증 2: 소스가 F-001~F-008 요구사항을 구현하는지 (구현 준수)
 - 검증 3: ~~ARIA/접근성 속성 전수 확인~~ → **Tier 0 이관** (aria.attributes + aria.srOnly). Tier 0 ALL PASS 시 A2는 ARIA 검증 생략
@@ -124,7 +125,7 @@
 - **배치 가이드**: spec.md + index.html + js/*.js를 **병렬 Read**하여 RT(API 왕복)를 최소화 → **모델 내 양방향 비교**. 추가 확인 필요 시 css/style.css Read 또는 Grep 보충
 - **금지 패턴**: (1) 기능별 Grep 순차 호출 금지 — Read 후 모델 내 비교 우선 (2) Glob 금지 — 파일 경로 고정 (3) ARIA 속성 수동 확인 금지 — Tier 0 위임
 
-**A3 프롬프트 설계** (old-A3 + old-A5 병합, ADR-025 강화, ADR-029 추상화):
+**A3 프롬프트 설계** (ADR-025, ADR-029):
 - 행위 기반 3단계 프로세스:
   1. CLAUDE.md에서 모듈 구조 테이블을 읽고, 기술된 모듈 수·함수 분포를 추출
   2. README.md 파일 구조 트리를 읽고, Glob으로 실제 파일과 대조
@@ -140,9 +141,9 @@
 - 카운트 규칙: **고유 변수명 기준** (`:root`와 `[data-theme="dark"]`에 중복 정의 시 1개로 계산)
 - design.md에서 변수 목록을 파싱한 수를 기준으로 style.css와 비교
 
-**Tier 2** (1 에이전트, Sonnet, ~42K): design.md ↔ style.css + index.html 전수 비교 (old-A4 + old-B 병합, ADR-024, ADR-026 강화)
-- 검증 1: design.md가 실제 디자인을 정확히 기술하는지 (old-A4)
-- 검증 2: 변수값 + 컴포넌트 + 반응형 + 애니메이션 전수 비교 (old-B)
+**Tier 2** (1 에이전트, Sonnet, ~42K): design.md ↔ style.css + index.html 전수 비교 (ADR-024, ADR-026)
+- 검증 1: design.md가 실제 디자인을 정확히 기술하는지 (문서 정확성)
+- 검증 2: 변수값 + 컴포넌트 + 반응형 + 애니메이션 전수 비교 (구현 일치)
 - **Bash 금지**: Read + Grep만 사용
 - **배치 가이드**: design.md + style.css + index.html 병렬 Read → **모델 내 교차 비교** → 완료. **최소 Tool로 수행**
 - design.md에서 각 카테고리(변수, 컴포넌트, 반응형, 애니메이션) 명세를 추출하여 style.css·index.html과 전수 비교. CSS 변수값 비교는 Tier 0 완료이므로 의미적 검증에 집중
@@ -150,17 +151,15 @@
 
 ## C. 구현 검증 (spec.md ↔ 실제 동작)
 
-**Tier 1** (1 에이전트, ~20K): 핵심 함수 존재 확인 (Grep `js/`) + ARIA 속성 존재 확인 (index.html)
+**Tier 1**: Tier 0이 함수 카운트(`functions.total`) + ARIA(`aria.attributes`, `aria.srOnly`)를 커버. Tier 0 PASS 시 별도 에이전트 불필요.
 
-**Tier 2**: A2에 통합 (ADR-024). A2가 spec.md ↔ 소스코드 양방향 검증(문서 정확성 + 구현 준수 + ARIA/접근성) 수행.
-
-> Supabase API 흐름 검증은 별도 검토 시 추가 예정
+**Tier 2**: A2에 통합 (ADR-024). A2가 spec.md ↔ 소스코드 양방향 검증(문서 정확성 + 구현 준수) 수행.
 
 ## D. 테스트 검증 (test/README.md ↔ 실제 테스트)
 
 **Tier 1** (1 에이전트, ~15K): `npm test` 실행 → 전 테스트 통과, 0 fail 확인
 
-**Tier 2** (1 에이전트, Sonnet, ~78K): CLI + DOM/UI 테스트 통합 검증 (old-D1 + old-D2 병합, ADR-024, ADR-026 강화)
+**Tier 2** (1 에이전트, Sonnet, ~78K): CLI + DOM/UI 테스트 통합 검증 (ADR-024, ADR-026)
 
 | 검증 항목 | 비교 소스 |
 |----------|----------|
