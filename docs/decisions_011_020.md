@@ -2,6 +2,7 @@
 
 > 활성 ADR: [decisions.md](./decisions.md)
 > 이전 아카이브: [decisions_001_010.md](./decisions_001_010.md) (ADR-001~010)
+> 다음 아카이브: [decisions_021_030.md](./decisions_021_030.md) (ADR-021~030)
 
 ---
 

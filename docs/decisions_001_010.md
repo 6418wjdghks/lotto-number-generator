@@ -1,6 +1,7 @@
 # ADR 아카이브: ADR-001 ~ ADR-010
 
-> 이 파일은 완료된 초기 설계 결정의 아카이브입니다. 활성 ADR은 [decisions.md](./decisions.md) 참조.
+> 활성 ADR: [decisions.md](./decisions.md)
+> 다음 아카이브: [decisions_011_020.md](./decisions_011_020.md) (ADR-011~020) | [decisions_021_030.md](./decisions_021_030.md) (ADR-021~030)
 
 ---
 
