@@ -79,6 +79,21 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | 함수 목록/수 | CLAUDE.md API 테이블 |
 | 테스트 수/항목 | test/README.md |
 
+### 문서-구현 검증 (서브 에이전트 위임)
+
+문서 전체 검증 시 메인 컨텍스트에서 모든 파일을 읽지 말 것. 서브 에이전트에 위임하여 토큰 효율화:
+
+```
+메인 Agent: Task(subagent_type="general-purpose") × N개 병렬 실행
+├── Agent A: tech.md ↔ app.js, style.css, index.html, supabase-config.js
+├── Agent B: spec.md ↔ index.html, app.js
+├── Agent C: CLAUDE.md ↔ app.js (API 테이블 vs 함수 시그니처)
+├── Agent D: README.md ↔ 전체 파일 구조, test/README.md
+├── Agent E: design.md ↔ style.css
+└── Agent F: test/README.md ↔ test-logic.js, test-dom.js, app.js
+→ 메인은 각 Agent의 불일치 목록(요약)만 수신 → 취합 후 보고/수정
+```
+
 ### Git 정책
 
 - 결과 요약 후 "커밋 및 푸시할까요?" 확인 → 사용자 승인 후에만 실행
