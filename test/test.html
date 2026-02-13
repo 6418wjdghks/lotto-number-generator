@@ -228,6 +228,7 @@
     /** DOM Fixture를 초기 상태로 리셋 */
     function resetFixture() {
       localStorage.removeItem('lotto_history');
+      localStorage.removeItem('lotto_excluded');
       document.getElementById('setsContainer').innerHTML = '';
       document.getElementById('historyList').innerHTML = '';
       document.getElementById('historyList').classList.add('hidden');
