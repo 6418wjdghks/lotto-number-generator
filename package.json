@@ -7,7 +7,8 @@
     "test": "node --test test/test-logic.js && node test/test-dom.js",
     "test:logic": "node --test test/test-logic.js",
     "test:dom": "node test/test-dom.js",
-    "test:dom:screenshot": "node test/test-dom.js --screenshot"
+    "test:dom:screenshot": "node test/test-dom.js --screenshot",
+    "verify": "node scripts/verify.js"
   },
   "devDependencies": {
     "puppeteer-core": "^24.0.0"

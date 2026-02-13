@@ -39,7 +39,7 @@
 
 ```
 ├── index.html              # 메인 HTML 파일
-├── CLAUDE.md               # 프로젝트 가이드 (API 테이블)
+├── CLAUDE.md               # 프로젝트 가이드 (Context 라우터)
 ├── package.json            # npm 스크립트 (test 등)
 ├── css/
 │   └── style.css           # 스타일시트 (CSS Custom Properties)
@@ -57,11 +57,15 @@
 │   ├── test-dom.js         # DOM/UI CLI 러너 (Edge headless)
 │   ├── test.html           # 브라우저 테스트 (50개)
 │   └── README.md           # 테스트 문서
+├── scripts/                # 자동화 스크립트
+│   └── verify.js           # 정밀 검증 전처리 (Tier 0)
 └── docs/                   # 프로젝트 문서
+    ├── _context.md         # 현재 상태 스냅샷 (~30줄)
     ├── spec.md             # 기능 명세서
     ├── tech.md             # 기술 명세서
     ├── design.md           # 디자인 명세서
     ├── plan.md             # 프로젝트 계획서
+    ├── verification.md     # 검증 체계 (서브에이전트)
     ├── decisions.md        # ADR (활성)
     ├── decisions_001_010.md # ADR 아카이브 (001~010)
     ├── decisions_011_020.md # ADR 아카이브 (011~020)

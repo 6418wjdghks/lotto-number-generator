@@ -2,6 +2,11 @@
 
 **버전**: 3.3.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
 
+> **섹션 인덱스** — `Read(offset, limit)` 참고
+> 기술스택 L12 | 파일구조 L21 | 아키텍처 L56 | CSS L64 | HTML-ID L128 | JS-API L141
+> └ 핵심생성 L146 | 표시 L162 | 이력 L175 | 제외 L198 | 방어 L214 | 유틸 L224 | 테마 L232 | 인증 L250 | 메인진입점 L258
+> Supabase L277 | 데이터구조 L299 | Exports L360 | 알고리즘 L385 | 보안 L413 | 성능 L422
+
 ---
 
 ## 기술 스택
@@ -154,9 +159,6 @@ css/style.css
 - **반환**: `number` — `#setCount` 드롭다운 값 (`parseInt(select.value, 10)`)
 - 드롭다운 옵션 텍스트: `"1개"`, `"2개"`, `"3개"`, `"4개"`, `"5개"` (value: `"1"`~`"5"`, `"1"` selected)
 
-**`generateLottoNumbers()`**
-- 메인 진입점. `getExcludedNumbers()` → 남은 번호 < 6 시 토스트 에러 + 중단 → `getSelectedSetCount()` → `generateMultipleSets(setCount, excludedNumbers)` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
-
 ### 표시 함수
 
 **`displayMultipleSets(sets)`**
@@ -252,6 +254,12 @@ css/style.css
 **`handleSignUp()`** (async) — 회원가입. `result.data.access_token` 존재 시 자동 로그인 + `updateAuthUI()`, 미존재 시 이메일 확인 안내 토스트 (4초)
 **`handleSignOut()`** (async) — 로그아웃 + `updateAuthUI()` + 이력 열려있으면 로컬 이력으로 `displayHistory()` 갱신
 **`updateAuthUI()`** — 로그인/비로그인 UI 상태 반영
+
+### 메인 진입점 (`app.js`)
+
+**`generateLottoNumbers()`**
+- 메인 추첨 진입점. `getExcludedNumbers()` → 남은 번호 < 6 시 토스트 에러 + 중단 → `getSelectedSetCount()` → `generateMultipleSets(setCount, excludedNumbers)` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
+
 **`initApp()`** — 페이지 로드 시 초기화. 아래 순서로 실행:
 1. 테마 초기화: `loadTheme()` → `applyTheme()`
 2. 이벤트 바인딩: `getElementById` → `addEventListener('click', handler)` — **HTML에 onclick 속성 사용 금지**, JS에서만 바인딩
