@@ -128,7 +128,7 @@ open test/test.html   # macOS
 
 ## 함수 커버리지
 
-app.js 함수 목록은 CLAUDE.md API 테이블 참조.
+app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L141~) 참조.
 
 ### Phase 1~3 함수 (18개 — 전수 테스트)
 
@@ -181,4 +181,4 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 
 ---
 
-**최종 업데이트**: 2026-02-13 (v4.3) — DOM/UI 테스트 CLI 러너 추가, 클립보드 검증 복원 (50개)
+**최종 업데이트**: 2026-02-14 — 문서 참조 경로 수정
