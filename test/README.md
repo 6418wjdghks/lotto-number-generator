@@ -105,6 +105,7 @@ open test/test.html   # macOS
 ## 테스트 구조
 
 - **DOM Fixture** (`test.html`): app.js가 참조하는 DOM 요소를 숨겨진 영역으로 재현
+- **resetFixture()**: 테스트 간 상태 격리 — `lotto_history`, `lotto_excluded` LocalStorage 초기화 + DOM 리셋
 - **localStorage 모킹** (`test-logic.js`): `global.localStorage`/`global.document` 최소 모킹
 - **비동기 처리**: `runAllTests()`가 async, Clipboard/Toast 테스트를 `await`로 순차 실행
 
@@ -152,4 +153,4 @@ app.js 함수 목록은 CLAUDE.md API 테이블 참조.
 
 ---
 
-**최종 업데이트**: 2026-02-12 (v4)
+**최종 업데이트**: 2026-02-13 (v4.1) — resetFixture() 제외 번호 초기화 버그 수정
