@@ -133,3 +133,22 @@
 | DOM/UI 테스트 항목/수 | test.html, test-dom.js |
 
 > app.js의 module.exports로 export된 함수 목록 + Grep(`js/`)로 전체 함수 목록 비교하여 커버리지 판단
+
+---
+
+## 에이전트 프롬프트 품질 규칙
+
+- **카운트 검증**: 기대값 + 카운트 규칙을 프롬프트에 명시
+- **재위임 금지**: "Task 도구로 서브에이전트 재생성 금지" 명시 필수
+- **임시 파일 RAII**: "생성한 파일 목록 추적 → 종료 전 삭제" 명시 필수
+- **Bash 명령어 보고**: 프롬프트 끝에 "사용한 Bash 명령어 목록 출력" 지시
+- **교차 검증 위임**: 에이전트 간 중복 파일 읽기 → 이미 읽는 에이전트에 검증 위임 (ADR-022)
+- **기대값 프롬프트 삽입**: 탐색 대신 대조만 수행하도록 기대값을 프롬프트에 포함 → Tool 호출 대폭 감소
+- **Bash 금지 규칙**: CSS/문서 비교 에이전트에 "Bash 사용 금지, Read+Grep만 사용" 명시 필수 (ADR-023)
+
+## Permission 관리
+
+- settings.local.json 위치: `.claude/settings.local.json`
+- 서브 에이전트 Bash 실행 시 권한 프롬프트 → 사용자 대기 시간 발생
+- 에이전트 사용 명령어 사전 파악 → settings에 선제 등록으로 지연 방지
+- 현재 등록 패턴: git, npm, node, ls, dir, find, findstr, grep, cat, echo, diff, wc, sed, rm, cd, where, start, powershell, python, Get-ChildItem, Sort-Object, Select-String, awk, sort, head, tail

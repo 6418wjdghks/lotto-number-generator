@@ -83,6 +83,12 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 상세: `docs/verification.md` 참조. 검증 실행 전 해당 문서를 읽을 것.
 
+### 문서 관리 규칙
+
+- 코드 구조 변경 시 README.md 파일 구조 섹션 동기화 필수
+- 아카이브 파일 생성 후 README.md 파일 트리도 업데이트
+- 암묵적 패턴은 반드시 명문화해야 지속 적용됨
+
 ### ADR Chunk 규칙
 
 `decisions.md`의 활성 ADR이 **10개를 초과**하면 가장 오래된 10개를 아카이브한다.
