@@ -121,8 +121,8 @@
 - 검증 2: 소스가 F-001~F-008 요구사항을 구현하는지 (구현 준수)
 - 검증 3: ~~ARIA/접근성 속성 전수 확인~~ → **Tier 0 이관** (aria.attributes + aria.srOnly). Tier 0 ALL PASS 시 A2는 ARIA 검증 생략
 - **Bash 금지**: Read + Grep만 사용
-- **배치 가이드**: spec.md와 index.html을 읽어 요구사항과 HTML 구조를 파악 → Grep으로 기능별 구현 확인 → 모델 내 양방향 비교. **최소 Tool로 수행**
-- **금지 패턴**: (1) js/*.js 7개 개별 Read 금지 — Grep으로 타겟 검증 (2) Glob 금지 — 파일 경로 고정 (3) ARIA 속성 수동 확인 금지 — Tier 0 위임
+- **배치 가이드**: spec.md + index.html + js/*.js를 **병렬 Read**하여 RT(API 왕복)를 최소화 → **모델 내 양방향 비교**. 추가 확인 필요 시 css/style.css Read 또는 Grep 보충
+- **금지 패턴**: (1) 기능별 Grep 순차 호출 금지 — Read 후 모델 내 비교 우선 (2) Glob 금지 — 파일 경로 고정 (3) ARIA 속성 수동 확인 금지 — Tier 0 위임
 
 **A3 프롬프트 설계** (old-A3 + old-A5 병합, ADR-025 강화, ADR-029 추상화):
 - 행위 기반 3단계 프로세스:
