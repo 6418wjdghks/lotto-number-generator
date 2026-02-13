@@ -150,13 +150,13 @@ main.container
 | `.container` | max-w 500, pad 40 | — | 20px | `--shadow-high` | white | — |
 | `.number` | 60×60, flex center | — | 50% | — | 위치별 색상 | 24px bold `var(--white)` |
 | `.set-selector` | flex, gap 10, center, align center | — | — | — | — | 16px bold |
-| `.set-selector select` | pad 8×12 | 2px #667eea | 8px | — | white | 16px text-primary |
+| `.set-selector select` | pad 8×12 | 2px solid #667eea | 8px | — | white | 16px text-primary |
 | `.sets-container` | grid auto-fit 280px, gap 20 | — | — | — | — | — |
 | `.set-card` | pad 20 | 2px #e0e0e0 | 15px | 0 4 12 0.1 | white | — |
 | `.set-label` | mb 15, text-align center | — | — | — | — | 14px bold #667eea |
 | `.set-numbers .number` | 50×50 | — | 50% | — | 위치별 색상 | 20px bold `var(--white)` |
 | `.copy-btn` | w 100%, pad 6×12 | 1px #667eea | 15px | — | #f0f0f0 | 12px #667eea |
-| `.toast` | fixed bottom 30, center | — | 8px | 0 4 12 0.3 | #333 | 14px white |
+| `.toast` | fixed bottom 30, center | — | 8px | 0 4 12 0.3 | #333333 | 14px white |
 | `.toast.success` | — | — | — | — | #44bd32 | — |
 | `.toast.error` | — | — | — | — | #e84118 | — |
 | `.history-section` | mt 30, pt 20 | top 1px #e0e0e0 | — | — | — | — |
