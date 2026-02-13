@@ -151,6 +151,8 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 #### A. 문서 검증 (문서 ↔ 소스코드)
 
 **Tier 1** (1 에이전트, ~20K): 핵심 수치 스팟체크 — 함수 수 34, 테스트 수 73, 파일 목록 일치
+- 함수 카운트 규칙: `function` + `async function` 모두 포함 (Grep 패턴: `^(async )?function`)
+- 기대값: 34개 (function 26 + async function 8)
 
 **Tier 2** (5 에이전트, ~196K):
 
