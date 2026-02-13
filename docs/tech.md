@@ -23,7 +23,13 @@ HelloClaude/
 ├── css/style.css           # 스타일시트
 ├── js/
 │   ├── supabase-config.js  # Supabase REST API 래퍼
-│   └── app.js              # JavaScript 로직
+│   ├── utils.js            # 상수 + 범용 유틸리티
+│   ├── theme.js            # 테마/다크모드
+│   ├── exclude.js          # 번호 제외 기능
+│   ├── lottery.js          # 추첨 핵심 로직 + 결과 표시
+│   ├── history.js          # 이력 관리 (Local + Supabase)
+│   ├── auth.js             # 인증 (Supabase)
+│   └── app.js              # 진입점 (메인 함수 + 초기화 + 이벤트)
 ├── docs/                   # 프로젝트 문서
 │   ├── plan.md             # 진행 상황
 │   ├── spec.md             # 기능 명세 (제품)
@@ -90,20 +96,27 @@ HelloClaude/
 
 ```
 css/style.css
-├── Dark Mode                 /* html[data-theme="dark"] 변수 오버라이드 */
 ├── Reset & Base Styles       /* 전역 리셋 */
-├── Design Tokens (:root)     /* CSS 변수 정의 */
-├── Layout                    /* body, .container */
-├── Typography                /* h1, .info */
-├── Components                /* 번호 뱃지, 버튼, 카드(+fadeIn), 토스트(+slideUp/fadeOut) 등 */
-├── Animations                /* @keyframes pop (뱃지 전용, 단독 배치) */
+├── Design Tokens (:root)     /* CSS 변수 — 라이트 모드 */
+├── Design Tokens (dark)      /* CSS 변수 — 다크 모드 (연속 배치) */
+├── Layout                    /* body, .container + @media */
+├── Typography                /* h1 + @media, .info */
+├── Theme Toggle              /* + @media */
+├── Number Badge              /* + Number Colors + @media */
+├── Primary Button            /* + @media */
+├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
 ├── Focus Styles              /* :focus-visible (접근성) */
-├── Section Styles            /* 인증, 제외, 이력 */
-├── Utility                   /* .hidden, .sr-only */
-└── Responsive (@media)       /* 480px 이하 — 단일 미디어쿼리 블록 */
+├── Auth Section              /* + @media */
+├── Set Selector              /* + @media */
+├── Sets Container / Card     /* + @media */
+├── Copy Button               /* + @media */
+├── Toast Message             /* + @media */
+├── Exclude Section           /* + @media */
+├── History Section           /* + @media */
+└── Utility                   /* .hidden, .sr-only */
 ```
 
-**미디어쿼리 통합**: 분산되어 있던 복수의 `@media` 블록을 파일 하단 단일 블록으로 통합. 반응형 스타일을 한 곳에서 관리.
+**미디어쿼리 인라인 배치**: 각 컴포넌트 바로 아래에 해당 모바일 `@media (max-width: 480px)` 배치. 수정 시 관련 스타일을 한 곳에서 확인 가능.
 
 ---
 
@@ -120,9 +133,10 @@ css/style.css
 
 ---
 
-## JavaScript API (`js/app.js`)
+## JavaScript API (7개 모듈)
 
 > 함수 요약: CLAUDE.md API 테이블 참조. 아래는 상세 명세.
+> 모듈 분할: `utils.js` → `theme.js` → `exclude.js` → `lottery.js` → `history.js` → `auth.js` → `app.js` (ADR-021)
 
 ### 핵심 생성 함수
 
@@ -337,22 +351,24 @@ DB 스키마 상세: `docs/phase4-architecture.md` 참조.
 
 ## Node.js 테스트용 Module Exports
 
-`app.js` 하단에서 `typeof module !== 'undefined'` 조건으로 Node.js 환경에서만 내보냄. **테스트 호환성을 위해 Local(동기) 버전**을 내보냄:
+각 모듈 파일 하단에 자체 `module.exports` 보유. `app.js`는 진입점으로서 모든 모듈을 `require` 후 재export.
+
+**app.js**: `require('./utils.js')` → `Object.assign(global, utils)` (전역 설정) → 다른 모듈 require → 통합 export. **테스트 호환성을 위해 Local(동기) 버전**을 내보냄:
 
 ```javascript
+// app.js module.exports
+const utils = require('./utils.js');
+Object.keys(utils).forEach(key => { global[key] = utils[key]; });
+const lottery = require('./lottery.js');
+const history = require('./history.js');
+const exclude = require('./exclude.js');
+
 module.exports = {
-  STORAGE_KEY,        // 'lotto_history'
-  EXCLUDED_KEY,       // 'lotto_excluded'
-  THEME_KEY,          // 'lotto_theme'
-  MAX_HISTORY,        // 20
-  generateSingleSet,
-  generateMultipleSets,
-  generateUUID,
-  loadHistory: loadHistoryLocal,   // 동기 버전으로 alias
-  saveToHistory: saveToHistoryLocal, // 동기 버전으로 alias
-  saveExcludedNumbers,
-  loadExcludedNumbers,
-  clearExcludedNumbers,
+  STORAGE_KEY, EXCLUDED_KEY, THEME_KEY, MAX_HISTORY,
+  generateSingleSet, generateMultipleSets, generateUUID,
+  loadHistory: history.loadHistoryLocal,
+  saveToHistory: history.saveToHistoryLocal,
+  saveExcludedNumbers, loadExcludedNumbers, clearExcludedNumbers,
 };
 ```
 

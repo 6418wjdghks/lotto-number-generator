@@ -11,9 +11,9 @@
 
 ---
 
-## JavaScript API 요약 (`js/app.js`)
+## JavaScript API 요약 (7개 모듈)
 
-상세 명세: `docs/tech.md` 참조
+상세 명세: `docs/tech.md` 참조. 모듈 분할: ADR-021
 
 | 함수 | 설명 |
 |------|------|
@@ -95,7 +95,7 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 | Label | 타입 | 포함 파일 |
 |-------|------|----------|
 | `style` | 스타일 | `style.css` |
-| `code` | 코드 | `app.js`, `supabase-config.js`, `index.html` |
+| `code` | 코드 | `utils.js`, `theme.js`, `exclude.js`, `lottery.js`, `history.js`, `auth.js`, `app.js`, `supabase-config.js`, `index.html` |
 | `test` | 테스트 | `test-logic.js`, `test-dom.js`, `test.html` |
 | `doc:api` | 문서(API) | `tech.md`, `CLAUDE.md`, `README.md` |
 | `doc:design` | 문서(디자인) | `design.md` |
@@ -152,18 +152,21 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 #### A. 문서 검증 (문서 ↔ 소스코드)
 
 **Tier 1** (1 에이전트, ~20K): 핵심 수치 스팟체크 — 함수 수 34, 테스트 수 73, 파일 목록 일치
-- 함수 카운트 규칙: `function` + `async function` 모두 포함 (Grep 패턴: `^(async )?function`)
-- 기대값: 34개 (function 26 + async function 8)
+- 함수 카운트 규칙: `function` + `async function` 모두 포함 (Grep 패턴: `^(async )?function`, 대상: `js/` 디렉토리)
+- 기대값: 34개 (function 26 + async function 8), 7개 모듈에 분산
 
 **Tier 2** (5 에이전트, ~196K):
 
 | 에이전트 | 문서 | 비교 소스 |
 |----------|------|----------|
-| Agent 1 | tech.md | app.js, style.css, index.html, supabase-config.js |
-| Agent 2 | spec.md | index.html, app.js |
-| Agent 3 | CLAUDE.md + README.md | app.js, Glob, package.json, test/README.md |
+| Agent 1 | tech.md | js/*.js, style.css, index.html |
+| Agent 2 | spec.md | index.html, js/*.js |
+| Agent 3 | CLAUDE.md + README.md | Grep(`js/`), Glob, package.json, test/README.md |
 | Agent 4 | design.md | style.css, index.html |
-| Agent 5 | test/README.md | test-logic.js, test-dom.js, app.js, package.json |
+| Agent 5 | test/README.md | test-logic.js, test-dom.js, js/app.js, package.json |
+
+> `js/*.js` = utils, theme, exclude, lottery, history, auth, app (7개 모듈)
+> Agent 5: test-logic.js는 `require('../js/app.js')` 경유로 전 모듈 접근 → app.js만 참조 충분
 
 #### B. 디자인 검증 (design.md ↔ CSS)
 
@@ -176,9 +179,9 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 #### C. 구현 검증 (spec.md ↔ 실제 동작)
 
-**Tier 1** (1 에이전트, ~20K): 핵심 함수 존재 + ARIA 속성 존재 확인
+**Tier 1** (1 에이전트, ~20K): 핵심 함수 존재 확인 (Grep `js/`) + ARIA 속성 존재 확인 (index.html)
 
-**Tier 2** (1 에이전트, ~43K): F-001~F-008 동작/UI/DOM + ARIA/접근성 전수 비교
+**Tier 2** (1 에이전트, ~43K): F-001~F-008 동작/UI/DOM + ARIA/접근성 전수 비교 (spec.md ↔ index.html + js/*.js)
 
 > Supabase API 흐름 검증은 별도 검토 시 추가 예정
 
@@ -190,8 +193,10 @@ Supabase REST API (`js/supabase-config.js`): `docs/tech.md` 참조
 
 | 에이전트 | 검증 항목 | 비교 소스 |
 |----------|----------|----------|
-| Agent 1 | CLI 테스트 항목/수 + 함수 커버리지 | test-logic.js, app.js |
+| Agent 1 | CLI 테스트 항목/수 + 함수 커버리지 | test-logic.js, js/app.js, Grep(`js/`) |
 | Agent 2 | DOM/UI 테스트 항목/수 | test.html, test-dom.js |
+
+> D-Agent 1: app.js의 module.exports로 export된 함수 목록 + Grep(`js/`)로 전체 함수 목록 비교하여 커버리지 판단
 
 ### Git 정책
 

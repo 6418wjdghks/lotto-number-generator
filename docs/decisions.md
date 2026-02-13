@@ -20,6 +20,7 @@
 | [018](#adr-018) | DOM/UI 테스트 CLI 러너 (puppeteer-core + Edge headless) | 유지 | 2026-02-13 |
 | [019](#adr-019) | 다크 모드: `html[data-theme]` + FOUC 방지 인라인 스크립트 | 유지 | 2026-02-13 |
 | [020](#adr-020) | 검증 체계: Label 기반 매핑 + 에이전트 품질 규칙 | 적용 완료 | 2026-02-13 |
+| [021](#adr-021) | app.js 모듈 분할 + CSS @media 인라인 배치 | 적용 완료 | 2026-02-13 |
 
 ---
 
@@ -290,3 +291,42 @@ Phase 3 미착수 항목인 다크 모드를 구현해야 했다. 현재 모든 
 - **Tier 1 전체 유지**: 단순하지만 매 변경 시 ~70K 고정 비용. 관련 없는 카테고리까지 실행
 - **검증 안 함**: 토큰 0이지만 문서-코드 불일치 누적 위험
 - **Main Agent 직접 검증**: 서브에이전트 오버헤드 없지만 메인 컨텍스트 오염 (~130K)
+
+---
+
+## ADR-021: app.js 모듈 분할 + CSS @media 인라인 배치
+
+> 날짜: 2026-02-13 | 상태: 적용 완료
+
+### 맥락
+
+`app.js`가 단일 파일 757줄, 34함수로 구성. 테마 함수 하나를 수정해도 전체 757줄을 읽어야 하며, 에이전트 작업 시 토큰 비효율 발생.
+
+### 결정
+
+**JS**: `app.js`를 7개 모듈로 분할. ES modules 불사용, 전역 함수 + `<script>` 태그 순서 로딩.
+
+| 모듈 | 역할 | 의존 |
+|------|------|------|
+| `utils.js` | 상수 + 범용 유틸리티 | 없음 |
+| `theme.js` | 테마/다크모드 | THEME_KEY (utils) |
+| `exclude.js` | 번호 제외 기능 | EXCLUDED_KEY (utils) |
+| `lottery.js` | 추첨 로직 + 결과 표시 | copyToClipboard (utils) |
+| `history.js` | 이력 관리 (Local + Supabase) | STORAGE_KEY, MAX_HISTORY, generateUUID, showToast (utils) |
+| `auth.js` | 인증 (Supabase) | showToast (utils), displayHistory (history) |
+| `app.js` | 진입점 (메인 함수 + 초기화) | 전부 |
+
+**Node.js 테스트 호환**: `app.js`에서 `require` → `Object.assign(global, utils)` → 다른 모듈 require → 통합 export.
+
+**CSS**: 파일 하단 단일 `@media` 블록을 각 컴포넌트 바로 아래에 인라인 배치. CSS 변수 블록(:root + dark) 연속 배치.
+
+### 사유
+
+- **토큰 효율**: 테마 수정 시 ~70줄만 읽기 (기존 757줄 → 91% 절감)
+- **단순성 원칙 준수**: import/export 없이 script 태그 순서로 의존성 해결
+- **순환 의존 없음**: 의존 그래프가 DAG 구조
+
+### 검증 결과
+
+- `npm test`: 23 CLI + 50 DOM = 73 테스트 전부 PASS
+- 기존 테스트 코드 수정 0줄 (test-logic.js, test-dom.js 변경 없음)
