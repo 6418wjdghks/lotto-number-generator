@@ -31,7 +31,7 @@
 | `toggleHistoryView()` | 이력 영역 표시/숨김 토글 |
 | `clearHistory()` | (async) 듀얼 모드 전체 이력 삭제 (confirm 다이얼로그) |
 | `generateUUID()` | UUID v4 생성 |
-| `copyToClipboard(numbers, setNumber)` | Clipboard API 복사, 토스트 피드백 |
+| `copyToClipboard(numbers, setNumber=null)` | Clipboard API 복사, 토스트 피드백 |
 | `getExcludedNumbers()` | 제외된 번호 배열 반환 |
 | `toggleExcludeView()` | 제외 패널 표시/숨김 토글, 그리드 생성 |
 | `updateExcludeCount()` | 제외/남은 카운터 업데이트, 경고 표시 |

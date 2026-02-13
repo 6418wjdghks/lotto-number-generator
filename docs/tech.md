@@ -95,8 +95,8 @@ css/style.css
 ├── Design Tokens (:root)     /* CSS 변수 정의 */
 ├── Layout                    /* body, .container */
 ├── Typography                /* h1, .info */
-├── Components                /* 번호 뱃지, 버튼, 카드, 토스트 등 */
-├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
+├── Components                /* 번호 뱃지, 버튼, 카드(+fadeIn), 토스트(+slideUp/fadeOut) 등 */
+├── Animations                /* @keyframes pop (뱃지 전용, 단독 배치) */
 ├── Focus Styles              /* :focus-visible (접근성) */
 ├── Section Styles            /* 인증, 제외, 이력 */
 ├── Utility                   /* .hidden, .sr-only */
@@ -115,6 +115,7 @@ css/style.css
 | 토글 텍스트 | 버튼 내부 `<span>` 분리, ID는 `xxxText` | `#historyToggleText`, `#excludeToggleText`, `#authToggleText` |
 | 컨테이너/패널 | camelCase 설명명 | `#setsContainer`, `#excludePanel`, `#excludeGrid`, `#historyList`, `#excludeWarning` |
 | 카운터 | camelCase | `#excludeCount`, `#remainCount` |
+| 폼 컨트롤 | camelCase | `#setCount` |
 | 인증 | `auth` 접두어 | `#authGuest`, `#authUser`, `#authForm`, `#authEmail`, `#authPassword`, `#authUserEmail` |
 
 ---
@@ -255,7 +256,7 @@ css/style.css
 
 전역 객체 `window.supabase`로 노출. 설정: `SUPABASE_URL`, `SUPABASE_ANON_KEY` (플레이스홀더).
 
-**에러 처리 패턴**: Auth API (`signUp`, `signIn`, `signOut`)는 `{ success: boolean, data?, error? }` 객체를 반환. **절대 throw하지 않음**. 호출자는 `result.success`로 분기. History API (`fetchHistory`, `insertHistory`, `deleteAllHistory`)는 실패 시 `throw new Error()`로 예외 발생 — 호출자(`saveToHistory`, `loadHistory`, `clearHistory`)가 try-catch로 처리.
+**에러 처리 패턴**: Auth API (`signUp`, `signIn`, `signOut`)는 `{ success: boolean, data?, error? }` 객체를 반환. **절대 throw하지 않음**. 호출자는 `result.success`로 분기. History API (`insertHistory`, `deleteAllHistory`)는 실패 시 `throw new Error()`로 예외 발생 — 호출자가 try-catch로 처리. `fetchHistory`는 session 없으면 빈 배열 반환(throw 안 함), response 실패 시에만 throw.
 
 | 함수 | 설명 |
 |------|------|
