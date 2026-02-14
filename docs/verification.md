@@ -171,9 +171,9 @@ docs/tech.md가 실제 소스코드를 정확히 기술하는지 전수 비교�
 
 ## 배치 가이드
 
-1. CLAUDE.md + docs/tech.md 병렬 Read (2회)
-2. js/ 9개 .js 파일 병렬 Read (가능한 만큼 병렬화)
-3. css/style.css + index.html 병렬 Read (2회)
+1. CLAUDE.md + docs/tech.md 병렬 Read
+2. js/ 9개 .js 파일 병렬 Read — 가능한 만큼 병렬화하여 최소한의 호출로 수행
+3. css/style.css + index.html 병렬 Read
 4. 모델 내 교차 비교
 
 ## 금지 패턴
@@ -245,8 +245,8 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 
 ## 배치 가이드
 
-1. docs/spec.md + index.html 병렬 Read (2회)
-2. js/*.js 7개 모듈 병렬 Read (가능한 만큼 병렬화)
+1. docs/spec.md + index.html 병렬 Read
+2. js/*.js 7개 모듈 병렬 Read — 가능한 만큼 병렬화하여 최소한의 호출로 수행
 3. 모델 내 양방향 비교 (추가 확인 시 css/style.css Read 또는 Grep 보충)
 
 ## 금지 패턴
@@ -274,7 +274,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 - 모듈 정의: **supabase-config.js는 설정 파일이며 모듈 아님** (CLAUDE.md 모듈 테이블 기준)
 - DOM 테스트 카운트 규칙: **고유 테스트 케이스 수** 기준. 각 케이스는 PASS/FAIL 두 분기를 가지므로 `PASS:` 또는 `FAIL:` 한쪽만 카운트 (양쪽 합산 시 2배). **log() 전체 카운트 금지**
 - 배치 가이드: CLAUDE.md + README.md + test/README.md 병렬 Read → package.json Read → Glob → 완료. **최소 Tool로 수행**
-- **금지 패턴**: (1) test-dom.js·test.html을 직접 Read하여 독자 카운트 금지 — D 에이전트 담당 (2) js/ Grep으로 함수 카운트 금지 — A1 담당 (3) 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행 (4) Bash로 파일 목록 조회 금지 — Glob 도구 사용 필수
+- **금지 패턴**: (1) test-dom.js·test.html을 직접 Read하여 독자 카운트 금지 — D 에이전트 담당 (2) js/ Grep으로 함수 카운트 금지 — A1 담당 (3) 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행 (4) Bash로 파일 목록 조회 금지
 
 <agent-prompt id="A3">
 # A3: CLAUDE.md + README.md + test/README.md ↔ 실제 구조 교차 검증
@@ -324,7 +324,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 
 1. CLAUDE.md + README.md + test/README.md 병렬 Read (3회)
 2. package.json Read (1회)
-3. Glob으로 실제 파일 존재 확인 — `Glob("**/*", path=".")` 1회로 전체 파일 목록 획득. 개별 패턴 분산 금지.
+3. Glob으로 실제 파일 존재 확인 — 최소한의 호출로 수행. 예: `Glob("**/*")` 1회로 전체 파일 목록을 획득하면 개별 호출이 불필요.
 4. 완료. 최소 Tool로 수행.
 
 ## 금지 패턴
@@ -332,7 +332,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 1. test-dom.js, test.html 직접 Read하여 독자 카운트 금지 — D 에이전트 담당.
 2. js/ Grep으로 함수 카운트 금지 — A1 에이전트 담당.
 3. 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행.
-4. **Bash로 파일 목록 조회 금지** — `ls`, `find`, `Get-ChildItem` 등 사용 금지. 파일 존재 확인은 반드시 Glob 도구 사용.
+4. **Bash로 파일 목록 조회 금지** — `ls`, `find`, `Get-ChildItem` 등 사용 금지.
 
 ## 출력 형식
 
@@ -406,8 +406,8 @@ design.md의 색상, 타이포그래피, 레이아웃, 컴포넌트 명세가 �
 
 ## 배치 가이드
 
-1. docs/design.md + css/style.css + index.html 병렬 Read (3회)
-2. 모델 내 교차 비교 → 완료. 최소 Tool로 수행.
+1. docs/design.md + css/style.css + index.html 병렬 Read
+2. 모델 내 교차 비교 → 완료. 최소한의 호출로 수행.
 
 ## 금지 패턴
 
@@ -444,10 +444,10 @@ design.md의 색상, 타이포그래피, 레이아웃, 컴포넌트 명세가 �
 
 > app.js의 module.exports로 export된 함수 목록 + Grep(`js/`)로 전체 함수 목록 비교하여 커버리지 판단
 
-**배치 가이드** (ADR-026): **총 Tool ≤ 7회**
-1. test/README.md + test/test-logic.js + test/test-dom.js 병렬 Read (3회)
-2. test/test.html + js/app.js 병렬 Read (2회)
-3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인 (1회)
+**배치 가이드** (ADR-026): 최소한의 호출로 수행
+1. test/README.md + test/test-logic.js + test/test-dom.js 병렬 Read
+2. test/test.html + js/app.js 병렬 Read
+3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인
 4. 모델 내 교차 비교 → 완료
 - **Bash 금지**: Read + Grep만 사용
 - **금지 패턴**: (1) js/*.js 개별 Read 금지 — 함수 목록은 Grep 1회로 충족 (2) 추가 Glob 금지 — 파일 경로 고정
@@ -499,11 +499,13 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 - js/app.js
 - Grep(js/) 함수 목록
 
-## 배치 가이드 (총 Tool 7회 이하)
+## 배치 가이드
 
-1. test/README.md + test/test-logic.js + test/test-dom.js 병렬 Read (3회)
-2. test/test.html + js/app.js 병렬 Read (2회)
-3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인 (1회)
+최소한의 호출로 수행한다.
+
+1. test/README.md + test/test-logic.js + test/test-dom.js 병렬 Read
+2. test/test.html + js/app.js 병렬 Read
+3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인
 4. 모델 내 교차 비교 → 완료
 
 ## 금지 패턴
@@ -554,7 +556,7 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 ## 정밀 검증 결과
 
-> 마지막 검증: 2026-02-14 (`99abad0`) — **전 Tier PASS, Bash 전 에이전트 0회**
+> 마지막 검증: 2026-02-14 (`60c8154`) — **전 Tier PASS, Bash 전 에이전트 0회**
 
 ### 검증 항목
 
@@ -562,20 +564,20 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 |------|---------|----------|------|------|
 | 0 | verify.js | 코드↔문서 정량 비교 (14항목) | **14/14 PASS** | CSS 변수, 함수 수, 테스트 수, ARIA, 파일 존재 |
 | 1 | npm test | 테스트 실행 | **73/73 PASS** | CLI 23 + DOM 50 |
-| 2 | A1 (Sonnet) | tech.md ↔ 소스코드 | **ALL PASS** | 함수 전수 일치, CSS 구조 일치, HTML ID 일치 |
+| 2 | A1 (Sonnet) | tech.md ↔ 소스코드 | **ALL PASS** | 함수 46개 전수 일치, CSS 구조 일치, HTML ID 28개 일치 |
 | 2 | A2 (Sonnet) | spec.md ↔ 소스코드 | **ALL PASS** | F-001~F-008 양방향 검증, ARIA Tier 0 위임 |
-| 2 | A3 (Sonnet) | CLAUDE.md + README ↔ 실제 구조 | **ALL PASS** | 모듈 구조, 파일 트리, 테스트 수 교차 확인 |
-| 2 | B (Sonnet) | design.md ↔ CSS/HTML | **ALL PASS** | 컴포넌트, 반응형, 애니메이션 의미적 검증 |
-| 2 | D (Sonnet) | test/README ↔ 테스트 코드 | **ALL PASS** | CLI 23개, DOM 50개, 커버리지 18/34 |
+| 2 | A3 (Sonnet) | CLAUDE.md + README ↔ 실제 구조 | **ALL PASS** | 모듈 9개, 파일 17개, 테스트 73개 교차 확인 |
+| 2 | B (Sonnet) | design.md ↔ CSS/HTML | **ALL PASS** | 컴포넌트 35개, 반응형 18항목, 애니메이션 4개 검증 |
+| 2 | D (Sonnet) | test/README ↔ 테스트 코드 | **ALL PASS** | CLI 23개, DOM 50개, 커버리지 검증 |
 
 ### 성능 지표 (Tier 2)
 
 | 에이전트 | Tool 호출 | 토큰 | 경과 시간 | Bash | Warning |
 |----------|----------|------|----------|------|---------|
-| A1 | 13 | 54.2K | 59.9s | 0 | 0건 |
-| A2 | 10 | 33.0K | 32.2s | 0 | 0건 |
-| A3 | 15 | 34.4K | 37.0s | 0 | 0건 |
-| B | 3 | 34.0K | 43.8s | 0 | 0건 |
-| D | 6 | 40.9K | 31.2s | 0 | 0건 |
+| A1 | 13 | 56.9K | 99.2s | 0 | 0건 |
+| A2 | 11 | 43.1K | 62.3s | 0 | 0건 |
+| A3 | 15 | 31.6K | 45.2s | 0 | 0건 |
+| B | 3 | 33.4K | 48.1s | 0 | 0건 |
+| D | 6 | 40.7K | 31.7s | 0 | 0건 |
 
-> `—` = 해당 세션에서 미실행. Warning = ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)
+> `—` = 해당 세션에서 미측정. Warning = ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)
