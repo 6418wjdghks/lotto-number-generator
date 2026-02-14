@@ -204,7 +204,7 @@ function parseReadmeFileTree(mdText) {
 
 function countFunctions() {
   const jsDir = path.join(ROOT, 'js');
-  const moduleFiles = ['utils.js', 'theme.js', 'exclude.js', 'lottery.js',
+  const moduleFiles = ['config.js', 'utils.js', 'theme.js', 'exclude.js', 'lottery.js',
     'history.js', 'auth.js', 'app.js'];
   const perModule = {};
   let total = 0;
@@ -284,6 +284,29 @@ function checkSrOnly() {
 }
 
 // ============================================================
+// HTML Script Tags
+// ============================================================
+
+function parseHtmlScripts() {
+  const html = readFile('index.html');
+  const scripts = [];
+  const re = /<script\s+src="js\/(\w+\.js)"/g;
+  let m;
+  while ((m = re.exec(html)) !== null) scripts.push(m[1]);
+  return scripts;
+}
+
+// ============================================================
+// ADR Active Count
+// ============================================================
+
+function countActiveAdrs() {
+  const md = readFile('docs/decisions.md');
+  const count = (md.match(/^## ADR-\d{3}/gm) || []).length;
+  return count;
+}
+
+// ============================================================
 // File Existence
 // ============================================================
 
@@ -356,6 +379,29 @@ function main() {
   check('functions.total', functions.total === claudeModules.total && claudeModules.total > 0,
     { grep: functions.total, claudeMd: claudeModules.total, async: functions.async, sync: functions.sync });
 
+  // 모듈별 함수 수 비교
+  const perModuleMismatches = [];
+  for (const [mod, docCount] of Object.entries(claudeModules.perModule)) {
+    const actual = functions.perModule[mod];
+    if (!actual) {
+      perModuleMismatches.push({ module: mod, issue: 'not_found_in_js', doc: docCount });
+    } else if (actual.count !== docCount) {
+      perModuleMismatches.push({ module: mod, doc: docCount, actual: actual.count });
+    }
+  }
+  check('functions.perModule', perModuleMismatches.length === 0,
+    perModuleMismatches.length === 0 ? 'all modules match' : perModuleMismatches);
+
+  // HTML script 태그 ↔ CLAUDE.md 모듈 목록
+  const htmlScripts = parseHtmlScripts();
+  const claudeModuleNames = Object.keys(claudeModules.perModule);
+  const scriptMissing = claudeModuleNames.filter(m => !htmlScripts.includes(m));
+  const scriptExtra = htmlScripts.filter(m => !claudeModuleNames.includes(m));
+  check('html.scripts', scriptMissing.length === 0 && scriptExtra.length === 0,
+    scriptMissing.length === 0 && scriptExtra.length === 0
+      ? `all ${htmlScripts.length} scripts match`
+      : { missing: scriptMissing, extra: scriptExtra });
+
   check('tests.cli', tests.cli > 0, `${tests.cli} tests`);
   check('tests.dom', tests.dom > 0, `${tests.dom} tests`);
   check('tests.total', tests.total === tests.cli + tests.dom && tests.total > 0,
@@ -367,6 +413,11 @@ function main() {
     srOnly.missing.length === 0 ? `all ${srOnly.expected} present (dynamic)` : { missing: srOnly.missing });
   check('files', files.missing.length === 0 && expectedFiles.length > 0,
     files.missing.length === 0 ? `all ${files.expected} present (from README.md)` : { missing: files.missing });
+
+  // ADR 활성 수 임계치
+  const activeAdrs = countActiveAdrs();
+  check('adr.threshold', activeAdrs <= 10,
+    activeAdrs <= 10 ? `${activeAdrs}/10 active` : `${activeAdrs}/10 — 아카이브 필요`);
 
   const failed = checks.filter(c => !c.pass);
   const report = {
