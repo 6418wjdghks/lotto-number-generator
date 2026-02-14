@@ -78,16 +78,9 @@ Phase 4: Supabase 백엔드    ████████░░░░░░░░�
 6. [ ] `supabase-config.js`에 실제 URL/KEY 입력
 7. [ ] 통합 테스트 (실제 Supabase 연동)
 
-**다음**: Supabase 대시보드에서 프로젝트 생성 후 URL/KEY 교체
-
 ---
 
 ## 주요 고려사항
 
 기술적 제약 및 설계 원칙: `docs/tech.md` 참조
-
----
-
-**마지막 업데이트**: 2026-02-13
-**현재 Phase**: Phase 4 진행 중
-**프로젝트 상태**: Phase 4 코드 완료, Supabase 설정 대기 / 다크 모드 완료
+현재 상태 및 블로커: `docs/_context.md` 참조
