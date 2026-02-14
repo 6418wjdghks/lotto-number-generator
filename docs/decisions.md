@@ -15,6 +15,8 @@
 | 031 | 모듈 레이어 아키텍처 및 로딩 순서 | 승인 | 2026-02-14 |
 | 032 | 이력 데이터 버전 관리 정책 | 승인 | 2026-02-14 |
 | 033 | LocalStorage↔Supabase 듀얼 저장소 분기 정책 | 승인 | 2026-02-14 |
+| 034 | Supabase 토큰 localStorage 저장 정책 | 승인 | 2026-02-14 |
+| 035 | IIFE + window 전역 객체 캡슐화 패턴 | 승인 | 2026-02-14 |
 
 ---
 
@@ -269,3 +271,119 @@ clearHistory()
 2. 로컬 이력 전체를 서버에 INSERT (중복 허용)
 3. 이관 성공 시 로컬 이력 삭제 여부를 사용자에게 확인
 4. 별도 ADR로 기록
+
+---
+
+## ADR-034: Supabase 토큰 localStorage 저장 정책
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`supabase-config.js`의 `saveSession()`은 Supabase에서 발급받은 `access_token`을 포함한 세션 객체를 localStorage에 저장한다. localStorage는 XSS 공격 시 JavaScript로 읽을 수 있어 토큰 탈취 위험이 존재. 이 저장 방식의 보안 트레이드오프가 기록되지 않음.
+
+### 현재 동작
+
+```js
+// supabase-config.js
+const SESSION_KEY = 'supabase_session';  // config/supabase.json에서 로드
+
+function saveSession(data) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  // data = { access_token, token_type, expires_in, refresh_token, user }
+}
+
+function isLoggedIn() {
+  return getSession() !== null;  // 토큰 존재 여부만 확인, 만료 미검증
+}
+```
+
+### 결정
+
+**localStorage 저장을 유지하되, 프로젝트의 XSS 방어 체계에 의존하여 위험을 수용한다.**
+
+#### 보안 분석
+
+| 위협 | 위험도 | 이 프로젝트의 완화 조치 |
+|------|--------|----------------------|
+| XSS를 통한 토큰 탈취 | 중간 | `textContent` 강제 (ADR-009), innerHTML 금지 |
+| 서드파티 스크립트 토큰 접근 | 낮음 | 서드파티 스크립트 없음 (프레임워크 금지) |
+| 토큰 만료 후 무효 세션 | 낮음 | Supabase API가 401 반환 시 자연 실패 |
+| 로컬 물리 접근 | 낮음 | 개인용 웹앱, 공유 기기 시나리오 범위 외 |
+
+#### XSS 방어 체계 (토큰 보호의 전제 조건)
+
+이 결정은 다음 규칙들이 **지속적으로 준수**될 때만 유효:
+
+1. **ADR-009**: `textContent` 사용, `innerHTML` 금지
+2. **CLAUDE.md 보안 규칙**: JSON.parse try-catch
+3. **서드파티 스크립트 없음**: `<script>` 태그는 프로젝트 자체 파일만
+4. **사용자 입력 미렌더링**: 이메일/비밀번호는 `<input>`에서만 사용, DOM에 렌더링하지 않음
+
+> 위 조건 중 하나라도 위반되면 이 ADR을 재검토해야 함.
+
+#### 미구현 사항 (수용된 제한)
+
+| 항목 | 현재 상태 | 수용 근거 |
+|------|-----------|-----------|
+| 토큰 만료 검증 | 미구현 | API 호출 시 401로 자연 실패, 사용자가 재로그인 |
+| refresh_token 자동 갱신 | 미구현 | 단순성 우선, 세션 만료 시 재로그인으로 충분 |
+| 로그아웃 시 토큰 무효화 | 구현됨 | `signOut()` → API 호출 + `clearSession()` |
+
+### 대안 검토
+
+| 대안 | 장점 | 채택하지 않은 이유 |
+|------|------|-------------------|
+| httpOnly 쿠키 | JS로 접근 불가, XSS 면역 | 서버사이드 Set-Cookie 필요, Vanilla JS + REST API 제약에 위배 |
+| sessionStorage | 탭 닫으면 자동 삭제 | 새 탭 열 때마다 재로그인 필요, UX 저하 |
+| 메모리 전용 (변수) | 가장 안전 | 페이지 새로고침 시 로그아웃, 실용성 없음 |
+| Web Crypto API 암호화 | 탈취해도 복호화 필요 | 암호화 키도 JS에 존재하므로 XSS 시 무의미 |
+
+---
+
+## ADR-035: IIFE + window 전역 객체 캡슐화 패턴
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`supabase-config.js`는 IIFE로 내부 함수 11개를 캡슐화하고, `window.supabase` 객체 하나만 외부에 노출한다. 반면 다른 모듈(utils, theme, exclude 등)은 전역 스코프에 함수를 직접 선언한다. 이 불일치의 설계 근거가 기록되지 않음.
+
+### 현재 패턴 비교
+
+| 패턴 | 사용 파일 | 특징 |
+|------|-----------|------|
+| **IIFE + window 노출** | `supabase-config.js` | 내부 함수 캡슐화, `window.supabase`로 네임스페이스 격리 |
+| **전역 함수 선언** | utils, theme, exclude, lottery, history, auth, app, config | `function foo() {}` 직접 선언, 전역 스코프 |
+
+### 결정
+
+**IIFE 패턴은 외부 서비스 래퍼에만 적용하고, 나머지 모듈은 전역 함수 선언을 유지한다.**
+
+#### 적용 기준
+
+| 조건 | 패턴 | 이유 |
+|------|------|------|
+| 외부 서비스 API 래퍼 (Supabase 등) | IIFE + `window.*` | 내부 상태(세션) 보호, 공개 API 명시적 정의, 네임스페이스 충돌 방지 |
+| 프로젝트 내부 모듈 | 전역 함수 선언 | 단순성, 모듈 간 직접 호출 가능, 테스트 접근 용이 |
+
+#### 근거
+
+1. **supabase-config.js에 IIFE가 필요한 이유**
+   - 내부 헬퍼(`getSession`, `saveSession`, `clearSession`)는 외부에서 직접 호출하면 안 됨
+   - `window.supabase.signIn()` 형태로 네임스페이스를 명확히 구분
+   - 향후 다른 백엔드(Firebase 등)로 교체 시 `window.supabase` 인터페이스만 교체
+
+2. **나머지 모듈에 IIFE가 불필요한 이유**
+   - ES modules 미사용 환경에서 IIFE는 보일러플레이트 증가
+   - 프로젝트 내부 함수는 숨길 필요 없음 (전부 공개 API)
+   - 테스트에서 `module.exports`로 내보낼 때 전역 함수가 더 단순
+
+### 새 외부 서비스 추가 시 체크리스트
+
+1. IIFE로 감싸고 `window.<서비스명>` 객체로 노출
+2. 내부 상태/헬퍼는 IIFE 클로저로 캡슐화
+3. 공개 API만 `window` 객체에 포함
+4. ADR-031 레이어 매핑에 L3 Foundation으로 추가
