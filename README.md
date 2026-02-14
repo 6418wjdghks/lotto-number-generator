@@ -40,17 +40,21 @@
 ```
 ├── index.html              # 메인 HTML 파일
 ├── CLAUDE.md               # 프로젝트 가이드 (Context 라우터)
-├── package.json            # npm 스크립트 (test 등)
+├── package.json            # npm 스크립트 (test, verify, prepare)
 ├── css/
 │   └── style.css           # 스타일시트 (CSS Custom Properties)
+├── config/
+│   ├── constants.json      # 앱 상수 (스토리지 키, 최대 이력 수)
+│   └── supabase.json       # Supabase 접속 정보
 ├── js/
+│   ├── config.js           # JSON 설정 로더 (L3 Foundation)
 │   ├── utils.js            # 공통 유틸 (UUID, 토스트, 클립보드)
 │   ├── theme.js            # 테마 (다크모드) 관리
 │   ├── exclude.js          # 번호 제외 기능
 │   ├── lottery.js          # 추첨 생성/표시
 │   ├── history.js          # 이력 저장/로드/표시
 │   ├── auth.js             # 사용자 인증
-│   ├── app.js              # 메인 진입점 (총 34개 함수, 7개 모듈)
+│   ├── app.js              # 메인 진입점 (35개 함수, 8개 모듈)
 │   └── supabase-config.js  # Supabase REST API 래퍼
 ├── test/                   # 테스트 도구
 │   ├── test-logic.js       # CLI 테스트 (23개, Node.js)
@@ -58,18 +62,22 @@
 │   ├── test.html           # 브라우저 테스트 (50개)
 │   └── README.md           # 테스트 문서
 ├── scripts/                # 자동화 스크립트
-│   └── verify.js           # 정밀 검증 전처리 (Tier 0)
+│   ├── verify.js           # 정밀 검증 전처리 (Tier 0, 15항목)
+│   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
+│   └── hooks/
+│       └── pre-commit      # pre-commit hook (아카이브 + 검증)
 └── docs/                   # 프로젝트 문서
-    ├── _context.md         # 현재 상태 스냅샷 (~30줄)
+    ├── _context.md         # 현재 상태 스냅샷
     ├── spec.md             # 기능 명세서
     ├── tech.md             # 기술 명세서
     ├── design.md           # 디자인 명세서
     ├── plan.md             # 프로젝트 계획서
-    ├── verification.md     # 검증 체계 (서브에이전트)
+    ├── verification.md     # 검증 체계 + 검증 결과
     ├── decisions.md        # ADR (활성)
     ├── decisions_001_010.md # ADR 아카이브 (001~010)
     ├── decisions_011_020.md # ADR 아카이브 (011~020)
     ├── decisions_021_030.md # ADR 아카이브 (021~030)
+    ├── improve_adr.md      # ADR 개선 계획
     └── phase4-architecture.md  # Phase 4 기술 설계
 ```
 
