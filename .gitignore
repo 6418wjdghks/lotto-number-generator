@@ -9,7 +9,9 @@ Thumbs.db
 *.swo
 
 # Claude Code
-.claude/
+.claude/*
+!.claude/plugins/
+!.claude/settings.local.json
 
 # Local utilities
 nul

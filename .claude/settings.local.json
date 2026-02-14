@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write",
+      "Bash(git:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(findstr:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(diff:*)",
+      "Bash(wc:*)",
+      "Bash(sed:*)",
+      "Bash(rm:*)",
+      "Bash(cd:*)",
+      "Bash(where:*)",
+      "Bash(start:*)",
+      "Bash(powershell:*)",
+      "Bash(python:*)",
+      "Bash(Get-ChildItem:*)",
+      "Bash(Sort-Object:*)",
+      "Bash(Select-String:*)",
+      "Bash(awk:*)",
+      "Bash(sort:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)"
+    ]
+  }
+}
