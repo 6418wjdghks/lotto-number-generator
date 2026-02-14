@@ -28,22 +28,16 @@ Tier 0 JSON 출력을 보관한다 (Step 2에서 에이전트에 주입).
 
 ## Step 2: 에이전트 프롬프트 로드 + Tier 2 생성
 
-각 에이전트의 프롬프트는 개별 스킬 파일에 있다:
+각 에이전트의 프롬프트는 `docs/verification.md`에 `<agent-prompt id="X">` 태그로 내장되어 있다.
+유효 ID: `A1`, `A2`, `A3`, `B`, `D`
 
-| 에이전트 | 프롬프트 파일 |
-|----------|-------------|
-| A1 | `.claude/skills/verify-a1/SKILL.md` |
-| A2 | `.claude/skills/verify-a2/SKILL.md` |
-| A3 | `.claude/skills/verify-a3/SKILL.md` |
-| B | `.claude/skills/verify-b/SKILL.md` |
-| D | `.claude/skills/verify-d/SKILL.md` |
-
-절차:
-1. 선택된 에이전트의 스킬 파일을 Read로 읽는다
-2. 각 파일의 **frontmatter(`---` 사이)를 제외한 본문**을 추출한다
-3. 본문 내 `{{TIER0_RESULT}}`를 Step 1의 Tier 0 JSON으로 치환한다
-4. 치환된 본문을 `Task(subagent_type="general-purpose", model="sonnet", run_in_background=true)`의 prompt로 전달한다
-5. **선택된 에이전트를 모두 한 번에 병렬 생성**한다
+절차 (에이전트별 반복):
+1. `Grep("<agent-prompt id=\"X\">", path="docs/verification.md")` → 시작 줄 번호 획득
+2. `Grep("</agent-prompt>", path="docs/verification.md")` 결과에서 시작 줄 이후 첫 매치 → 종료 줄 번호 획득
+3. `Read(path="docs/verification.md", offset=시작줄+1, limit=종료줄-시작줄-1)` → 프롬프트 본문 추출
+4. 본문 내 `{{TIER0_RESULT}}`를 Step 1의 Tier 0 JSON으로 치환한다
+5. 치환된 본문을 `Task(subagent_type="general-purpose", model="sonnet", run_in_background=true)`의 prompt로 전달한다
+6. **선택된 에이전트를 모두 한 번에 병렬 생성**한다
 
 ## Step 3: 결과 취합
 

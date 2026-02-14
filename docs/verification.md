@@ -124,6 +124,68 @@
 > A2: spec.md 문서 정확성 + F-001~F-008 구현 준수 + ARIA/접근성 양방향 검증. 소스를 한 번만 읽고 양쪽 수행
 > A3: README.md 파일 트리 ↔ Glob 실제 파일, test/README.md ↔ 테스트 코드, CLAUDE.md 모듈 테이블 ↔ 실제 구조 교차 비교
 
+<agent-prompt id="A1">
+# A1: tech.md ↔ 소스코드 교차 검증
+
+## 역할
+
+docs/tech.md가 실제 소스코드를 정확히 기술하는지 전수 비교한다.
+
+## Tier 0 결과
+
+{{TIER0_RESULT}}
+
+## 규칙
+
+- 불일치 목록만 반환한다. 일치 항목은 보고하지 않는다.
+- 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
+- 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
+- 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다.
+
+## 검증 항목
+
+### 1. 함수 목록 교차 비교
+
+- CLAUDE.md 모듈 구조 테이블에서 모듈 목록 추출.
+- tech.md JavaScript API 섹션에서 모듈별 함수 목록 추출.
+- 각 모듈의 실제 소스(js/*.js)를 Read하여 실제 함수와 대조.
+- CLAUDE.md ↔ tech.md ↔ 실제 소스 3중 교차 비교로 누락/추가 발견.
+
+### 2. CSS 파일 구성 트리
+
+- tech.md CSS 파일 구성 트리와 css/style.css 섹션 주석(`/* ... */`) 비교.
+
+### 3. HTML ID 네이밍 규칙
+
+- tech.md HTML ID 네이밍 규칙 테이블과 index.html 실제 ID 비교.
+
+## 비교 소스
+
+- docs/tech.md
+- CLAUDE.md (모듈 구조 테이블)
+- js/config.js, js/utils.js, js/theme.js, js/exclude.js, js/lottery.js, js/history.js, js/auth.js, js/app.js, js/supabase-config.js
+- css/style.css
+- index.html
+
+## 배치 가이드
+
+1. CLAUDE.md + docs/tech.md 병렬 Read (2회)
+2. js/ 9개 .js 파일 병렬 Read (가능한 만큼 병렬화)
+3. css/style.css + index.html 병렬 Read (2회)
+4. 모델 내 교차 비교
+
+## 출력 형식
+
+불일치: N건 (또는 "ALL PASS")
+
+불일치 목록:
+1. [파일:줄] 설명
+2. ...
+
+사용한 Bash 명령어: (없음 또는 목록)
+</agent-prompt>
+
 **A2 프롬프트 설계** (ADR-024, ADR-028):
 - 검증 1: spec.md가 소스를 정확히 기술하는지 (문서 정확성)
 - 검증 2: 소스가 F-001~F-008 요구사항을 구현하는지 (구현 준수)
@@ -131,6 +193,73 @@
 - **Bash 금지**: Read + Grep만 사용
 - **배치 가이드**: spec.md + index.html + js/*.js를 **병렬 Read**하여 RT(API 왕복)를 최소화 → **모델 내 양방향 비교**. 추가 확인 필요 시 css/style.css Read 또는 Grep 보충
 - **금지 패턴**: (1) 기능별 Grep 순차 호출 금지 — Read 후 모델 내 비교 우선 (2) Glob 금지 — 파일 경로 고정 (3) ARIA 속성 수동 확인 금지 — Tier 0 위임
+
+<agent-prompt id="A2">
+# A2: spec.md ↔ 소스코드 양방향 검증
+
+## 역할
+
+두 방향으로 검증한다:
+1. spec.md가 소스를 정확히 기술하는지 (문서 정확성)
+2. 소스가 F-001~F-008 요구사항을 구현하는지 (구현 준수)
+
+## Tier 0 결과
+
+{{TIER0_RESULT}}
+
+## 규칙
+
+- 불일치 목록만 반환한다. 일치 항목은 보고하지 않는다.
+- 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
+- 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
+- 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
+- **Bash 사용 금지**: Read + Grep 도구만 사용한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다 (없어야 정상).
+
+## 검증 항목
+
+### 검증 1: 문서 정확성
+
+spec.md의 UI 요구사항, 제약사항, 동작 상세가 실제 소스코드와 일치하는지 확인.
+
+### 검증 2: 구현 준수
+
+F-001(기본 추첨) ~ F-008(다크 모드) 요구사항이 소스코드에 구현되어 있는지 확인.
+
+### ARIA 검증
+
+ARIA/접근성 전수 확인은 Tier 0(aria.attributes, aria.srOnly)이 담당한다.
+Tier 0 ALL PASS → A2는 ARIA 검증 생략.
+Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
+
+## 비교 소스
+
+- docs/spec.md
+- index.html
+- js/config.js, js/utils.js, js/theme.js, js/exclude.js, js/lottery.js, js/history.js, js/auth.js, js/app.js
+
+## 배치 가이드
+
+1. docs/spec.md + index.html 병렬 Read (2회)
+2. js/*.js 7개 모듈 병렬 Read (가능한 만큼 병렬화)
+3. 모델 내 양방향 비교 (추가 확인 시 css/style.css Read 또는 Grep 보충)
+
+## 금지 패턴
+
+1. 기능별 Grep 순차 호출 금지 — Read 후 모델 내 비교 우선.
+2. Glob 금지 — 파일 경로는 위에 고정.
+3. ARIA 속성 수동 확인 금지 — Tier 0 위임.
+
+## 출력 형식
+
+불일치: N건 (또는 "ALL PASS")
+
+불일치 목록:
+1. [검증1/검증2] [파일:줄] 설명
+2. ...
+
+사용한 Bash 명령어: (없음)
+</agent-prompt>
 
 **A3 프롬프트 설계** (ADR-025, ADR-029):
 - 행위 기반 3단계 프로세스:
@@ -141,6 +270,74 @@
 - DOM 테스트 카운트 규칙: **고유 테스트 케이스 수** 기준. 각 케이스는 PASS/FAIL 두 분기를 가지므로 `PASS:` 또는 `FAIL:` 한쪽만 카운트 (양쪽 합산 시 2배). **log() 전체 카운트 금지**
 - 배치 가이드: CLAUDE.md + README.md + test/README.md 병렬 Read → package.json Read → Glob → 완료. **최소 Tool로 수행**
 - **금지 패턴**: (1) test-dom.js·test.html을 직접 Read하여 독자 카운트 금지 — D 에이전트 담당 (2) js/ Grep으로 함수 카운트 금지 — A1 담당 (3) 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행
+
+<agent-prompt id="A3">
+# A3: CLAUDE.md + README.md + test/README.md ↔ 실제 구조 교차 검증
+
+## 역할
+
+프로젝트 메타 문서가 실제 프로젝트 구조와 일치하는지 확인한다.
+
+## Tier 0 결과
+
+{{TIER0_RESULT}}
+
+## 규칙
+
+- 불일치 목록만 반환한다. 일치 항목은 보고하지 않는다.
+- 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
+- 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
+- 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다.
+
+## 검증 항목 (행위 기반 3단계)
+
+### 단계 1: CLAUDE.md 모듈 구조 검증
+
+- CLAUDE.md 모듈 구조 테이블에서 모듈 수와 각 모듈명을 추출.
+- **supabase-config.js는 설정 파일이며 모듈 아님** (CLAUDE.md 모듈 테이블 기준).
+
+### 단계 2: README.md 파일 구조 검증
+
+- README.md 파일 구조 트리 읽기 → Glob으로 실제 파일 존재 여부 대조.
+
+### 단계 3: test/README.md 수치 교차 확인
+
+- test/README.md에서 테스트 수(CLI, DOM) 읽기.
+- CLAUDE.md 수치와 교차 확인.
+- **DOM 테스트 카운트 규칙**: 고유 테스트 케이스 수 기준. 각 케이스는 PASS/FAIL 두 분기를 가지므로 한쪽만 카운트. 양쪽 합산 시 2배가 되므로 주의. log() 전체 카운트 금지.
+
+## 비교 소스
+
+- CLAUDE.md (모듈 구조 테이블, 비API 섹션)
+- README.md (파일 구조 트리)
+- test/README.md (테스트 수)
+- package.json (스크립트 참조)
+- Glob (실제 파일 존재 확인)
+
+## 배치 가이드
+
+1. CLAUDE.md + README.md + test/README.md 병렬 Read (3회)
+2. package.json Read (1회)
+3. Glob으로 실제 파일 존재 확인 (1~2회)
+4. 완료. 최소 Tool로 수행.
+
+## 금지 패턴
+
+1. test-dom.js, test.html 직접 Read하여 독자 카운트 금지 — D 에이전트 담당.
+2. js/ Grep으로 함수 카운트 금지 — A1 에이전트 담당.
+3. 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행.
+
+## 출력 형식
+
+불일치: N건 (또는 "ALL PASS")
+
+불일치 목록:
+1. [단계1/2/3] 설명
+2. ...
+
+사용한 Bash 명령어: (목록)
+</agent-prompt>
 
 ## B. 디자인 검증 (design.md ↔ CSS)
 
@@ -155,6 +352,72 @@
 - **배치 가이드**: design.md + style.css + index.html 병렬 Read → **모델 내 교차 비교** → 완료. **최소 Tool로 수행**
 - design.md에서 각 카테고리(변수, 컴포넌트, 반응형, 애니메이션) 명세를 추출하여 style.css·index.html과 전수 비교. CSS 변수값 비교는 Tier 0 완료이므로 의미적 검증에 집중
 - **금지 패턴**: (1) Glob 금지 — 파일 경로는 `docs/design.md`, `css/style.css`, `index.html` 고정 (2) Grep 최소화 — 3파일 Read 후 모델 내에서 전수 비교
+
+<agent-prompt id="B">
+# B: design.md ↔ CSS/HTML 전수 비교
+
+## 역할
+
+docs/design.md가 실제 디자인(CSS/HTML)을 정확히 기술하는지 전수 비교한다.
+
+## Tier 0 결과
+
+{{TIER0_RESULT}}
+
+## 규칙
+
+- 불일치 목록만 반환한다. 일치 항목은 보고하지 않는다.
+- 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
+- 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
+- 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
+- **Bash 사용 금지**: Read + Grep 도구만 사용한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다 (없어야 정상).
+
+## Tier 0 커버리지
+
+CSS 변수값 비교(css.root.values, css.dark.values)는 Tier 0이 완료한다.
+Tier 0 ALL PASS → B는 변수값 전수 비교를 생략하고 **의미적 검증에 집중**.
+
+## 검증 항목
+
+### 검증 1: 문서 정확성
+
+design.md의 색상, 타이포그래피, 레이아웃, 컴포넌트 명세가 실제 CSS/HTML과 일치하는지 확인.
+
+### 검증 2: 구현 일치 (의미적 검증)
+
+- 컴포넌트 명세 테이블의 크기/배치/테두리/모서리/그림자/배경/글자 값 ↔ style.css 전수 비교.
+- 인터랙션 명세(hover/active/focus 효과) ↔ style.css 확인.
+- 반응형(480px) 변경 항목 ↔ style.css @media 반영 확인.
+- 애니메이션 명세(@keyframes 이름, 키프레임, 지속시간) ↔ style.css 일치 확인.
+- DOM 순서(design.md 레이아웃) ↔ index.html 일치 확인.
+
+## 비교 소스
+
+- docs/design.md
+- css/style.css
+- index.html
+
+## 배치 가이드
+
+1. docs/design.md + css/style.css + index.html 병렬 Read (3회)
+2. 모델 내 교차 비교 → 완료. 최소 Tool로 수행.
+
+## 금지 패턴
+
+1. Glob 금지 — 파일 경로는 위에 고정.
+2. Grep 최소화 — 3파일 Read 후 모델 내에서 전수 비교.
+
+## 출력 형식
+
+불일치: N건 (또는 "ALL PASS")
+
+불일치 목록:
+1. [검증1/검증2] [파일:줄] 설명
+2. ...
+
+사용한 Bash 명령어: (없음)
+</agent-prompt>
 
 ## C. 구현 검증 (spec.md ↔ 실제 동작)
 
@@ -181,6 +444,75 @@
 3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인 (1회)
 4. 모델 내 교차 비교 → 완료
 - **금지 패턴**: (1) js/*.js 개별 Read 금지 — 함수 목록은 Grep 1회로 충족 (2) 추가 Glob 금지 — 파일 경로 고정
+
+<agent-prompt id="D">
+# D: test/README.md ↔ 테스트 코드 통합 검증
+
+## 역할
+
+test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하는지 전수 비교한다.
+
+## Tier 0 결과
+
+{{TIER0_RESULT}}
+
+## 규칙
+
+- 불일치 목록만 반환한다. 일치 항목은 보고하지 않는다.
+- 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
+- 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
+- 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다.
+
+## 검증 항목
+
+### 1. CLI 테스트 검증
+
+- test/README.md CLI 테스트 항목/수 ↔ test/test-logic.js 실제 it() 블록 비교.
+- 테스트 그룹명, 항목 수 일치 확인.
+
+### 2. DOM/UI 테스트 검증
+
+- test/README.md DOM/UI 테스트 항목/수 ↔ test/test-dom.js + test/test.html 비교.
+- 테스트 그룹명, 검증 수 일치 확인.
+
+### 3. 함수 커버리지 검증
+
+- js/app.js module.exports에서 export 함수 목록 추출.
+- Grep으로 js/ 전체 함수 목록 확인.
+- test/README.md 함수 커버리지 섹션과 대조.
+
+## 비교 소스
+
+- test/README.md
+- test/test-logic.js
+- test/test-dom.js
+- test/test.html
+- js/app.js
+- Grep(js/) 함수 목록
+
+## 배치 가이드 (총 Tool 7회 이하)
+
+1. test/README.md + test/test-logic.js + test/test-dom.js 병렬 Read (3회)
+2. test/test.html + js/app.js 병렬 Read (2회)
+3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인 (1회)
+4. 모델 내 교차 비교 → 완료
+
+## 금지 패턴
+
+1. js/*.js 개별 Read 금지 — 함수 목록은 Grep 1회로 충족.
+2. 추가 Glob 금지 — 파일 경로는 위에 고정.
+
+## 출력 형식
+
+불일치: N건 (또는 "ALL PASS")
+
+불일치 목록:
+1. [CLI/DOM/커버리지] 설명
+2. ...
+
+사용한 Bash 명령어: (목록)
+</agent-prompt>
 
 ---
 
@@ -213,7 +545,7 @@
 
 ## 정밀 검증 결과
 
-> 마지막 검증: 2026-02-14 (`af93bf2`) — **전 Tier PASS, Warning 0건**
+> 마지막 검증: 2026-02-14 (`b233594`) — **전 Tier PASS, Warning 1건**
 
 ### 검증 항목
 
@@ -221,9 +553,9 @@
 |------|---------|----------|------|------|
 | 0 | verify.js | 코드↔문서 정량 비교 (14항목) | **14/14 PASS** | CSS 변수, 함수 수, 테스트 수, ARIA, 파일 존재 |
 | 1 | npm test | 테스트 실행 | **73/73 PASS** | CLI 23 + DOM 50 |
-| 2 | A1 (Sonnet) | tech.md ↔ 소스코드 | **ALL PASS** | 함수 34개 전수 일치, CSS 구조 일치, HTML ID 일치 |
+| 2 | A1 (Sonnet) | tech.md ↔ 소스코드 | **Warning 1건** | CSS 구성 트리 "Info Text" 순서 (문서 표현 차이) |
 | 2 | A2 (Sonnet) | spec.md ↔ 소스코드 | **ALL PASS** | F-001~F-008 양방향 검증, ARIA Tier 0 위임 |
-| 2 | A3 (Sonnet) | CLAUDE.md + README ↔ 실제 구조 | **ALL PASS** | 모듈 9개, 파일 트리, 테스트 수 교차 확인 |
+| 2 | A3 (Sonnet) | CLAUDE.md + README ↔ 실제 구조 | **ALL PASS** | 모듈 구조, 파일 트리, 테스트 수 교차 확인 |
 | 2 | B (Sonnet) | design.md ↔ CSS/HTML | **ALL PASS** | 컴포넌트, 반응형, 애니메이션 의미적 검증 |
 | 2 | D (Sonnet) | test/README ↔ 테스트 코드 | **ALL PASS** | CLI 23개, DOM 50개, 커버리지 18/34 |
 
@@ -231,10 +563,10 @@
 
 | 에이전트 | Tool 호출 | 토큰 | 경과 시간 | Warning |
 |----------|----------|------|----------|---------|
-| A1 | 13 | 53.0K | 54.0s | 0건 |
-| A2 | 10 | 34.6K | 69.6s | 0건 |
-| A3 | 21 | 40.0K | 60.0s | 0건 |
-| B | 3 | 32.2K | 29.9s | 0건 |
-| D | 6 | 40.6K | 36.8s | 0건 |
+| A1 | 13 | 53.8K | 59.1s | 1건 |
+| A2 | 10 | 34.2K | 56.1s | 0건 |
+| A3 | 8 | 29.2K | 35.9s | 0건 |
+| B | 3 | 32.0K | 22.9s | 0건 |
+| D | 6 | 41.0K | 37.3s | 0건 |
 
 > `—` = 해당 세션에서 미실행. Warning = ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)
