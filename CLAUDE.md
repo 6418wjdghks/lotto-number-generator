@@ -41,7 +41,7 @@ Data: `config/constants.json` | `config/supabase.json`
 
 기능추가 → spec, plan, tech | UI변경 → design | 설계결정 → decisions (ADR)
 테스트 → test/README | Phase완료 → plan | 구조변경 → README 파일트리
-정밀검증 → test/README (검증 결과 + 성능 지표)
+정밀검증 → verification.md (검증 결과 + 성능 지표)
 
 ## 문서 관리 규칙
 
