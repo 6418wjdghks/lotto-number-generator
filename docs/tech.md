@@ -107,7 +107,8 @@ css/style.css
 ├── Base Layout               /* body + @media */
 ├── Container                 /* .container + @media */
 ├── Header                    /* .header */
-├── Typography                /* h1 + @media, .info */
+├── Typography                /* h1 + @media */
+├── Info Text                 /* .info */
 ├── Theme Toggle              /* + @media */
 ├── Number Badge              /* + Number Colors + @media */
 ├── Primary Button            /* + @media */
@@ -136,7 +137,7 @@ css/style.css
 | 컨테이너/패널 | camelCase 설명명 | `#setsContainer`, `#excludePanel`, `#excludeGrid`, `#historyList`, `#excludeWarning` |
 | 카운터 | camelCase | `#excludeCount`, `#remainCount` |
 | 폼 컨트롤 | camelCase | `#setCount` |
-| 인증 | `auth` 접두어 | `#authGuest`, `#authUser`, `#authForm`, `#authEmail`, `#authPassword`, `#authUserEmail` |
+| 인증 | `auth` 접두어 | `#authSection`, `#authGuest`, `#authUser`, `#authForm`, `#authEmail`, `#authPassword`, `#authUserEmail` |
 
 ---
 
