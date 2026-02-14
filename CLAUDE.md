@@ -24,6 +24,28 @@ Data: `config/constants.json` | `config/supabase.json`
 형식: `feat|fix|refactor|docs|test|style: 설명` + `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
 결과 요약 후 사용자 승인 → 커밋/푸시
 
+## 동시 작업 프로토콜
+
+여러 작업자(사람/에이전트)가 동시에 작업할 때의 병합 전략. Git의 3-way merge + 테스트 검증에 기반한다.
+
+### 브랜치 전략
+
+- feature branch에서 작업: `feat/<모듈>-<설명>`, `fix/<모듈>-<설명>`
+- 머지 대상: master
+
+### 테스트가 계약이다
+
+- 기능 변경 시 **테스트를 먼저 작성/수정** — 테스트가 변경의 명세 역할
+- 나중에 머지하는 쪽이 `npm run verify && npm test` 전체 통과하면 통합 성공으로 판단
+- conflict 발생 시: base/theirs/mine 세 버전의 **의도를 파악**하여 병합, 이후 검증으로 확인
+
+### 머지 절차
+
+1. feature branch에서 작업 완료
+2. master 최신 pull → feature branch에 merge (또는 rebase)
+3. `npm run verify && npm test` 전체 통과 확인 (정합성 15항목 + 테스트 73개)
+4. PR 생성 → master에 머지
+
 ## 작업 시 Context 관리 규칙
 
 1. CLAUDE.md만으로 작업 가능하면 **추가 문서 읽기 금지**
