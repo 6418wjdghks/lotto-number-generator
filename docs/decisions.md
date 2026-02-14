@@ -17,6 +17,11 @@
 | 033 | LocalStorage↔Supabase 듀얼 저장소 분기 정책 | 승인 | 2026-02-14 |
 | 034 | Supabase 토큰 localStorage 저장 정책 | 승인 | 2026-02-14 |
 | 035 | IIFE + window 전역 객체 캡슐화 패턴 | 승인 | 2026-02-14 |
+| 036 | 제외 버튼 지연 렌더링 (Lazy Init) | 승인 | 2026-02-14 |
+| 037 | Fire-and-Forget 이력 저장 패턴 | 승인 | 2026-02-14 |
+| 038 | 토스트 단일 인스턴스 정책 | 승인 | 2026-02-14 |
+| 039 | hidden 클래스 기반 렌더링 스킵 | 승인 | 2026-02-14 |
+| 040 | 다중 세트 순차 애니메이션 공식 | 승인 | 2026-02-14 |
 
 ---
 
@@ -387,3 +392,135 @@ function isLoggedIn() {
 2. 내부 상태/헬퍼는 IIFE 클로저로 캡슐화
 3. 공개 API만 `window` 객체에 포함
 4. ADR-031 레이어 매핑에 L3 Foundation으로 추가
+
+---
+
+## ADR-036: 제외 버튼 지연 렌더링 (Lazy Init)
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`exclude.js`의 `toggleExcludeView()`는 제외 패널을 처음 열 때만 45개 버튼을 생성한다 (`grid.children.length === 0` 체크). 페이지 로드 시 DOM에 버튼이 없으며, 사용자가 패널을 한 번도 열지 않으면 생성되지 않음.
+
+### 결정
+
+**제외 버튼은 Lazy Init 패턴으로 첫 열기 시 생성한다.**
+
+- **근거**: 대부분의 사용자가 제외 기능을 매번 사용하지 않음. 45개 버튼 DOM 노드를 페이지 로드 시 생성하면 초기 렌더링에 불필요한 비용
+- **트레이드오프**: 첫 열기 시 약간의 지연 (45개 `createElement` + `appendChild`), 실측 무시 가능 수준
+- **영속성**: 한번 생성된 버튼은 DOM에 유지. 패널을 닫아도 `hidden` 클래스만 토글, 재생성하지 않음
+
+---
+
+## ADR-037: Fire-and-Forget 이력 저장 패턴
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`app.js`의 `generateLottoNumbers()`에서 `saveToHistory()`를 `await` 없이 호출한다. 이력 저장 실패가 추첨 결과 표시를 차단하지 않음.
+
+### 결정
+
+**이력 저장은 Fire-and-Forget으로 처리한다. 추첨 결과 표시가 저장 완료를 기다리지 않음.**
+
+```js
+// app.js — await 없음 (의도적)
+sets.forEach(numbers => {
+  saveToHistory(numbers, setCount);
+});
+```
+
+- **근거**: 사용자에게 가장 중요한 것은 추첨 결과 즉시 확인. 이력 저장은 부가 기능
+- **실패 시 동작**: `saveToHistory()` 내부 try-catch에서 `console.error` + 토스트 표시. 추첨 결과는 이미 화면에 표시됨
+- **Supabase 모드**: 네트워크 지연이 있어도 추첨 결과 표시에 영향 없음
+
+---
+
+## ADR-038: 토스트 단일 인스턴스 정책
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`utils.js`의 `showToast()`는 새 토스트 생성 전 기존 토스트를 제거한다. 화면에 동시에 하나의 토스트만 존재.
+
+### 결정
+
+**토스트는 화면에 최대 1개만 표시한다. 새 토스트 요청 시 기존 토스트를 즉시 교체.**
+
+```js
+// utils.js
+const existingToast = document.querySelector('.toast');
+if (existingToast) existingToast.remove();  // 기존 제거 후 새로 생성
+```
+
+- **근거**: 다중 토스트는 위치 관리(스택), z-index 충돌, 제거 타이밍 관리가 복잡. 이 앱에서 동시 알림이 필요한 시나리오 없음
+- **자동 제거**: 2초 표시 + 0.3초 fadeOut 애니메이션 후 DOM에서 제거
+- **타입별 색상**: `success`(초록) / `error`(빨강) CSS 클래스로 구분
+
+---
+
+## ADR-039: hidden 클래스 기반 렌더링 스킵
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`history.js`와 `auth.js`에서 패널이 닫혀 있으면(`classList.contains('hidden')`) 재렌더링을 스킵한다. 이 패턴이 여러 곳에서 반복 사용됨.
+
+### 결정
+
+**닫힌 패널(hidden)은 데이터 변경 시에도 재렌더링하지 않는다. 열릴 때 최신 데이터로 렌더링.**
+
+적용 위치:
+- `history.js:98` — `saveToHistory()` 후 이력 패널이 열려있을 때만 `displayHistory()` 호출
+- `auth.js:46` — `handleSignIn()` 후 이력 패널이 열려있을 때만 갱신
+- `auth.js:104` — `handleSignOut()` 후 이력 패널이 열려있을 때만 갱신
+
+```js
+if (!historyList.classList.contains('hidden')) {
+  displayHistory();  // 열려있을 때만 재렌더링
+}
+```
+
+- **근거**: 보이지 않는 DOM을 갱신하는 것은 불필요한 연산. 특히 Supabase 모드에서는 네트워크 요청까지 발생
+- **일관성 규칙**: 모든 토글식 패널에서 이 패턴을 적용해야 함. `toggleHistoryView()`가 패널을 열 때 `displayHistory()`를 호출하므로 데이터 최신성 보장
+
+---
+
+## ADR-040: 다중 세트 순차 애니메이션 공식
+
+**상태**: 승인
+**날짜**: 2026-02-14
+
+### 배경
+
+`lottery.js`의 `displayMultipleSets()`에서 세트별·번호별 `animationDelay`를 계산하여 순차적 등장 효과를 구현. 공식의 설계 근거가 기록되지 않음.
+
+### 결정
+
+**순차 애니메이션은 `setIndex * 0.1 + numIndex * 0.05` 공식으로 CSS animationDelay를 설정한다.**
+
+```js
+// 세트 카드 딜레이
+setCard.style.animationDelay = `${setIndex * 0.1}s`;
+
+// 개별 번호 딜레이
+numberDiv.style.animationDelay = `${(setIndex * 0.1) + (numIndex * 0.05)}s`;
+```
+
+| 매개변수 | 값 | 설명 |
+|----------|-----|------|
+| 세트 간 간격 | 0.1초 | 세트 카드가 100ms 단위로 순차 등장 |
+| 번호 간 간격 | 0.05초 | 같은 세트 내 6개 번호가 50ms 단위로 순차 등장 |
+| 1세트 총 시간 | 0.35초 | `0.1*0 + 0.05*5 = 0.25` + 애니메이션 duration |
+| 5세트 마지막 번호 | 0.65초 | `0.1*4 + 0.05*5 = 0.65` |
+
+- **근거**: CSS 애니메이션만으로 시각적 흐름 제어. JavaScript 타이머 불필요, GPU 가속 활용
+- **변경 시 주의**: 두 공식의 `setIndex * 0.1` 부분이 동일해야 세트 카드와 내부 번호의 타이밍이 일치
