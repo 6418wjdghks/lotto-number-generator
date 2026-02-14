@@ -102,8 +102,8 @@ HelloClaude/
 ```
 css/style.css
 ├── Reset & Base Styles       /* 전역 리셋 */
-├── Design Tokens (:root)     /* CSS 변수 — 라이트 모드 */
-├── Design Tokens (dark)      /* CSS 변수 — 다크 모드 (연속 배치) */
+├── Design Tokens - Light Mode /* CSS 변수 — 라이트 모드 */
+├── Design Tokens - Dark Mode  /* CSS 변수 — 다크 모드 (연속 배치) */
 ├── Base Layout               /* body + @media */
 ├── Container                 /* .container + @media */
 ├── Header                    /* .header */
@@ -113,7 +113,7 @@ css/style.css
 ├── Number Badge              /* + Number Colors + @media */
 ├── Primary Button            /* + @media */
 ├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
-├── Focus Styles              /* :focus-visible (접근성) */
+├── Focus Styles (Accessibility) /* :focus-visible */
 ├── Auth Section              /* + @media */
 ├── Set Selector              /* + @media */
 ├── Sets Container / Card     /* + @media */
@@ -121,7 +121,7 @@ css/style.css
 ├── Toast Message             /* + @media */
 ├── Exclude Section           /* + @media */
 ├── History Section           /* + @media */
-└── Utility                   /* .hidden, .sr-only */
+└── Utility Classes            /* .hidden, .sr-only */
 ```
 
 **미디어쿼리 인라인 배치**: 각 컴포넌트 바로 아래에 해당 모바일 `@media (max-width: 480px)` 배치. 수정 시 관련 스타일을 한 곳에서 확인 가능.
