@@ -120,7 +120,7 @@
 | A3 | Sonnet | CLAUDE.md(비API) + README.md + test/README.md | Glob, test-logic.js, test-dom.js, js/app.js, package.json, CLAUDE.md(수치) |
 
 > `js/*.js` = utils, theme, exclude, lottery, history, auth, app (7개 모듈)
-> A1: CLAUDE.md API 테이블과 tech.md 함수 목록을 양쪽 읽고 교차 비교. 각 모듈의 실제 소스와 대조
+> A1: CLAUDE.md API 테이블과 tech.md 함수 목록을 양쪽 읽고 교차 비교. 각 모듈의 실제 소스와 대조. **Bash 금지**: Read + Grep만 사용
 > A2: spec.md 문서 정확성 + F-001~F-008 구현 준수 + ARIA/접근성 양방향 검증. 소스를 한 번만 읽고 양쪽 수행
 > A3: README.md 파일 트리 ↔ Glob 실제 파일, test/README.md ↔ 테스트 코드, CLAUDE.md 모듈 테이블 ↔ 실제 구조 교차 비교
 
@@ -141,7 +141,8 @@ docs/tech.md가 실제 소스코드를 정확히 기술하는지 전수 비교�
 - 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
 - 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
 - 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
-- 종료 시 사용한 Bash 명령어 목록을 출력한다.
+- **Bash 사용 금지**: Read + Grep 도구만 사용한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다 (없어야 정상).
 
 ## 검증 항목
 
@@ -175,6 +176,10 @@ docs/tech.md가 실제 소스코드를 정확히 기술하는지 전수 비교�
 3. css/style.css + index.html 병렬 Read (2회)
 4. 모델 내 교차 비교
 
+## 금지 패턴
+
+1. **Bash 사용 금지** — `ls`, `find`, `Get-ChildItem` 등 사용 금지. 파일은 Read/Grep 도구로만 접근.
+
 ## 출력 형식
 
 불일치: N건 (또는 "ALL PASS")
@@ -183,7 +188,7 @@ docs/tech.md가 실제 소스코드를 정확히 기술하는지 전수 비교�
 1. [파일:줄] 설명
 2. ...
 
-사용한 Bash 명령어: (없음 또는 목록)
+사용한 Bash 명령어: (없음)
 </agent-prompt>
 
 **A2 프롬프트 설계** (ADR-024, ADR-028):
@@ -269,7 +274,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 - 모듈 정의: **supabase-config.js는 설정 파일이며 모듈 아님** (CLAUDE.md 모듈 테이블 기준)
 - DOM 테스트 카운트 규칙: **고유 테스트 케이스 수** 기준. 각 케이스는 PASS/FAIL 두 분기를 가지므로 `PASS:` 또는 `FAIL:` 한쪽만 카운트 (양쪽 합산 시 2배). **log() 전체 카운트 금지**
 - 배치 가이드: CLAUDE.md + README.md + test/README.md 병렬 Read → package.json Read → Glob → 완료. **최소 Tool로 수행**
-- **금지 패턴**: (1) test-dom.js·test.html을 직접 Read하여 독자 카운트 금지 — D 에이전트 담당 (2) js/ Grep으로 함수 카운트 금지 — A1 담당 (3) 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행
+- **금지 패턴**: (1) test-dom.js·test.html을 직접 Read하여 독자 카운트 금지 — D 에이전트 담당 (2) js/ Grep으로 함수 카운트 금지 — A1 담당 (3) 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행 (4) Bash로 파일 목록 조회 금지 — Glob 도구 사용 필수
 
 <agent-prompt id="A3">
 # A3: CLAUDE.md + README.md + test/README.md ↔ 실제 구조 교차 검증
@@ -319,7 +324,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 
 1. CLAUDE.md + README.md + test/README.md 병렬 Read (3회)
 2. package.json Read (1회)
-3. Glob으로 실제 파일 존재 확인 (1~2회)
+3. Glob으로 실제 파일 존재 확인 — `Glob("**/*", path=".")` 1회로 전체 파일 목록 획득. 개별 패턴 분산 금지.
 4. 완료. 최소 Tool로 수행.
 
 ## 금지 패턴
@@ -327,6 +332,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 1. test-dom.js, test.html 직접 Read하여 독자 카운트 금지 — D 에이전트 담당.
 2. js/ Grep으로 함수 카운트 금지 — A1 에이전트 담당.
 3. 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행.
+4. **Bash로 파일 목록 조회 금지** — `ls`, `find`, `Get-ChildItem` 등 사용 금지. 파일 존재 확인은 반드시 Glob 도구 사용.
 
 ## 출력 형식
 
@@ -443,6 +449,7 @@ design.md의 색상, 타이포그래피, 레이아웃, 컴포넌트 명세가 �
 2. test/test.html + js/app.js 병렬 Read (2회)
 3. Grep(`^(async )?function`, path: `js/`) 함수 목록 확인 (1회)
 4. 모델 내 교차 비교 → 완료
+- **Bash 금지**: Read + Grep만 사용
 - **금지 패턴**: (1) js/*.js 개별 Read 금지 — 함수 목록은 Grep 1회로 충족 (2) 추가 Glob 금지 — 파일 경로 고정
 
 <agent-prompt id="D">
@@ -462,7 +469,8 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 - 임시 파일 RAII: 생성한 파일 목록 추적 → 종료 전 반드시 삭제.
 - 재위임 금지: Task 도구로 서브에이전트를 재생성하지 않는다.
 - 기대값 하드코딩 금지: 문서에서 기대값을 파싱하여 소스와 비교한다.
-- 종료 시 사용한 Bash 명령어 목록을 출력한다.
+- **Bash 사용 금지**: Read + Grep 도구만 사용한다.
+- 종료 시 사용한 Bash 명령어 목록을 출력한다 (없어야 정상).
 
 ## 검증 항목
 
@@ -502,6 +510,7 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 1. js/*.js 개별 Read 금지 — 함수 목록은 Grep 1회로 충족.
 2. 추가 Glob 금지 — 파일 경로는 위에 고정.
+3. **Bash로 파일 조회 금지** — `ls`, `find`, `Get-ChildItem` 등 사용 금지. 파일 확인은 반드시 Read/Grep 도구 사용.
 
 ## 출력 형식
 
@@ -511,7 +520,7 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 1. [CLI/DOM/커버리지] 설명
 2. ...
 
-사용한 Bash 명령어: (목록)
+사용한 Bash 명령어: (없음)
 </agent-prompt>
 
 ---
@@ -545,7 +554,7 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 ## 정밀 검증 결과
 
-> 마지막 검증: 2026-02-14 (`d559456`) — **전 Tier PASS, Warning 0건**
+> 마지막 검증: 2026-02-14 (`99abad0`) — **전 Tier PASS, Bash 전 에이전트 0회**
 
 ### 검증 항목
 
@@ -561,12 +570,12 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 ### 성능 지표 (Tier 2)
 
-| 에이전트 | Tool 호출 | 토큰 | 경과 시간 | Warning |
-|----------|----------|------|----------|---------|
-| A1 | 13 | 53.8K | 57.0s | 0건 |
-| A2 | 10 | 33.4K | 44.9s | 0건 |
-| A3 | 17 | 36.0K | 100.6s | 0건 |
-| B | 3 | 33.4K | 45.6s | 0건 |
-| D | 6 | 40.5K | 32.0s | 0건 |
+| 에이전트 | Tool 호출 | 토큰 | 경과 시간 | Bash | Warning |
+|----------|----------|------|----------|------|---------|
+| A1 | 13 | 54.2K | 59.9s | 0 | 0건 |
+| A2 | 10 | 33.0K | 32.2s | 0 | 0건 |
+| A3 | 15 | 34.4K | 37.0s | 0 | 0건 |
+| B | 3 | 34.0K | 43.8s | 0 | 0건 |
+| D | 6 | 40.9K | 31.2s | 0 | 0건 |
 
 > `—` = 해당 세션에서 미실행. Warning = ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)

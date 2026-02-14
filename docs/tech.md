@@ -116,7 +116,8 @@ css/style.css
 ├── Focus Styles (Accessibility) /* :focus-visible */
 ├── Auth Section              /* + @media */
 ├── Set Selector              /* + @media */
-├── Sets Container / Card     /* + @media */
+├── Sets Container            /* + @media */
+├── Set Card                  /* + @media */
 ├── Copy Button               /* + @media */
 ├── Toast Message             /* + @media */
 ├── Exclude Section           /* + @media */
