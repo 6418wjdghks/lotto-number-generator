@@ -70,6 +70,15 @@ Data: `config/constants.json` | `config/supabase.json`
 **구현**: 기능 구현 → 테스트 (`npm test` 또는 `npm run test:logic` / `test:dom`)
 **마무리**: 문서 업데이트 → 결과 요약 → 사용자 승인 후 커밋
 
+### 검증 수준
+
+| 용어 | 구성 | 용도 |
+|------|------|------|
+| **보통 검증** | `npm run verify` + `npm test` | 일상 변경 확인 |
+| **정밀 검증** | 보통 검증 + **Tier 2 에이전트 5개** (A1·A2·A3·B·D 백그라운드 병렬) | 문서 변경 / 릴리스 전 |
+
+상세: `docs/verification.md` — 에이전트 프롬프트·배치 가이드·성능 지표 포함
+
 ## 문서 변경 시 업데이트 대상
 
 기능추가 → spec, plan, tech | UI변경 → design | 설계결정 → decisions (ADR)
