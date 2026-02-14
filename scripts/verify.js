@@ -137,7 +137,7 @@ function parseBreakpoints(cssText) {
 
 function parseClaudeMdModules(mdText) {
   const moduleNames = [];
-  const re = /\|\s*(\w+\.js)\s*\|/g;
+  const re = /\|\s*([\w-]+\.js)\s*\|/g;
   let m;
   while ((m = re.exec(mdText)) !== null) {
     moduleNames.push(m[1]);
@@ -197,7 +197,7 @@ function parseReadmeFileTree(mdText) {
 function countFunctions() {
   const jsDir = path.join(ROOT, 'js');
   const moduleFiles = ['config.js', 'utils.js', 'theme.js', 'exclude.js', 'lottery.js',
-    'history.js', 'auth.js', 'app.js'];
+    'history.js', 'auth.js', 'app.js', 'supabase-config.js'];
   const perModule = {};
   let total = 0;
   let asyncCount = 0;
@@ -205,7 +205,7 @@ function countFunctions() {
   for (const file of moduleFiles) {
     const content = fs.readFileSync(path.join(jsDir, file), 'utf-8');
     const funcs = [];
-    const re = /^(async )?function\s+(\w+)/gm;
+    const re = /^\s*(async )?function\s+(\w+)/gm;
     let m;
     while ((m = re.exec(content)) !== null) {
       funcs.push({ name: m[2], async: !!m[1] });
@@ -282,7 +282,7 @@ function checkSrOnly() {
 function parseHtmlScripts() {
   const html = readFile('index.html');
   const scripts = [];
-  const re = /<script\s+src="js\/(\w+\.js)"/g;
+  const re = /<script\s+src="js\/([\w-]+\.js)"/g;
   let m;
   while ((m = re.exec(html)) !== null) scripts.push(m[1]);
   return scripts;

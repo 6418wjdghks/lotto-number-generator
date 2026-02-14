@@ -15,6 +15,7 @@ GitHub: https://github.com/6418wjdghks/lotto-number-generator
 | theme.js | 테마(다크모드) 관리 |
 | auth.js | 사용자 인증 |
 | app.js | 메인 진입점 |
+| supabase-config.js | Supabase REST API 래퍼 |
 
 Data: `config/constants.json` | `config/supabase.json`
 상세: `docs/tech.md` — 섹션별 줄번호 인덱스 포함

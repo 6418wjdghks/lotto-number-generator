@@ -140,10 +140,18 @@ css/style.css
 
 ---
 
-## JavaScript API (7개 모듈)
+## JavaScript API (9개 모듈)
 
-> 함수 요약: CLAUDE.md API 테이블 참조. 아래는 상세 명세.
-> 모듈 분할: `utils.js` → `theme.js` → `exclude.js` → `lottery.js` → `history.js` → `auth.js` → `app.js` (ADR-021)
+> 함수 요약: CLAUDE.md 모듈 구조 참조. 아래는 상세 명세.
+> 모듈 분할: `config.js` → `utils.js` → `theme.js` → `exclude.js` → `lottery.js` → `history.js` → `auth.js` → `app.js` + `supabase-config.js` (ADR-021)
+
+### 설정 로더 (`config.js`)
+
+**`loadConfig()`** (async)
+- **반환**: `Promise<void>`
+- `config/constants.json`과 `config/supabase.json`을 `fetch`로 병렬 로드 (`Promise.all`)
+- 전역 변수에 할당: `STORAGE_KEY`, `EXCLUDED_KEY`, `THEME_KEY`, `MAX_HISTORY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SESSION_KEY`
+- `initApp()`에서 최초 호출
 
 ### 핵심 생성 함수
 
