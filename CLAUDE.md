@@ -27,10 +27,9 @@ Data: `config/constants.json` | `config/supabase.json`
 ## 작업 시 Context 관리 규칙
 
 1. CLAUDE.md만으로 작업 가능하면 **추가 문서 읽기 금지**
-2. 프로젝트 현황 필요 시 `docs/_context.md` (~30줄) 우선 참조
-3. 특정 문서 필요 시 **섹션 단위로** `Read(offset, limit)` 사용 — 각 문서 상단 인덱스 참조
-4. 200줄 이상 읽어야 하면 **서브에이전트에 위임** (Main Context 보호)
-5. 단일 소스: 함수 목록 → `docs/tech.md` | 테스트 항목 → `test/README.md`
+2. 프로젝트 현황 필요 시 `docs/_context.md` 우선 참조
+3. 문서 인덱스의 **읽기 방식**을 따를 것 — 직접 / 섹션 단위 / 서브에이전트
+4. 단일 소스: 함수 목록 → `docs/tech.md` | 테스트 항목 → `test/README.md`
 
 ## 워크플로우
 
@@ -52,14 +51,14 @@ Data: `config/constants.json` | `config/supabase.json`
 
 ## 문서 인덱스
 
-| 정보 | 파일 | 크기 |
+| 정보 | 파일 | 읽기 |
 |------|------|------|
-| 현재 상태/진행 | `docs/_context.md` | ~30줄 |
-| 기능 명세 | `docs/spec.md` | ~220줄 |
-| API/기술 상세 | `docs/tech.md` | ~440줄 |
-| UI/디자인 | `docs/design.md` | ~370줄 |
-| Phase 계획 | `docs/plan.md` | ~95줄 |
-| 설계 결정 (ADR) | `docs/decisions.md` | ~17줄 (활성 0, 아카이브 3개) |
-| Phase 4 아키텍처 | `docs/phase4-architecture.md` | ~615줄 — 서브에이전트 권장 |
-| 검증 체계 | `docs/verification.md` | ~190줄 |
-| 테스트 명세 | `test/README.md` | ~185줄 |
+| 현재 상태/진행 | `docs/_context.md` | 직접 |
+| 기능 명세 | `docs/spec.md` | 섹션 단위 |
+| API/기술 상세 | `docs/tech.md` | 섹션 단위 |
+| UI/디자인 | `docs/design.md` | 섹션 단위 |
+| Phase 계획 | `docs/plan.md` | 직접 |
+| 설계 결정 (ADR) | `docs/decisions.md` | 섹션 단위 |
+| Phase 4 아키텍처 | `docs/phase4-architecture.md` | 서브에이전트 |
+| 검증 체계 | `docs/verification.md` | 서브에이전트 |
+| 테스트 명세 | `test/README.md` | 섹션 단위 |
