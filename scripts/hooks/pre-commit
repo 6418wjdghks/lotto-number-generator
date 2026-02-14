@@ -1,0 +1,16 @@
+#!/bin/sh
+# Pre-commit hook
+# 1) ADR 자동 아카이브 (>10개 시 자동 이동 + git add)
+# 2) Tier 0 검증 (코드-문서 정합성, 실패 시 커밋 차단)
+
+node scripts/adr-archive.js
+
+node scripts/verify.js > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "=== pre-commit: 코드-문서 불일치 감지 ==="
+  node scripts/verify.js 2>&1 1>/dev/null
+  echo ""
+  echo "불일치를 해결한 후 다시 커밋하세요."
+  exit 1
+fi
