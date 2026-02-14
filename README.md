@@ -77,6 +77,7 @@
     ├── decisions_001_010.md # ADR 아카이브 (001~010)
     ├── decisions_011_020.md # ADR 아카이브 (011~020)
     ├── decisions_021_030.md # ADR 아카이브 (021~030)
+    ├── decisions_031_040.md # ADR 아카이브 (031~040)
     ├── improve_adr.md      # ADR 개선 계획
     └── phase4-architecture.md  # Phase 4 기술 설계
 ```
