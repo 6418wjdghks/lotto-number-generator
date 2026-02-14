@@ -18,21 +18,18 @@ const ROOT = path.resolve(__dirname, '..');
 const DECISIONS = path.join(ROOT, 'docs', 'decisions.md');
 const THRESHOLD = 10;
 
-function main() {
+function countAdrs() {
   const content = fs.readFileSync(DECISIONS, 'utf-8');
-
-  // ADR 섹션 분리: ## ADR-NNN 로 시작하는 각 블록
   const adrPattern = /^## ADR-(\d{3})/gm;
   const positions = [];
   let m;
   while ((m = adrPattern.exec(content)) !== null) {
     positions.push({ num: parseInt(m[1], 10), index: m.index });
   }
+  return { content, positions };
+}
 
-  if (positions.length <= THRESHOLD) {
-    process.stderr.write(`ADR: ${positions.length}/${THRESHOLD} — 아카이브 불필요\n`);
-    process.exit(0);
-  }
+function archiveOnce(content, positions) {
 
   // 아카이브 대상: 첫 10개
   const toArchive = positions.slice(0, THRESHOLD);
@@ -110,9 +107,20 @@ function main() {
   // --- git add ---
   execSync(`git add "${archivePath}" "${DECISIONS}"`, { cwd: ROOT });
 
-  const log = (...args) => process.stderr.write(args.join(' ') + '\n');
-  log(`ADR 자동 아카이브: ${pad(firstNum)}~${pad(lastNum)} → ${archiveFilename}`);
-  log(`유지: ADR-${pad(toKeep[0].num)}~ (${toKeep.length}개)`);
+  process.stderr.write(`ADR 자동 아카이브: ${pad(firstNum)}~${pad(lastNum)} → ${archiveFilename}\n`);
+}
+
+function main() {
+  let round = 0;
+  while (true) {
+    const { content, positions } = countAdrs();
+    if (positions.length <= THRESHOLD) {
+      process.stderr.write(`ADR: ${positions.length}/${THRESHOLD} — 아카이브 불필요\n`);
+      break;
+    }
+    archiveOnce(content, positions);
+    round++;
+  }
 }
 
 main();
