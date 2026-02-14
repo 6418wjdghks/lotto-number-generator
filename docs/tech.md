@@ -108,8 +108,8 @@ css/style.css
 ├── Container                 /* .container + @media */
 ├── Header                    /* .header */
 ├── Typography                /* h1 + @media */
-├── Info Text                 /* .info */
 ├── Theme Toggle              /* + @media */
+├── Info Text                 /* .info */
 ├── Number Badge              /* + Number Colors + @media */
 ├── Primary Button            /* + @media */
 ├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
