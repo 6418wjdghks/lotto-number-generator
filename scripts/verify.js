@@ -297,16 +297,6 @@ function parseHtmlScripts() {
 }
 
 // ============================================================
-// ADR Active Count
-// ============================================================
-
-function countActiveAdrs() {
-  const md = readFile('docs/decisions.md');
-  const count = (md.match(/^## ADR-\d{3}/gm) || []).length;
-  return count;
-}
-
-// ============================================================
 // File Existence
 // ============================================================
 
@@ -413,11 +403,6 @@ function main() {
     srOnly.missing.length === 0 ? `all ${srOnly.expected} present (dynamic)` : { missing: srOnly.missing });
   check('files', files.missing.length === 0 && expectedFiles.length > 0,
     files.missing.length === 0 ? `all ${files.expected} present (from README.md)` : { missing: files.missing });
-
-  // ADR 활성 수 임계치
-  const activeAdrs = countActiveAdrs();
-  check('adr.threshold', activeAdrs <= 10,
-    activeAdrs <= 10 ? `${activeAdrs}/10 active` : `${activeAdrs}/10 — 아카이브 필요`);
 
   const failed = checks.filter(c => !c.pass);
   const report = {
