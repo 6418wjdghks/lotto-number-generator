@@ -1,6 +1,6 @@
 /**
- * 로또번호 추첨기 - 테마 (다크 모드)
- * 의존: THEME_KEY (utils.js)
+ * 로또번호 추첨기 - 테마 (다크 모드) (L2 Feature)
+ * 의존: L3 — THEME_KEY (utils.js)
  */
 
 /**

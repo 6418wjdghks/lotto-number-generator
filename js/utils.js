@@ -1,12 +1,7 @@
 /**
- * 로또번호 추첨기 - 유틸리티 & 상수
+ * 로또번호 추첨기 - 유틸리티 (L3 Foundation)
+ * 상수는 config/*.json → config.js에서 전역 제공
  */
-
-// LocalStorage 키
-const STORAGE_KEY = 'lotto_history';
-const EXCLUDED_KEY = 'lotto_excluded';
-const THEME_KEY = 'lotto_theme';
-const MAX_HISTORY = 20;
 
 /**
  * UUID v4 생성 함수
@@ -91,10 +86,6 @@ async function copyToClipboard(numbers, setNumber = null) {
 // Node.js 환경에서 테스트를 위한 모듈 내보내기
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    STORAGE_KEY,
-    EXCLUDED_KEY,
-    THEME_KEY,
-    MAX_HISTORY,
     generateUUID,
     showToast,
     copyToClipboard,

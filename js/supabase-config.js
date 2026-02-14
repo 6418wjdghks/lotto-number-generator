@@ -1,19 +1,13 @@
 /**
- * Supabase REST API 래퍼
+ * Supabase REST API 래퍼 (L3 Foundation)
  * 순수 fetch() + REST API만 사용 (SDK 미사용)
  * 전역 객체 window.supabase로 노출
+ * 설정값은 config/supabase.json → config.js에서 전역 제공
+ *   (SUPABASE_URL, SUPABASE_ANON_KEY, SESSION_KEY)
  */
 
 (function() {
   'use strict';
-
-  // Supabase 프로젝트 설정
-  // TODO: 실제 Supabase 프로젝트 URL과 anon key로 교체
-  const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
-
-  // 세션 저장 키
-  const SESSION_KEY = 'supabase_session';
 
   // ============================================================
   // 세션 관리
@@ -265,8 +259,6 @@
   // ============================================================
 
   window.supabase = {
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
     getSession,
     saveSession,
     clearSession,

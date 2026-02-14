@@ -1,6 +1,10 @@
 /**
- * 로또번호 추첨기 - 메인 애플리케이션 (진입점)
- * 모듈 로딩 순서: utils → theme → exclude → lottery → history → auth → app
+ * 로또번호 추첨기 - 메인 애플리케이션 (L1 Entry Point / Composition Root)
+ *
+ * 레이어 로딩 순서 (ADR-031):
+ *   L3 Foundation : config, supabase-config, utils
+ *   L2 Feature    : theme, exclude, lottery, history, auth
+ *   L1 Entry Point: app (이 파일)
  */
 
 /**
@@ -27,9 +31,12 @@ function generateLottoNumbers() {
 }
 
 /**
- * 페이지 로드 시 세션 확인 및 UI 초기화
+ * 페이지 로드 시 설정 로드 → 세션 확인 → UI 초기화
  */
-function initApp() {
+async function initApp() {
+  // 설정 로드 (config/*.json)
+  await loadConfig();
+
   // 테마 초기화
   const theme = loadTheme();
   applyTheme(theme);
@@ -67,6 +74,10 @@ if (typeof window !== 'undefined') {
 // Node.js 환경에서 테스트를 위한 모듈 내보내기
 // 테스트 호환성을 위해 Local(동기) 버전을 내보냄
 if (typeof module !== 'undefined' && module.exports) {
+  // config/*.json에서 상수 로드 → 전역 설정
+  const config = require('../config/constants.json');
+  Object.keys(config).forEach(key => { global[key] = config[key]; });
+
   // 유틸리티 모듈 로드 및 전역 설정 (다른 모듈의 함수가 참조)
   const utils = require('./utils.js');
   Object.keys(utils).forEach(key => { global[key] = utils[key]; });
@@ -76,10 +87,10 @@ if (typeof module !== 'undefined' && module.exports) {
   const exclude = require('./exclude.js');
 
   module.exports = {
-    STORAGE_KEY: utils.STORAGE_KEY,
-    EXCLUDED_KEY: utils.EXCLUDED_KEY,
-    THEME_KEY: utils.THEME_KEY,
-    MAX_HISTORY: utils.MAX_HISTORY,
+    STORAGE_KEY: config.STORAGE_KEY,
+    EXCLUDED_KEY: config.EXCLUDED_KEY,
+    THEME_KEY: config.THEME_KEY,
+    MAX_HISTORY: config.MAX_HISTORY,
     generateSingleSet: lottery.generateSingleSet,
     generateMultipleSets: lottery.generateMultipleSets,
     generateUUID: utils.generateUUID,

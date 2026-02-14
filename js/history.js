@@ -1,6 +1,6 @@
 /**
- * 로또번호 추첨기 - 이력 관리 (LocalStorage + Supabase 듀얼 모드)
- * 의존: STORAGE_KEY, MAX_HISTORY, generateUUID, showToast (utils.js)
+ * 로또번호 추첨기 - 이력 관리 (LocalStorage + Supabase 듀얼 모드) (L2 Feature)
+ * 의존: L3 — window.supabase (supabase-config.js), STORAGE_KEY, MAX_HISTORY, generateUUID, showToast (utils.js)
  */
 
 // ============================================================

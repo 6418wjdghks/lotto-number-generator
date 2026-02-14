@@ -1,6 +1,6 @@
 /**
- * 로또번호 추첨기 - 추첨 핵심 로직 + 결과 표시
- * 의존: copyToClipboard (utils.js)
+ * 로또번호 추첨기 - 추첨 핵심 로직 + 결과 표시 (L2 Feature)
+ * 의존: L3 — copyToClipboard (utils.js)
  */
 
 /**

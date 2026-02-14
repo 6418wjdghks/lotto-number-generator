@@ -1,0 +1,6 @@
+{
+  "STORAGE_KEY": "lotto_history",
+  "EXCLUDED_KEY": "lotto_excluded",
+  "THEME_KEY": "lotto_theme",
+  "MAX_HISTORY": 20
+}

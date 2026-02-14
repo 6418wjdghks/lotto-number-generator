@@ -1,6 +1,7 @@
 /**
- * 로또번호 추첨기 - 인증 (Supabase)
- * 의존: showToast (utils.js), displayHistory (history.js)
+ * 로또번호 추첨기 - 인증 (Supabase) (L2 Feature)
+ * 의존: L3 — window.supabase (supabase-config.js), showToast (utils.js)
+ *       L2 — displayHistory (history.js) ← 동일 레이어 참조, 로딩 순서 제약
  */
 
 /**

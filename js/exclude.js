@@ -1,6 +1,6 @@
 /**
- * 로또번호 추첨기 - 번호 제외 기능
- * 의존: EXCLUDED_KEY (utils.js)
+ * 로또번호 추첨기 - 번호 제외 기능 (L2 Feature)
+ * 의존: L3 — EXCLUDED_KEY (utils.js)
  */
 
 /**
