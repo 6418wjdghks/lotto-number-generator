@@ -11,6 +11,7 @@ Thumbs.db
 # Claude Code
 .claude/*
 !.claude/plugins/
+!.claude/skills/
 !.claude/settings.local.json
 
 # Local utilities
