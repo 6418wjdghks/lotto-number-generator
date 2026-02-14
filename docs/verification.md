@@ -269,11 +269,11 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 **A3 프롬프트 설계** (ADR-025, ADR-029):
 - 행위 기반 3단계 프로세스:
   1. CLAUDE.md에서 모듈 구조 테이블을 읽고, 기술된 모듈 수·함수 분포를 추출
-  2. README.md 파일 구조 트리를 읽고, Glob으로 실제 파일과 대조
+  2. README.md 파일 구조 트리와 `Glob("**/*")` 결과를 대조 (1과 동시 수집)
   3. test/README.md에서 테스트 수를 읽고, CLAUDE.md의 수치와 교차 확인
 - 모듈 정의: **supabase-config.js는 설정 파일이며 모듈 아님** (CLAUDE.md 모듈 테이블 기준)
 - DOM 테스트 카운트 규칙: **고유 테스트 케이스 수** 기준. 각 케이스는 PASS/FAIL 두 분기를 가지므로 `PASS:` 또는 `FAIL:` 한쪽만 카운트 (양쪽 합산 시 2배). **log() 전체 카운트 금지**
-- 배치 가이드: CLAUDE.md + README.md + test/README.md 병렬 Read → package.json Read → Glob → 완료. **최소 Tool로 수행**
+- 배치 가이드: CLAUDE.md + README.md + test/README.md + package.json + `Glob("**/*")` 동시 호출 → 메모리 내 대조 → 완료 (1라운드 수집)
 - **금지 패턴**: (1) test-dom.js·test.html을 직접 Read하여 독자 카운트 금지 — D 에이전트 담당 (2) js/ Grep으로 함수 카운트 금지 — A1 담당 (3) 불필요 Grep 탐색 금지 — 문서에서 추출한 값으로 대조만 수행 (4) Bash로 파일 목록 조회 금지
 
 <agent-prompt id="A3">
@@ -304,7 +304,7 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 
 ### 단계 2: README.md 파일 구조 검증
 
-- README.md 파일 구조 트리 읽기 → Glob으로 실제 파일 존재 여부 대조.
+- README.md 파일 구조 트리와 `Glob("**/*")` 결과를 대조 (둘 다 단계 1과 동시에 수집됨).
 
 ### 단계 3: test/README.md 수치 교차 확인
 
@@ -312,20 +312,19 @@ Tier 0 FAIL → 해당 항목 원인 분석 후 보고.
 - CLAUDE.md 수치와 교차 확인.
 - **DOM 테스트 카운트 규칙**: 고유 테스트 케이스 수 기준. 각 케이스는 PASS/FAIL 두 분기를 가지므로 한쪽만 카운트. 양쪽 합산 시 2배가 되므로 주의. log() 전체 카운트 금지.
 
-## 비교 소스
+## 비교 소스 (1라운드에 동시 수집)
 
-- CLAUDE.md (모듈 구조 테이블, 비API 섹션)
-- README.md (파일 구조 트리)
-- test/README.md (테스트 수)
-- package.json (스크립트 참조)
-- Glob (실제 파일 존재 확인)
+- Read: CLAUDE.md, README.md, test/README.md, package.json
+- Glob("**/*"): 전체 파일 목록
 
 ## 배치 가이드
 
-1. CLAUDE.md + README.md + test/README.md 병렬 Read (3회)
-2. package.json Read (1회)
-3. Glob으로 실제 파일 존재 확인 — 최소한의 호출로 수행. 예: `Glob("**/*")` 1회로 전체 파일 목록을 획득하면 개별 호출이 불필요.
-4. 완료. 최소 Tool로 수행.
+모든 입력 파일은 서로 의존성이 없다. 1라운드에 동시 수집한다.
+
+1. 다음을 **모두 동시에** 호출 (병렬):
+   - Read: CLAUDE.md, README.md, test/README.md, package.json
+   - Glob("**/*")
+2. 위 결과만으로 메모리 내 교차 대조 → 완료. 추가 Tool 호출 불필요.
 
 ## 금지 패턴
 
@@ -556,7 +555,7 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 ## 정밀 검증 결과
 
-> 마지막 검증: 2026-02-14 (`60c8154`) — **전 Tier PASS, Bash 전 에이전트 0회**
+> 마지막 검증: 2026-02-14 (`7075d6a`) — **전 Tier PASS, A3 Glob 최적화 (Tool 15→5)**
 
 ### 검증 항목
 
@@ -574,10 +573,10 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 | 에이전트 | Tool 호출 | 토큰 | 경과 시간 | Bash | Warning |
 |----------|----------|------|----------|------|---------|
-| A1 | 13 | 56.9K | 99.2s | 0 | 0건 |
-| A2 | 11 | 43.1K | 62.3s | 0 | 0건 |
-| A3 | 15 | 31.6K | 45.2s | 0 | 0건 |
-| B | 3 | 33.4K | 48.1s | 0 | 0건 |
-| D | 6 | 40.7K | 31.7s | 0 | 0건 |
+| A1 | 13 | 52.7K | 47.4s | 0 | 1건 |
+| A2 | 10 | 32.2K | 35.6s | 0 | 0건 |
+| A3 | **5** | 21.3K | — | 1 | 4건 |
+| B | 3 | 31.1K | 20.8s | 0 | 0건 |
+| D | 6 | 39.7K | 36.6s | 0 | 0건 |
 
 > `—` = 해당 세션에서 미측정. Warning = ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)
