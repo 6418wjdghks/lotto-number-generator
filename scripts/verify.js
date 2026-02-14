@@ -136,22 +136,14 @@ function parseBreakpoints(cssText) {
 // ============================================================
 
 function parseClaudeMdModules(mdText) {
-  const match = mdText.match(/## 모듈 구조[^\n]*\n\n(.+)/);
-  if (!match) return { total: 0, moduleCount: 0, perModule: {} };
-
-  const line = match[1];
-  const perModule = {};
-  let total = 0;
-
-  const re = /(\w+\.js)\((\d+)\)/g;
+  const moduleNames = [];
+  const re = /\|\s*(\w+\.js)\s*\|/g;
   let m;
-  while ((m = re.exec(line)) !== null) {
-    const count = parseInt(m[2], 10);
-    perModule[m[1]] = count;
-    total += count;
+  while ((m = re.exec(mdText)) !== null) {
+    moduleNames.push(m[1]);
   }
 
-  return { total, moduleCount: Object.keys(perModule).length, perModule };
+  return { moduleCount: moduleNames.length, moduleNames };
 }
 
 function parseSpecAriaTable(mdText) {
@@ -366,25 +358,18 @@ function main() {
   check('css.breakpoints', breakpoints.unique.length === 1 && breakpoints.unique[0] === 'max-width: 480px',
     { unique: breakpoints.unique, mediaQueryCount: breakpoints.total });
 
-  check('functions.total', functions.total === claudeModules.total && claudeModules.total > 0,
-    { grep: functions.total, claudeMd: claudeModules.total, async: functions.async, sync: functions.sync });
-
-  // 모듈별 함수 수 비교
-  const perModuleMismatches = [];
-  for (const [mod, docCount] of Object.entries(claudeModules.perModule)) {
-    const actual = functions.perModule[mod];
-    if (!actual) {
-      perModuleMismatches.push({ module: mod, issue: 'not_found_in_js', doc: docCount });
-    } else if (actual.count !== docCount) {
-      perModuleMismatches.push({ module: mod, doc: docCount, actual: actual.count });
-    }
-  }
-  check('functions.perModule', perModuleMismatches.length === 0,
-    perModuleMismatches.length === 0 ? 'all modules match' : perModuleMismatches);
+  // CLAUDE.md 모듈 목록 ↔ js/ 실제 파일
+  const claudeModuleNames = claudeModules.moduleNames;
+  const actualModuleNames = Object.keys(functions.perModule);
+  const modulesMissing = claudeModuleNames.filter(m => !actualModuleNames.includes(m));
+  const modulesExtra = actualModuleNames.filter(m => !claudeModuleNames.includes(m));
+  check('modules.match', modulesMissing.length === 0 && modulesExtra.length === 0,
+    modulesMissing.length === 0 && modulesExtra.length === 0
+      ? `all ${claudeModuleNames.length} modules match`
+      : { missing: modulesMissing, extra: modulesExtra });
 
   // HTML script 태그 ↔ CLAUDE.md 모듈 목록
   const htmlScripts = parseHtmlScripts();
-  const claudeModuleNames = Object.keys(claudeModules.perModule);
   const scriptMissing = claudeModuleNames.filter(m => !htmlScripts.includes(m));
   const scriptExtra = htmlScripts.filter(m => !claudeModuleNames.includes(m));
   check('html.scripts', scriptMissing.length === 0 && scriptExtra.length === 0,
@@ -420,7 +405,7 @@ function main() {
       breakpoints,
       sources: {
         'design.md': { rootVars: docRootCount, darkVars: docDarkCount, keyframes: docKeyframes.length },
-        'CLAUDE.md': { modules: claudeModules.moduleCount, functions: claudeModules.total },
+        'CLAUDE.md': { modules: claudeModules.moduleCount },
         'spec.md': { ariaEntries: specAria.length },
         'README.md': { codeFiles: expectedFiles.length }
       }

@@ -3,9 +3,19 @@
 웹 기반 로또번호 추첨 (1~45 중 6개). HTML5 + CSS3 + Vanilla JS (프레임워크 금지).
 GitHub: https://github.com/6418wjdghks/lotto-number-generator
 
-## 모듈 구조 (8개 JS + 2개 JSON, 35함수)
+## 모듈 구조
 
-config.js(1) | lottery.js(4) | history.js(8) | exclude.js(7) | utils.js(3) | theme.js(5) | auth.js(5) | app.js(2)
+| 모듈 | 역할 |
+|------|------|
+| config.js | JSON 설정 로더 |
+| lottery.js | 추첨 생성/표시 |
+| history.js | 이력 저장/로드/표시 |
+| exclude.js | 번호 제외 기능 |
+| utils.js | 공통 유틸 |
+| theme.js | 테마(다크모드) 관리 |
+| auth.js | 사용자 인증 |
+| app.js | 메인 진입점 |
+
 Data: `config/constants.json` | `config/supabase.json`
 상세: `docs/tech.md` — 섹션별 줄번호 인덱스 포함
 

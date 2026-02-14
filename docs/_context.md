@@ -17,7 +17,7 @@
 
 ## 정밀 검증 현황
 
-Tier 0: 13/13 PASS | Tier 1: 73/73 PASS | Tier 2: 5/5 ALL PASS, Warning 0건
+Tier 0: 14/14 PASS | Tier 1: 73/73 PASS | Tier 2: 5/5 ALL PASS, Warning 0건
 
 ## 다음 할 일
 
