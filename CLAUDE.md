@@ -54,7 +54,7 @@ Data: `config/constants.json` | `config/supabase.json`
 
 1. feature branch에서 작업 완료
 2. master 최신 pull → feature branch에 merge (또는 rebase)
-3. `npm run verify && npm test` 전체 통과 확인 (정합성 15항목 + 테스트 73개)
+3. `npm run verify && npm test` 전체 통과 확인 (정합성 15항목 + 테스트 76개)
 4. PR 생성 → master에 머지
 
 ## 작업 시 Context 관리 규칙
