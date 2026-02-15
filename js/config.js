@@ -20,17 +20,26 @@ let SESSION_KEY;
  * @returns {Promise<void>}
  */
 async function loadConfig() {
-  const [constants, supabase] = await Promise.all([
-    fetch('/config/constants.json').then(r => r.json()),
-    fetch('/config/supabase.json').then(r => r.json())
-  ]);
+  try {
+    const [constants, supabase] = await Promise.all([
+      fetch('./config/constants.json').then(r => r.json()),
+      fetch('./config/supabase.json').then(r => r.json())
+    ]);
 
-  STORAGE_KEY = constants.STORAGE_KEY;
-  EXCLUDED_KEY = constants.EXCLUDED_KEY;
-  THEME_KEY = constants.THEME_KEY;
-  MAX_HISTORY = constants.MAX_HISTORY;
+    STORAGE_KEY = constants.STORAGE_KEY;
+    EXCLUDED_KEY = constants.EXCLUDED_KEY;
+    THEME_KEY = constants.THEME_KEY;
+    MAX_HISTORY = constants.MAX_HISTORY;
 
-  SUPABASE_URL = supabase.url;
-  SUPABASE_ANON_KEY = supabase.anonKey;
-  SESSION_KEY = supabase.sessionKey;
+    SUPABASE_URL = supabase.url;
+    SUPABASE_ANON_KEY = supabase.anonKey;
+    SESSION_KEY = supabase.sessionKey;
+  } catch (error) {
+    console.error('설정 로드 실패, 기본값 사용:', error);
+    STORAGE_KEY = 'lotto_history';
+    EXCLUDED_KEY = 'lotto_excluded';
+    THEME_KEY = 'lotto_theme';
+    MAX_HISTORY = 20;
+    SESSION_KEY = 'supabase_session';
+  }
 }
