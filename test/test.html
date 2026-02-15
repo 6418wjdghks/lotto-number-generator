@@ -148,6 +148,19 @@
     실제 index.html의 구조를 그대로 재현합니다.
   -->
   <div id="testFixture">
+    <button id="btnThemeToggle">🌙</button>
+    <div id="authGuest">
+      <button id="btnToggleAuth"><span id="authToggleText">로그인 / 회원가입 ▼</span></button>
+      <div id="authForm" class="hidden">
+        <input type="email" id="authEmail" />
+        <input type="password" id="authPassword" />
+        <button id="btnSignIn">로그인</button>
+        <button id="btnSignUp">회원가입</button>
+      </div>
+    </div>
+    <div id="authUser" class="hidden"><span id="authUserEmail"></span>
+      <button id="btnSignOut">로그아웃</button>
+    </div>
     <select id="setCount">
       <option value="1" selected>1개</option>
       <option value="2">2개</option>
@@ -155,16 +168,19 @@
       <option value="4">4개</option>
       <option value="5">5개</option>
     </select>
-    <div class="sets-container" id="setsContainer"></div>
-    <div id="historyList" class="history-list hidden"></div>
-    <span id="historyToggleText">이력 보기 ▼</span>
-    <span id="excludeToggleText">번호 제외 설정 ▼</span>
+    <button id="btnToggleExclude"><span id="excludeToggleText">번호 제외 설정 ▼</span></button>
     <div id="excludePanel" class="exclude-panel hidden">
       <span id="excludeCount">제외: 0개</span>
       <span id="remainCount">남은 번호: 45개</span>
+      <button id="btnResetExclude">초기화</button>
       <div class="exclude-grid" id="excludeGrid"></div>
       <div id="excludeWarning" class="exclude-warning hidden"></div>
     </div>
+    <button id="btnGenerate">추첨하기</button>
+    <div class="sets-container" id="setsContainer"></div>
+    <button id="btnToggleHistory"><span id="historyToggleText">이력 보기 ▼</span></button>
+    <button id="btnClearHistory">전체 삭제</button>
+    <div id="historyList" class="history-list hidden"></div>
   </div>
 
   <div class="test-section">
@@ -235,8 +251,8 @@
 
     /** DOM Fixture를 초기 상태로 리셋 */
     function resetFixture() {
-      localStorage.removeItem('lotto_history');
-      localStorage.removeItem('lotto_excluded');
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(EXCLUDED_KEY);
       document.getElementById('setsContainer').innerHTML = '';
       document.getElementById('historyList').innerHTML = '';
       document.getElementById('historyList').classList.add('hidden');
@@ -592,7 +608,7 @@
           { id: 'h-2', numbers: [5, 15, 25, 35, 40, 45], timestamp: '2026-02-11T09:00:00.000Z', setCount: 3 }
         ]
       };
-      localStorage.setItem('lotto_history', JSON.stringify(testData));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(testData));
       await displayHistory();
 
       const items = historyList.querySelectorAll('.history-item');
@@ -866,6 +882,49 @@
     }
 
     // ============================================================
+    // G. initApp() 이벤트 바인딩 통합 테스트
+    // ============================================================
+
+    async function testInitAppEventBinding() {
+      log('═══ Test 12: initApp() 이벤트 바인딩 검증 ═══', 'info');
+
+      // btnGenerate 클릭 → 카드 생성
+      resetFixture();
+      document.getElementById('btnGenerate').click();
+      await waitFor(0);
+
+      const cards = document.getElementById('setsContainer').querySelectorAll('.set-card');
+      if (cards.length >= 1) {
+        log('✅ PASS: btnGenerate 클릭 → 추첨 카드 생성', 'pass');
+      } else {
+        log('❌ FAIL: btnGenerate 클릭 후 카드 미생성 (이벤트 바인딩 실패 가능)', 'fail');
+      }
+
+      // btnToggleHistory 클릭 → 이력 패널 표시
+      resetFixture();
+      document.getElementById('btnToggleHistory').click();
+      await waitFor(0);
+
+      const historyList = document.getElementById('historyList');
+      if (!historyList.classList.contains('hidden')) {
+        log('✅ PASS: btnToggleHistory 클릭 → 이력 패널 표시', 'pass');
+      } else {
+        log('❌ FAIL: btnToggleHistory 클릭 후 패널 미표시 (이벤트 바인딩 실패 가능)', 'fail');
+      }
+
+      // btnToggleExclude 클릭 → 제외 패널 표시
+      resetFixture();
+      document.getElementById('btnToggleExclude').click();
+
+      const excludePanel = document.getElementById('excludePanel');
+      if (!excludePanel.classList.contains('hidden')) {
+        log('✅ PASS: btnToggleExclude 클릭 → 제외 패널 표시', 'pass');
+      } else {
+        log('❌ FAIL: btnToggleExclude 클릭 후 패널 미표시 (이벤트 바인딩 실패 가능)', 'fail');
+      }
+    }
+
+    // ============================================================
     // 테스트 실행
     // ============================================================
 
@@ -897,6 +956,9 @@
 
       // F. 통합 (async)
       await testGenerateLottoNumbers();  logSeparator();
+
+      // G. initApp 이벤트 바인딩 (async)
+      await testInitAppEventBinding();   logSeparator();
 
       // 분포 통계 시각화
       showDistributionStats();
