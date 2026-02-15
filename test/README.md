@@ -7,8 +7,8 @@
 | 계층 | 파일 | 실행 환경 | 대상 | 검증 수 |
 |------|------|----------|------|---------|
 | **순수 로직** | `test-logic.js` | Node.js (CLI) | 순수 함수, localStorage 로직 | 23개 |
-| **DOM/UI (CLI)** | `test-dom.js` | Node.js + Edge headless | DOM 렌더링, 토스트, 클립보드 등 | 50개 |
-| **DOM/UI (브라우저)** | `test.html` | 브라우저 직접 | 위와 동일 (시각적 확인용) | 50개 |
+| **DOM/UI (CLI)** | `test-dom.js` | Node.js + Edge headless | DOM 렌더링, 토스트, 클립보드 등 | 53개 |
+| **DOM/UI (브라우저)** | `test.html` | 브라우저 직접 | 위와 동일 (시각적 확인용) | 53개 |
 
 중복 없음: 순수 로직은 CLI에서만, DOM 의존 기능은 브라우저(또는 headless)에서만 테스트합니다.
 `test-dom.js`는 `test.html`을 Edge headless로 실행하는 래퍼입니다.
@@ -93,7 +93,7 @@ open test/test.html   # macOS
 
 ---
 
-## DOM/UI 테스트 항목 (test.html + test-dom.js, 11그룹 50개 검증)
+## DOM/UI 테스트 항목 (test.html + test-dom.js, 12그룹 53개 검증)
 
 | # | 테스트 그룹 | 검증 수 | 의존 |
 |---|------------|---------|------|
@@ -108,7 +108,8 @@ open test/test.html   # macOS
 | 9 | `resetExcludedNumbers()` — 제외 설정, 초기화, 카운터 리셋 | 3 | DOM |
 | 10 | 제외 경고 — 40개 제외 시 경고 표시, 39개 시 숨김 | 2 | DOM |
 | 11 | `generateLottoNumbers()` — 1세트/3세트 카드, 이력, setCount, 숫자 유효 | 6 | DOM + 통합 |
-| | **합계** | **50** | |
+| 12 | `initApp()` 이벤트 바인딩 — btnGenerate, btnToggleHistory, btnToggleExclude 클릭 | 3 | 이벤트 바인딩 |
+| | **합계** | **53** | |
 
 > Test 3: Clipboard API 미지원 시 INFO 로그 후 스킵 (PASS 미계상). CLI 러너는 CDP로 클립보드 권한을 부여하여 3개 모두 실행. 브라우저에서 readText 권한이 없으면 내용 검증을 스킵하고 2개 실행.
 
@@ -118,8 +119,8 @@ open test/test.html   # macOS
 
 ## 테스트 구조
 
-- **DOM Fixture** (`test.html`): app.js가 참조하는 DOM 요소를 숨겨진 영역으로 재현
-- **resetFixture()**: 테스트 간 상태 격리 — `lotto_history`, `lotto_excluded` LocalStorage 초기화 + DOM 리셋
+- **DOM Fixture** (`test.html`): `index.html`의 DOM 구조를 재현 (버튼 10개 + 인증 요소 포함, `initApp()` 이벤트 바인딩 가능)
+- **resetFixture()**: 테스트 간 상태 격리 — `STORAGE_KEY`, `EXCLUDED_KEY` LocalStorage 초기화 + DOM 리셋
 - **localStorage 모킹** (`test-logic.js`): `global.localStorage`/`global.document` 최소 모킹
 - **비동기 처리**: `runAllTests()`가 async, Clipboard/Toast 테스트를 `await`로 순차 실행
 - **CLI 러너** (`test-dom.js`): puppeteer-core + Edge headless로 test.html 실행. `console.log` 이벤트로 실시간 CLI 출력, `dataset` 완료 시그널로 종료 감지

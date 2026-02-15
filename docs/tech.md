@@ -151,8 +151,9 @@ css/style.css
 
 **`loadConfig()`** (async)
 - **반환**: `Promise<void>`
-- `config/constants.json`과 `config/supabase.json`을 `fetch`로 병렬 로드 (`Promise.all`)
+- `./config/constants.json`과 `./config/supabase.json`을 상대 경로 `fetch`로 병렬 로드 (`Promise.all`)
 - 전역 변수에 할당: `STORAGE_KEY`, `EXCLUDED_KEY`, `THEME_KEY`, `MAX_HISTORY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SESSION_KEY`
+- **에러 핸들링**: fetch 실패 시 폴백 기본값으로 앱 기본 기능 보장 (Supabase 제외)
 - `initApp()`에서 최초 호출
 
 ### 핵심 생성 함수
