@@ -555,7 +555,7 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 
 ## 정밀 검증 결과
 
-> 마지막 검증: 2026-02-16 (`44b4db8`) — **A3 불일치 1건(README.md 테스트 수) 수정 후 전 Tier ALL PASS**
+> 마지막 검증: 2026-02-16 (`b15af54`) — **A3 불일치 1건(README.md screenshot.png 누락) 수정 후 전 Tier ALL PASS**
 
 ### 검증 항목
 
@@ -563,20 +563,20 @@ test/README.md가 실제 테스트 코드(CLI + DOM/UI)를 정확히 기술하�
 |------|---------|----------|------|------|
 | 0 | verify.js | 코드↔문서 정량 비교 (14항목) | **14/14 PASS** | CSS 변수, 함수 수, 테스트 수, ARIA, 파일 존재 |
 | 1 | npm test | 테스트 실행 | **95/95 PASS** | CLI 23 + DOM 72 |
-| 2 | A1 (Sonnet) | tech.md ↔ 소스코드 | **ALL PASS** | 함수 56개 전수 일치, CSS 구조 일치, HTML ID 37개 일치 |
+| 2 | A1 (Sonnet) | tech.md ↔ 소스코드 | **ALL PASS** | 함수 전수 일치, CSS 구조 일치, HTML ID 일치 |
 | 2 | A2 (Sonnet) | spec.md ↔ 소스코드 | **ALL PASS** | F-001~F-008 양방향 검증, ARIA Tier 0 위임 |
 | 2 | A3 (Sonnet) | CLAUDE.md + README ↔ 실제 구조 | **ALL PASS** | 모듈 9개, 파일 트리 일치, 테스트 95개 교차 확인 |
-| 2 | B (Sonnet) | design.md ↔ CSS/HTML | **ALL PASS** | 컴포넌트 47개 명세, 반응형 14항목, 애니메이션 4개 검증 |
-| 2 | D (Sonnet) | test/README ↔ 테스트 코드 | **ALL PASS** | CLI 23개, DOM 72개, 커버리지 검증 |
+| 2 | B (Sonnet) | design.md ↔ CSS/HTML | **ALL PASS** | 컴포넌트 38개 명세, 반응형 17항목, 애니메이션 4개 검증 |
+| 2 | D (Sonnet) | test/README ↔ 테스트 코드 | **ALL PASS** | CLI 23개, DOM 72개(14그룹), 커버리지 26함수 검증 |
 
 ### 성능 지표 (Tier 2)
 
 | 에이전트 | Tool 호출 | 토큰 | 경과 시간 | Bash | Warning |
 |----------|----------|------|----------|------|---------|
-| A1 | 0 | 13.2K | 9.4s | 0 | 0건 |
-| A2 | 10 | 33.4K | 43.9s | 0 | 0건 |
-| A3 | 5 | 27.3K | 31.0s | 0 | 0건 |
-| B | 3 | 32.4K | 26.9s | 0 | 0건 |
-| D | 6 | 46.4K | 39.3s | 0 | 0건 |
+| A1 | 13 | 54.6K | 61.2s | 0 | 0건 |
+| A2 | 10 | 33.0K | 40.8s | 0 | 0건 |
+| A3 | 17 | 38.9K | 52.8s | 0 | 0건 |
+| B | 3 | 32.2K | 29.3s | 0 | 0건 |
+| D | 6 | 47.0K | 50.5s | 0 | 0건 |
 
 > Warning = ALL PASS이나 경미한 불일치 (코드 결함이 아닌 문서 표현 차이 등)

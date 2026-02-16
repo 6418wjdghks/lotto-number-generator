@@ -59,7 +59,8 @@
 ├── test/                   # 테스트 도구
 │   ├── test-logic.js       # CLI 테스트 (23개, Node.js)
 │   ├── test-dom.js         # DOM/UI CLI 러너 (Edge headless)
-│   ├── test.html           # 브라우저 테스트 (50개)
+│   ├── test.html           # 브라우저 테스트 (72개)
+│   ├── screenshot.png      # DOM 테스트 스크린샷 (자동 생성)
 │   └── README.md           # 테스트 문서
 ├── scripts/                # 자동화 스크립트
 │   ├── verify.js           # 정밀 검증 전처리 (Tier 0, 15항목)
