@@ -265,6 +265,9 @@
       document.getElementById('remainCount').textContent = '남은 번호: 45개';
       document.getElementById('excludeWarning').classList.add('hidden');
       document.querySelectorAll('.toast').forEach(t => t.remove());
+      localStorage.removeItem(THEME_KEY);
+      document.documentElement.removeAttribute('data-theme');
+      document.getElementById('btnThemeToggle').textContent = '🌙';
     }
 
     function showSummary() {
@@ -922,6 +925,221 @@
       } else {
         log('❌ FAIL: btnToggleExclude 클릭 후 패널 미표시 (이벤트 바인딩 실패 가능)', 'fail');
       }
+
+      // btnThemeToggle 클릭 → data-theme 변경
+      resetFixture();
+      document.getElementById('btnThemeToggle').click();
+      await waitFor(0);
+
+      const dataTheme = document.documentElement.getAttribute('data-theme');
+      if (dataTheme === 'dark') {
+        log('✅ PASS: btnThemeToggle 클릭 → data-theme="dark" 설정', 'pass');
+      } else {
+        log(`❌ FAIL: btnThemeToggle 클릭 후 data-theme="${dataTheme}" (이벤트 바인딩 실패 가능)`, 'fail');
+      }
+
+      // btnResetExclude 클릭 → 제외 초기화
+      resetFixture();
+      toggleExcludeView();
+      const grid = document.getElementById('excludeGrid');
+      grid.children[0].click();
+      grid.children[1].click();
+
+      document.getElementById('btnResetExclude').click();
+      await waitFor(0);
+
+      if (getExcludedNumbers().length === 0) {
+        log('✅ PASS: btnResetExclude 클릭 → 제외 번호 초기화', 'pass');
+      } else {
+        log('❌ FAIL: btnResetExclude 클릭 후 제외 번호 미초기화 (이벤트 바인딩 실패 가능)', 'fail');
+      }
+
+      // btnClearHistory 클릭 → 이력 삭제
+      resetFixture();
+      await saveToHistory([1, 2, 3, 4, 5, 6]);
+      const origConfirm = window.confirm;
+      const origAlert = window.alert;
+      window.confirm = () => true;
+      window.alert = () => {};
+      document.getElementById('btnClearHistory').click();
+      await waitFor(0);
+
+      const remainingHistory = await loadHistory();
+      if (remainingHistory.length === 0) {
+        log('✅ PASS: btnClearHistory 클릭 → 이력 삭제', 'pass');
+      } else {
+        log('❌ FAIL: btnClearHistory 클릭 후 이력 미삭제 (이벤트 바인딩 실패 가능)', 'fail');
+      }
+
+      window.confirm = origConfirm;
+      window.alert = origAlert;
+    }
+
+    // ============================================================
+    // H. 테마 기능 검증
+    // ============================================================
+
+    async function testTheme() {
+      log('═══ Test 13: 테마 기능 (save/load/apply/toggle) ═══', 'info');
+      resetFixture();
+
+      // 1. saveTheme('dark') → localStorage에 'dark' 저장
+      saveTheme('dark');
+      if (localStorage.getItem(THEME_KEY) === 'dark') {
+        log('✅ PASS: saveTheme("dark") → localStorage 저장', 'pass');
+      } else {
+        log('❌ FAIL: saveTheme("dark") 저장 실패', 'fail');
+      }
+
+      // 2. loadTheme() → 저장된 'dark' 반환
+      if (loadTheme() === 'dark') {
+        log('✅ PASS: loadTheme() → "dark" 반환', 'pass');
+      } else {
+        log(`❌ FAIL: loadTheme() → "${loadTheme()}" (예상: "dark")`, 'fail');
+      }
+
+      // 3. saveTheme('light') → loadTheme() → 'light'
+      saveTheme('light');
+      if (loadTheme() === 'light') {
+        log('✅ PASS: saveTheme("light") → loadTheme() → "light"', 'pass');
+      } else {
+        log(`❌ FAIL: loadTheme() → "${loadTheme()}" (예상: "light")`, 'fail');
+      }
+
+      // 4. 저장값 없음 → loadTheme() → 'light' (기본값)
+      localStorage.removeItem(THEME_KEY);
+      const defaultTheme = loadTheme();
+      // 시스템 다크모드일 수 있으므로 'light' 또는 'dark' 중 하나이면 통과
+      if (defaultTheme === 'light' || defaultTheme === 'dark') {
+        log('✅ PASS: 저장값 없음 → loadTheme() 기본값 반환 ("' + defaultTheme + '")', 'pass');
+      } else {
+        log(`❌ FAIL: loadTheme() → "${defaultTheme}" (유효하지 않은 값)`, 'fail');
+      }
+
+      // 5. applyTheme('dark') → html[data-theme="dark"]
+      applyTheme('dark');
+      if (document.documentElement.getAttribute('data-theme') === 'dark') {
+        log('✅ PASS: applyTheme("dark") → data-theme="dark"', 'pass');
+      } else {
+        log('❌ FAIL: applyTheme("dark") data-theme 미설정', 'fail');
+      }
+
+      // 6. applyTheme('light') → data-theme 속성 제거
+      applyTheme('light');
+      if (!document.documentElement.hasAttribute('data-theme')) {
+        log('✅ PASS: applyTheme("light") → data-theme 속성 제거', 'pass');
+      } else {
+        log('❌ FAIL: applyTheme("light") data-theme 미제거', 'fail');
+      }
+
+      // 7. applyTheme('dark') → btnThemeToggle '☀️'
+      applyTheme('dark');
+      const btnTheme = document.getElementById('btnThemeToggle');
+      if (btnTheme.textContent === '☀️') {
+        log('✅ PASS: applyTheme("dark") → 버튼 텍스트 "☀️"', 'pass');
+      } else {
+        log(`❌ FAIL: 버튼 텍스트 "${btnTheme.textContent}" (예상: "☀️")`, 'fail');
+      }
+
+      // 8. updateThemeToggle('dark') → aria-label '라이트 모드 전환'
+      updateThemeToggle('dark');
+      if (btnTheme.getAttribute('aria-label') === '라이트 모드 전환') {
+        log('✅ PASS: updateThemeToggle("dark") → aria-label "라이트 모드 전환"', 'pass');
+      } else {
+        log(`❌ FAIL: aria-label "${btnTheme.getAttribute('aria-label')}"`, 'fail');
+      }
+
+      // 9. updateThemeToggle('light') → aria-label '다크 모드 전환'
+      updateThemeToggle('light');
+      if (btnTheme.getAttribute('aria-label') === '다크 모드 전환') {
+        log('✅ PASS: updateThemeToggle("light") → aria-label "다크 모드 전환"', 'pass');
+      } else {
+        log(`❌ FAIL: aria-label "${btnTheme.getAttribute('aria-label')}"`, 'fail');
+      }
+
+      // 10. toggleTheme() → light↔dark 전환 + localStorage 저장
+      resetFixture(); // light 상태로 초기화
+      toggleTheme();
+      if (document.documentElement.getAttribute('data-theme') === 'dark' &&
+          localStorage.getItem(THEME_KEY) === 'dark') {
+        log('✅ PASS: toggleTheme() → light→dark 전환 + 저장', 'pass');
+      } else {
+        log('❌ FAIL: toggleTheme() 전환/저장 실패', 'fail');
+      }
+
+      resetFixture();
+    }
+
+    // ============================================================
+    // I. 제외 번호 영속성 검증
+    // ============================================================
+
+    async function testExcludePersistence() {
+      log('═══ Test 14: 제외 번호 영속성 (save/load/clear) ═══', 'info');
+      resetFixture();
+
+      // 1. 제외 버튼 클릭 → saveExcludedNumbers → localStorage에 JSON 배열
+      toggleExcludeView();
+      const grid = document.getElementById('excludeGrid');
+      grid.children[0].click(); // 1번
+      grid.children[4].click(); // 5번
+
+      const saved = JSON.parse(localStorage.getItem(EXCLUDED_KEY));
+      if (Array.isArray(saved) && saved.includes(1) && saved.includes(5) && saved.length === 2) {
+        log('✅ PASS: 제외 클릭 → localStorage에 [1, 5] 저장', 'pass');
+      } else {
+        log(`❌ FAIL: localStorage 저장 오류 (${JSON.stringify(saved)})`, 'fail');
+      }
+
+      // 2. 빈 제외 → saveExcludedNumbers → '[]' 저장
+      resetFixture();
+      toggleExcludeView();
+      saveExcludedNumbers();
+      const emptySaved = localStorage.getItem(EXCLUDED_KEY);
+      if (emptySaved === '[]') {
+        log('✅ PASS: 빈 제외 → "[]" 저장', 'pass');
+      } else {
+        log(`❌ FAIL: 빈 제외 저장 오류 ("${emptySaved}")`, 'fail');
+      }
+
+      // 3. localStorage에 데이터 세팅 → loadExcludedNumbers → 정상 로드
+      localStorage.setItem(EXCLUDED_KEY, JSON.stringify([10, 20, 30]));
+      const loaded = loadExcludedNumbers();
+      if (Array.isArray(loaded) && loaded.length === 3 &&
+          loaded.includes(10) && loaded.includes(20) && loaded.includes(30)) {
+        log('✅ PASS: loadExcludedNumbers() → [10, 20, 30] 로드', 'pass');
+      } else {
+        log(`❌ FAIL: loadExcludedNumbers() 로드 오류 (${JSON.stringify(loaded)})`, 'fail');
+      }
+
+      // 4. 빈 저장소 → loadExcludedNumbers → 빈 배열
+      localStorage.removeItem(EXCLUDED_KEY);
+      const emptyLoaded = loadExcludedNumbers();
+      if (Array.isArray(emptyLoaded) && emptyLoaded.length === 0) {
+        log('✅ PASS: 빈 저장소 → loadExcludedNumbers() → []', 'pass');
+      } else {
+        log(`❌ FAIL: 빈 저장소 로드 오류 (${JSON.stringify(emptyLoaded)})`, 'fail');
+      }
+
+      // 5. 잘못된 JSON → loadExcludedNumbers → 빈 배열 (에러 방어)
+      localStorage.setItem(EXCLUDED_KEY, 'not valid json');
+      const invalidLoaded = loadExcludedNumbers();
+      if (Array.isArray(invalidLoaded) && invalidLoaded.length === 0) {
+        log('✅ PASS: 잘못된 JSON → loadExcludedNumbers() → [] (에러 방어)', 'pass');
+      } else {
+        log(`❌ FAIL: 잘못된 JSON 방어 실패 (${JSON.stringify(invalidLoaded)})`, 'fail');
+      }
+
+      // 6. clearExcludedNumbers → localStorage에 EXCLUDED_KEY 없음
+      localStorage.setItem(EXCLUDED_KEY, JSON.stringify([1, 2, 3]));
+      clearExcludedNumbers();
+      if (localStorage.getItem(EXCLUDED_KEY) === null) {
+        log('✅ PASS: clearExcludedNumbers() → EXCLUDED_KEY 삭제', 'pass');
+      } else {
+        log('❌ FAIL: clearExcludedNumbers() 삭제 실패', 'fail');
+      }
+
+      resetFixture();
     }
 
     // ============================================================
@@ -959,6 +1177,12 @@
 
       // G. initApp 이벤트 바인딩 (async)
       await testInitAppEventBinding();   logSeparator();
+
+      // H. 테마 테스트 (async)
+      await testTheme();                 logSeparator();
+
+      // I. 제외 번호 영속성 (async)
+      await testExcludePersistence();    logSeparator();
 
       // 분포 통계 시각화
       showDistributionStats();
