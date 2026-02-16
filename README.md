@@ -104,7 +104,7 @@ start test/test.html        # Windows
 open test/test.html         # macOS
 ```
 
-76개 테스트 (23 CLI + 53 DOM/UI). 상세 내용은 `test/README.md` 참조.
+95개 테스트 (23 CLI + 72 DOM/UI). 상세 내용은 `test/README.md` 참조.
 
 ## 실행
 
