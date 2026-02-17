@@ -273,15 +273,16 @@ css/style.css
 **`generateLottoNumbers()`**
 - 메인 추첨 진입점. `getExcludedNumbers()` → 남은 번호 < 6 시 토스트 에러 + 중단 → `getSelectedSetCount()` → `generateMultipleSets(setCount, excludedNumbers)` → `displayMultipleSets()` → `saveToHistory()` (각 세트)
 
-**`initApp()`** — 페이지 로드 시 초기화. 아래 순서로 실행:
-1. 테마 초기화: `loadTheme()` → `applyTheme()`
-2. 이벤트 바인딩: `getElementById` → `addEventListener('click', handler)` — **HTML에 onclick 속성 사용 금지**, JS에서만 바인딩
+**`initApp()`** (async) — 페이지 로드 시 초기화. 아래 순서로 실행:
+1. 설정 로드: `await loadConfig()` — `config/*.json`에서 상수 로드
+2. 테마 초기화: `loadTheme()` → `applyTheme()`
+3. 이벤트 바인딩: `getElementById` → `addEventListener('click', handler)` — **HTML에 onclick 속성 사용 금지**, JS에서만 바인딩
    - `btnGenerate` → `generateLottoNumbers`, `btnThemeToggle` → `toggleTheme`
    - `btnToggleAuth` → `toggleAuthForm`, `btnSignIn` → `handleSignIn`, `btnSignUp` → `handleSignUp`, `btnSignOut` → `handleSignOut`
    - `btnToggleExclude` → `toggleExcludeView`, `btnResetExclude` → `resetExcludedNumbers`
    - `btnToggleHistory` → `toggleHistoryView`, `btnClearHistory` → `clearHistory`
-3. 시스템 테마 변경 감지: `matchMedia('prefers-color-scheme: dark')` change 리스너 — LocalStorage 저장값 없을 때만 반영
-4. 인증 상태 확인: `window.supabase` 존재 시 `updateAuthUI()`
+4. 시스템 테마 변경 감지: `matchMedia('prefers-color-scheme: dark')` change 리스너 — LocalStorage 저장값 없을 때만 반영
+5. 인증 상태 확인: `window.supabase` 존재 시 `updateAuthUI()`
 
 **Node.js 호환 가드**: `typeof window !== 'undefined'` 조건으로 `DOMContentLoaded`, `matchMedia`, `window.supabase` 접근을 감싸야 함 (테스트 환경에서 window 미존재)
 
@@ -374,10 +375,12 @@ DB 스키마 상세: `docs/phase4-architecture.md` 참조.
 
 각 모듈 파일 하단에 자체 `module.exports` 보유. `app.js`는 진입점으로서 모든 모듈을 `require` 후 재export.
 
-**app.js**: `require('./utils.js')` → `Object.assign(global, utils)` (전역 설정) → 다른 모듈 require → 통합 export. **테스트 호환성을 위해 Local(동기) 버전**을 내보냄:
+**app.js**: `require('../config/constants.json')` → `Object.keys(config).forEach(...)` (전역 설정) → `require('./utils.js')` → 같은 패턴 → 다른 모듈 require → 통합 export. **테스트 호환성을 위해 Local(동기) 버전**을 내보냄:
 
 ```javascript
 // app.js module.exports
+const config = require('../config/constants.json');
+Object.keys(config).forEach(key => { global[key] = config[key]; });
 const utils = require('./utils.js');
 Object.keys(utils).forEach(key => { global[key] = utils[key]; });
 const lottery = require('./lottery.js');
@@ -385,11 +388,16 @@ const history = require('./history.js');
 const exclude = require('./exclude.js');
 
 module.exports = {
-  STORAGE_KEY, EXCLUDED_KEY, THEME_KEY, MAX_HISTORY,
-  generateSingleSet, generateMultipleSets, generateUUID,
+  STORAGE_KEY: config.STORAGE_KEY, EXCLUDED_KEY: config.EXCLUDED_KEY,
+  THEME_KEY: config.THEME_KEY, MAX_HISTORY: config.MAX_HISTORY,
+  generateSingleSet: lottery.generateSingleSet,
+  generateMultipleSets: lottery.generateMultipleSets,
+  generateUUID: utils.generateUUID,
   loadHistory: history.loadHistoryLocal,
   saveToHistory: history.saveToHistoryLocal,
-  saveExcludedNumbers, loadExcludedNumbers, clearExcludedNumbers,
+  saveExcludedNumbers: exclude.saveExcludedNumbers,
+  loadExcludedNumbers: exclude.loadExcludedNumbers,
+  clearExcludedNumbers: exclude.clearExcludedNumbers,
 };
 ```
 

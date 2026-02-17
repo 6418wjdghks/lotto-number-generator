@@ -41,6 +41,7 @@
 ├── index.html              # 메인 HTML 파일
 ├── CLAUDE.md               # 프로젝트 가이드 (Context 라우터)
 ├── package.json            # npm 스크립트 (test, verify, prepare)
+├── start-claude.bat        # Claude Code 실행 스크립트
 ├── css/
 │   └── style.css           # 스타일시트 (CSS Custom Properties)
 ├── config/
@@ -96,7 +97,7 @@
 ```bash
 npm test                    # 전체 테스트 (로직 + DOM)
 npm run test:logic          # CLI 순수 로직 (23개)
-npm run test:dom            # DOM/UI Edge headless (50개)
+npm run test:dom            # DOM/UI Edge headless (72개)
 ```
 
 ```bash

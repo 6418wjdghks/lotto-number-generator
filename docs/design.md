@@ -83,7 +83,7 @@
 
 | 요소 | 변수명 | 크기 | 굵기 |
 |------|--------|------|------|
-| 제목 (h1) | `--font-size-title` | 2em | Normal |
+| 제목 (h1) | `--font-size-title` | 2em | Bold (브라우저 기본) |
 | 숫자 뱃지 | `--font-size-number` | 24px | Bold |
 | 버튼 | `--font-size-button` | 18px | Bold |
 | 본문 | `--font-size-body` | 16px | Normal |
