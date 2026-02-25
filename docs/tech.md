@@ -110,7 +110,8 @@ css/style.css
 ├── Typography                /* h1 + @media */
 ├── Theme Toggle              /* + @media */
 ├── Info Text                 /* .info */
-├── Number Badge              /* + Number Colors + @media */
+├── Number Badge              /* + @media */
+│   └── Number Colors
 ├── Primary Button            /* + @media */
 ├── Animations                /* @keyframes pop, fadeIn, slideUp, fadeOut */
 ├── Focus Styles (Accessibility) /* :focus-visible */
@@ -284,7 +285,7 @@ css/style.css
 4. 시스템 테마 변경 감지: `matchMedia('prefers-color-scheme: dark')` change 리스너 — LocalStorage 저장값 없을 때만 반영
 5. 인증 상태 확인: `window.supabase` 존재 시 `updateAuthUI()`
 
-**Node.js 호환 가드**: `typeof window !== 'undefined'` 조건으로 `DOMContentLoaded`, `matchMedia`, `window.supabase` 접근을 감싸야 함 (테스트 환경에서 window 미존재)
+**Node.js 호환 가드**: `typeof window !== 'undefined'` 조건으로 `DOMContentLoaded`, `window.supabase` 접근을 감쌈 (테스트 환경에서 window 미존재). `matchMedia`는 `initApp()` 내부에서 호출되므로 브라우저 컨텍스트가 보장됨
 
 ---
 

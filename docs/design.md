@@ -211,6 +211,8 @@ main.container
 | `.exclude-btn` | hover | bg #f0f0ff, scale(1.1) | 0.15s |
 | `.exclude-btn.excluded` | hover | bg disabled-hover, opacity 0.8 | 0.15s |
 | `.exclude-reset-btn` | hover | bg #e84118, color white | 0.2s |
+| `.btn-auth` | hover | translateY(-1px), shadow primary-glow | 0.2s |
+| `.btn-auth-secondary` | hover | bg #667eea, color white, translateY(-1px) | 0.2s |
 | `.auth-input` | focus | border #667eea, shadow 3px rgba | 즉시 |
 | 모든 버튼 | focus-visible | outline 3px solid primary, offset 2px | 즉시 |
 | `.exclude-reset-btn` | focus-visible | outline 3px solid #e84118, offset 2px | 즉시 |

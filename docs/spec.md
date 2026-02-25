@@ -55,7 +55,7 @@
 ```
 
 - 카드는 `#setsContainer` 안에 동적 생성 (`innerHTML = ''`로 초기화 후 생성)
-- 애니메이션 딜레이: `(setIndex * 0.1) + (numIndex * 0.05)s` (JS에서 style.animationDelay 설정)
+- 애니메이션 딜레이: 세트 카드 `setIndex * 0.1s`, 번호 뱃지 `(setIndex * 0.1) + (numIndex * 0.05)s` (JS에서 style.animationDelay 설정)
 
 ---
 
