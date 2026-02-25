@@ -35,14 +35,16 @@ HelloClaude/
 │   ├── history.js          # 이력 관리 (Local + Supabase)
 │   ├── auth.js             # 인증 (Supabase)
 │   └── app.js              # 진입점 (메인 함수 + 초기화 + 이벤트)
+├── .worksets/              # Workset 기반 동시 작업 관리
+│   ├── _template/          # 새 workset 생성 템플릿
+│   └── _archive/           # 완료된 workset 아카이브
 ├── docs/                   # 프로젝트 문서
 │   ├── plan.md             # 진행 상황
 │   ├── spec.md             # 기능 명세 (제품)
 │   ├── design.md           # 디자인 시스템
 │   ├── tech.md             # 기술 명세 (본 문서)
 │   ├── decisions.md        # ADR (활성)
-│   ├── decisions_001_010.md # ADR 아카이브
-│   └── phase4-architecture.md # Phase 4 설계
+│   └── decisions_*_*.md    # ADR 아카이브
 ├── test/
 │   ├── test.html           # 브라우저 테스트
 │   ├── test-dom.js         # DOM/UI CLI 러너 (Edge headless)
@@ -366,7 +368,7 @@ css/style.css
 
 ### Supabase DB
 
-DB 스키마 상세: `docs/phase4-architecture.md` 참조.
+DB 스키마 상세: `.worksets/_archive/phase4-supabase/phase4-architecture.md` 참조.
 - `lottery_history`: 서버 측 추첨 이력 (user_id, numbers, set_count, created_at)
 - `lottery_results`, `winning_history`, `users`: Phase 4 후반 구현 예정
 
