@@ -32,43 +32,57 @@ Data: `config/constants.json` | `config/supabase.json`
 
 ## Git 정책
 
-형식: `feat|fix|refactor|docs|test|style: 설명` + `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
+형식: `feat|fix|refactor|docs|test|style(workset명): 설명` + `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
+workset 없는 공통 작업: `feat|fix|...: 설명` (괄호 생략)
 결과 요약 후 사용자 승인 → 커밋/푸시
+
+### 브랜치 구조
+
+- `master`: 검증 완료된 안정 코드
+- `dev`: 활성 개발 브랜치 (코드 구현은 여기서)
 
 ## 동시 작업 프로토콜
 
-여러 작업자(사람/에이전트)가 동시에 작업할 때의 병합 전략. Git의 3-way merge + 테스트 검증에 기반한다.
+여러 작업자(사람/에이전트)가 `dev` 브랜치에서 동시에 작업할 때의 규칙. workset 기반 충돌 방지 + 테스트 검증에 기반한다.
 
-### 브랜치 전략
+### Workset 기반 충돌 방지
 
-- feature branch에서 작업: `feat/<모듈>-<설명>`, `fix/<모듈>-<설명>`
-- 머지 대상: master
+- 각 workset의 SPEC.md에 **수정 대상 모듈**이 명시됨
+- 새 workset 생성 시 활성 workset들의 수정 대상과 **겹침 검사** 필수
+- 모듈이 겹치면 작업 순서를 조율하거나 workset을 통합
+
+### 세션 워크플로우
+
+1. **시작**: `git pull origin dev` → `.worksets/`에서 활성 workset 확인 → 담당 workset의 CONTEXT.md 읽기
+2. **작업**: `dev` 브랜치에 코드 구현, workset의 수정 대상 모듈 범위 내에서 작업
+3. **종료**: CONTEXT.md 세션 로그 갱신 → 커밋 → `git push origin dev`
 
 ### 테스트가 계약이다
 
 - 기능 변경 시 **테스트를 먼저 작성/수정** — 테스트가 변경의 명세 역할
-- 나중에 머지하는 쪽이 `npm run verify && npm test` 전체 통과하면 통합 성공으로 판단
+- `npm run verify && npm test` 전체 통과하면 통합 성공으로 판단
 - conflict 발생 시: base/theirs/mine 세 버전의 **의도를 파악**하여 병합, 이후 검증으로 확인
 
-### 머지 절차
+### dev → master 머지 절차
 
-1. feature branch에서 작업 완료
-2. master 최신 pull → feature branch에 merge (또는 rebase)
-3. `npm run verify && npm test` 전체 통과 확인 (정합성 15항목 + 테스트 95개)
-4. PR 생성 → master에 머지
+1. dev에서 workset 작업 완료
+2. `npm run verify && npm test` 전체 통과 확인
+3. PR 생성 → master에 머지
 
 ## 작업 시 Context 관리 규칙
 
 1. CLAUDE.md만으로 작업 가능하면 **추가 문서 읽기 금지**
-2. 프로젝트 현황 필요 시 `docs/_context.md` 우선 참조
-3. 문서 인덱스의 **읽기 방식**을 따를 것 — 직접 / 섹션 단위 / 서브에이전트
-4. 단일 소스: 함수 목록 → `docs/tech.md` | 테스트 항목 → `test/README.md`
+2. 활성 workset 존재 시 해당 CONTEXT.md 우선 참조
+3. 프로젝트 현황 필요 시 `docs/_context.md` 참조
+4. 문서 인덱스의 **읽기 방식**을 따를 것 — 직접 / 섹션 단위 / 서브에이전트
+5. 단일 소스: 함수 목록 → `docs/tech.md` | 테스트 항목 → `test/README.md`
+6. 새 workset 생성 시 `_archive/`에서 동일 카테고리 이력 확인
 
 ## 워크플로우
 
-**준비**: CLAUDE.md → 필요 시 관련 문서 섹션 읽기 → `git log --oneline -5`
+**준비**: CLAUDE.md → 활성 workset CONTEXT.md 확인 → 필요 시 관련 문서 섹션 읽기 → `git log --oneline -5`
 **구현**: 기능 구현 → 테스트 (`npm test` 또는 `npm run test:logic` / `test:dom`)
-**마무리**: 문서 업데이트 → 결과 요약 → 사용자 승인 후 커밋
+**마무리**: CONTEXT.md 세션 로그 갱신 → 문서 업데이트 → 결과 요약 → 사용자 승인 후 커밋
 
 ### 검증 수준
 
