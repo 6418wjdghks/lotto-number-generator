@@ -64,6 +64,7 @@
 │   ├── screenshot.png      # DOM 테스트 스크린샷 (자동 생성)
 │   └── README.md           # 테스트 문서
 ├── scripts/                # 자동화 스크립트
+│   ├── check-deps.js       # 의존성 설치 여부 체크 (pretest/preverify)
 │   ├── verify.js           # 정밀 검증 전처리 (Tier 0, 15항목)
 │   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
 │   └── hooks/

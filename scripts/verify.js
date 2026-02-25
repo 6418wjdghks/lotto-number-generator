@@ -22,7 +22,7 @@ const ROOT = path.resolve(__dirname, '..');
 // ============================================================
 
 function readFile(relPath) {
-  return fs.readFileSync(path.join(ROOT, relPath), 'utf-8');
+  return fs.readFileSync(path.join(ROOT, relPath), 'utf-8').replace(/\r\n/g, '\n');
 }
 
 function normalizeCss(val) {
