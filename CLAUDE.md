@@ -20,55 +20,6 @@ GitHub: https://github.com/6418wjdghks/lotto-number-generator
 Data: `config/constants.json` | `config/supabase.json`
 상세: `docs/tech.md` — 섹션별 줄번호 인덱스 포함
 
-## 코딩 규칙
-
-- **JS**: Vanilla ES6+, `function` 키워드, 2 spaces, 작은따옴표/백틱, 세미콜론, `const`/`let` (var 금지)
-  - 화살표함수=콜백에만, 템플릿 리터럴, 구조분해 할당, 기본 매개변수
-- **HTML**: 2 spaces, ID=camelCase, class=kebab-case, 버튼ID=`btn` 접두어, 동적버튼 `type="button"`
-  - 토글 버튼 텍스트: `<span id="xxxText">` 분리
-- **CSS**: 2 spaces, 선택자 순서 요소→클래스→ID, 섹션별 주석
-- **보안**: `textContent` (innerHTML 금지), JSON.parse try-catch
-- **제약**: 프레임워크 금지 (Supabase=REST API), 모바일 480px 반응형, 단순성 우선
-
-## Git 정책
-
-형식: `feat|fix|refactor|docs|test|style(workset명): 설명` + `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
-workset 없는 공통 작업: `feat|fix|...: 설명` (괄호 생략)
-결과 요약 후 사용자 승인 → 커밋/푸시
-
-### 브랜치 구조
-
-- `master`: 검증 완료된 안정 코드
-- `dev`: 활성 개발 브랜치 (코드 구현은 여기서)
-
-## 동시 작업 프로토콜
-
-여러 작업자(사람/에이전트)가 `dev` 브랜치에서 동시에 작업할 때의 규칙. workset 기반 충돌 방지 + 테스트 검증에 기반한다.
-
-### Workset 기반 충돌 방지
-
-- 각 workset의 SPEC.md에 **수정 대상 모듈**이 명시됨
-- 새 workset 생성 시 활성 workset들의 수정 대상과 **겹침 검사** 필수
-- 모듈이 겹치면 작업 순서를 조율하거나 workset을 통합
-
-### 세션 워크플로우
-
-1. **시작**: `git pull origin dev` → `.worksets/`에서 활성 workset 확인 → 담당 workset의 CONTEXT.md 읽기
-2. **작업**: `dev` 브랜치에 코드 구현, workset의 수정 대상 모듈 범위 내에서 작업
-3. **종료**: CONTEXT.md 세션 로그 갱신 → 커밋 → `git push origin dev`
-
-### 테스트가 계약이다
-
-- 기능 변경 시 **테스트를 먼저 작성/수정** — 테스트가 변경의 명세 역할
-- `npm run verify && npm test` 전체 통과하면 통합 성공으로 판단
-- conflict 발생 시: base/theirs/mine 세 버전의 **의도를 파악**하여 병합, 이후 검증으로 확인
-
-### dev → master 머지 절차
-
-1. dev에서 workset 작업 완료
-2. `npm run verify && npm test` 전체 통과 확인
-3. PR 생성 → master에 머지
-
 ## 작업 시 Context 관리 규칙
 
 1. CLAUDE.md만으로 작업 가능하면 **추가 문서 읽기 금지**
@@ -92,19 +43,6 @@ workset 없는 공통 작업: `feat|fix|...: 설명` (괄호 생략)
 | **정밀 검증** | 보통 검증 + **Tier 2 에이전트** | 문서 변경 / 릴리스 전 |
 
 상세: `docs/verification.md`
-
-## 문서 변경 시 업데이트 대상
-
-기능추가 → spec, plan, tech | UI변경 → design | 설계결정 → decisions (ADR)
-테스트 → test/README | Phase완료 → plan | 구조변경 → README 파일트리
-정밀검증 → verification.md (검증 결과 + 성능 지표)
-_context.md → Phase 전환 또는 블로커 변경 시에만 갱신
-
-## 문서 관리 규칙
-
-- 코드 구조 변경 시 README.md 파일 구조 섹션 동기화
-- 아카이브 파일 생성 시 README.md 파일 트리 업데이트
-- 암묵적 패턴은 명문화해야 지속 적용됨
 
 ## 문서 인덱스
 
