@@ -11,9 +11,9 @@
 
 ## 최근 변경 (3건)
 
+- 의존성 자동 체크 스크립트 추가: `scripts/check-deps.js` + pretest/preverify hook. npm install 미실행 시 명확한 안내 메시지 출력
+- verify.js CRLF 버그 수정: Windows 환경 `readFile` 줄바꿈 호환성 확보 (files 체크 FAIL → PASS)
 - workset 기반 동시 작업 체계 구축: `.worksets/` 디렉토리 + CLAUDE.md 동시 작업 프로토콜 개편
-- 정밀 검증 프롬프트 간소화: 배치 가이드/성능 금지 패턴 정리, 런타임 균형 원칙 도입 (7건 중 5건 적용, 2건 유지)
-- 정밀 검증 2회 실행 → 불일치 수정: tech.md, spec.md, design.md 문서 보강. A3 배치 가이드 복원으로 Tool 14회→5회 개선
 
 ## 정밀 검증 현황
 
