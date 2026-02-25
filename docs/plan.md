@@ -42,7 +42,7 @@ HTML 구조, UI/UX 디자인, 랜덤 번호 생성(Fisher-Yates), 반응형, 자
 - [x] 테스트 스위트 v2 전면 개선 (test/README.md 참조)
 - [x] CLI 자동 테스트 도입 (Node.js `node:test`)
 - [x] GitHub Pages 배포 (https://6418wjdghks.github.io/lotto-number-generator/)
-- [ ] Phase 4 계획 검토 (docs/phase4-architecture.md 참조)
+- [ ] Phase 4 계획 검토 (.worksets/_archive/phase4-supabase/phase4-architecture.md 참조)
 - [x] CSS 구조 개선 (design.md v4.1.0)
   - CSS 변수(디자인 토큰) 도입 — `:root` 블록 추가, 하드코딩 값을 변수로 교체
   - `button` → `.btn-primary` 분리 — 스타일 충돌 방지

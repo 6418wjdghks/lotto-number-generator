@@ -68,8 +68,13 @@
 │   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
 │   └── hooks/
 │       └── pre-commit      # pre-commit hook (아카이브 + 검증)
+├── .worksets/              # Workset 기반 동시 작업 관리
+│   ├── README.md           # Workset 체계 안내
+│   ├── _template/          # 새 workset 생성 템플릿
+│   └── _archive/           # 완료된 workset 아카이브
+│       └── phase4-supabase/  # Phase 4 아키텍처 설계
 └── docs/                   # 프로젝트 문서
-    ├── _context.md         # 현재 상태 스냅샷
+    ├── _context.md         # Phase 진행률/블로커
     ├── spec.md             # 기능 명세서
     ├── tech.md             # 기술 명세서
     ├── design.md           # 디자인 명세서
@@ -79,9 +84,7 @@
     ├── decisions_001_010.md # ADR 아카이브 (001~010)
     ├── decisions_011_020.md # ADR 아카이브 (011~020)
     ├── decisions_021_030.md # ADR 아카이브 (021~030)
-    ├── decisions_031_040.md # ADR 아카이브 (031~040)
-    ├── improve_adr.md      # ADR 개선 계획
-    └── phase4-architecture.md  # Phase 4 기술 설계
+    └── decisions_031_040.md # ADR 아카이브 (031~040)
 ```
 
 ## 기술 스택

@@ -98,6 +98,7 @@ workset 없는 공통 작업: `feat|fix|...: 설명` (괄호 생략)
 기능추가 → spec, plan, tech | UI변경 → design | 설계결정 → decisions (ADR)
 테스트 → test/README | Phase완료 → plan | 구조변경 → README 파일트리
 정밀검증 → verification.md (검증 결과 + 성능 지표)
+_context.md → Phase 전환 또는 블로커 변경 시에만 갱신
 
 ## 문서 관리 규칙
 
@@ -109,12 +110,11 @@ workset 없는 공통 작업: `feat|fix|...: 설명` (괄호 생략)
 
 | 정보 | 파일 | 읽기 |
 |------|------|------|
-| 현재 상태/진행 | `docs/_context.md` | 직접 |
+| Phase 진행률/블로커 | `docs/_context.md` | 직접 |
 | 기능 명세 | `docs/spec.md` | 섹션 단위 |
 | API/기술 상세 | `docs/tech.md` | 섹션 단위 |
 | UI/디자인 | `docs/design.md` | 섹션 단위 |
 | Phase 계획 | `docs/plan.md` | 직접 |
 | 설계 결정 (ADR) | `docs/decisions.md` | 섹션 단위 |
-| Phase 4 아키텍처 | `docs/phase4-architecture.md` | 서브에이전트 |
 | 검증 체계 | `docs/verification.md` | 서브에이전트 |
 | 테스트 명세 | `test/README.md` | 섹션 단위 |

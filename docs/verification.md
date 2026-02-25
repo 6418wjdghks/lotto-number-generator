@@ -52,7 +52,7 @@
 | `doc:design` | 문서(디자인) | `design.md` |
 | `doc:spec` | 문서(명세) | `spec.md` |
 | `doc:test` | 문서(테스트) | `test/README.md` |
-| `doc:track` | 문서(추적) | `plan.md`, `decisions.md`, `decisions_*_*.md`, `phase4-architecture.md`, `verification.md` |
+| `doc:track` | 문서(추적) | `plan.md`, `decisions.md`, `decisions_*_*.md`, `verification.md` |
 | `config` | 설정 | `package.json` |
 
 ## 검증 수준
