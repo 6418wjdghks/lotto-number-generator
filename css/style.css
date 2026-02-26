@@ -84,6 +84,10 @@ html[data-theme="dark"] {
   --shadow-medium: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
+html[data-theme="dark"] .number {
+  color: #ffffff;
+}
+
 html[data-theme="dark"] body {
   background: linear-gradient(135deg, #2a2d4a 0%, #1a1a2e 100%);
 }

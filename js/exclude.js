@@ -8,6 +8,10 @@
  * @returns {number[]} 제외된 번호 배열
  */
 function getExcludedNumbers() {
+  const grid = document.getElementById('excludeGrid');
+  if (!grid || grid.children.length === 0) {
+    return loadExcludedNumbers();
+  }
   const buttons = document.querySelectorAll('.exclude-btn.excluded');
   return Array.from(buttons).map(btn => parseInt(btn.textContent, 10));
 }
