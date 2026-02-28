@@ -66,6 +66,7 @@
 ├── scripts/                # 자동화 스크립트
 │   ├── check-deps.js       # 의존성 설치 여부 체크 (pretest/preverify)
 │   ├── verify.js           # 정밀 검증 전처리 (Tier 0, 15항목)
+│   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
 │   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
 │   └── hooks/
 │       └── pre-commit      # pre-commit hook (아카이브 + 검증)

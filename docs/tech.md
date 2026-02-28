@@ -35,6 +35,11 @@ HelloClaude/
 │   ├── history.js          # 이력 관리 (Local + Supabase)
 │   ├── auth.js             # 인증 (Supabase)
 │   └── app.js              # 진입점 (메인 함수 + 초기화 + 이벤트)
+├── scripts/
+│   ├── check-deps.js       # 의존성 체크
+│   ├── verify.js           # Tier 0 검증
+│   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
+│   └── adr-archive.js      # ADR 아카이브
 ├── .worksets/              # Workset 기반 동시 작업 관리
 │   ├── _template/          # 새 workset 생성 템플릿
 │   └── _archive/           # 완료된 workset 아카이브
