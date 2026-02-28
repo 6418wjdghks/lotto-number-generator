@@ -35,12 +35,20 @@ Data: `config/constants.json` | `config/supabase.json`
 **구현**: 기능 구현 → 테스트 (`npm test` 또는 `npm run test:logic` / `test:dom`)
 **마무리**: CONTEXT.md 세션 로그 갱신 → 문서 업데이트 → 결과 요약 → 사용자 승인 후 커밋
 
-### 검증 수준
+### 테스트 타입
 
-| 용어 | 구성 | 용도 |
+| 타입 | 정의 | 예시 |
 |------|------|------|
-| **보통 검증** | `npm run verify` + `npm test` | 일상 변경 확인 |
-| **정밀 검증** | 보통 검증 + **Tier 2 에이전트** | 문서 변경 / 릴리스 전 |
+| **bb_test** | 코드를 읽지 않고 동작/명세 기준 확인 | `npm test`, serve.js E2E |
+| **wb_test** | 소스코드를 파싱/비교하여 확인 | `npm run verify`, Tier 2 에이전트 |
+
+### 검증 수준 (strong ⊃ func ⊃ weak)
+
+| 수준 | 누적 구성 | 용도 |
+|------|----------|------|
+| **weak_verify** | Tier 0 + `npm test:logic` | 로직 변경 빠른 확인 |
+| **func_verify** | **weak 전체** + `npm test:dom` + serve.js E2E (MCP) | 기능/UI 변경 확인 |
+| **strong_verify** | **func 전체** + **Tier 2 에이전트** | 문서 변경 / 릴리스 전 |
 
 상세: `docs/verification.md`
 
