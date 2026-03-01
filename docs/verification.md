@@ -14,7 +14,7 @@ verify 시 메인 컨텍스트에서 파일을 직접 읽지 말 것. `Task(suba
 
 `npm run verify` (`scripts/verify.js`) — 기계적/정량적 체크를 자동화하여 에이전트 실행 전에 수행.
 
-**체크 항목 (13개)** — 매직 넘버 없음, 양쪽 파싱 결과 비교 (ADR-029):
+**체크 항목 (14개)** — 매직 넘버 없음, 양쪽 파싱 결과 비교 (ADR-029):
 | 항목 | 비교 | 판정 |
 |------|------|------|
 | css.root.count | design.md :root 변수 수 ↔ style.css :root 변수 수 | 양쪽 일치 |
@@ -23,7 +23,8 @@ verify 시 메인 컨텍스트에서 파일을 직접 읽지 말 것. `Task(suba
 | css.dark.values | design.md 다크모드 테이블 ↔ style.css dark 변수값 전수 비교 | all match |
 | css.keyframes | design.md 애니메이션 명세 수 ↔ style.css @keyframes 수 | 양쪽 일치 |
 | css.breakpoints | style.css @media 브레이크포인트 | 480px 단일 |
-| functions.total | CLAUDE.md 모듈 테이블 합계 ↔ js/ Grep 함수 수 | 양쪽 일치 |
+| modules.match | CLAUDE.md 모듈 테이블 ↔ js/ 실제 모듈 파일 | 전수 일치 |
+| html.scripts | CLAUDE.md 모듈 테이블 ↔ index.html script 태그 | 전수 일치 |
 | tests.cli | test-logic.js it() 실측 | > 0 |
 | tests.dom | test.html PASS: 실측 | > 0 |
 | tests.total | CLI + DOM 합산 | 일치 |
@@ -46,7 +47,7 @@ verify 시 메인 컨텍스트에서 파일을 직접 읽지 말 것. `Task(suba
 | Label | 타입 | 포함 파일 |
 |-------|------|----------|
 | `style` | 스타일 | `style.css` |
-| `code` | 코드 | `utils.js`, `theme.js`, `exclude.js`, `lottery.js`, `history.js`, `auth.js`, `app.js`, `supabase-config.js`, `index.html` |
+| `code` | 코드 | `config.js`, `utils.js`, `theme.js`, `exclude.js`, `lottery.js`, `history.js`, `auth.js`, `app.js`, `supabase-config.js`, `index.html` |
 | `test` | 테스트 | `test-logic.js`, `test-dom.js`, `test.html` |
 | `doc:api` | 문서(API) | `tech.md`, `CLAUDE.md`, `README.md` |
 | `doc:design` | 문서(디자인) | `design.md` |

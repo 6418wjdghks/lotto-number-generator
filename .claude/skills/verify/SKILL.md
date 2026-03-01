@@ -1,56 +1,103 @@
 ---
 name: verify
-description: strong_verify(Tier 0+1+2) 자동 오케스트레이션. 5개 서브에이전트로 문서↔소스코드 전수 비교.
+description: strong_verify(Tier 0+1+2) 파라미터 기반 오케스트레이션
 disable-model-invocation: true
-argument-hint: "[all | A1 A2 A3 B D]"
+argument-hint: "[all | A1 A2 A3 B D | report]"
 ---
 
 # strong_verify 오케스트레이션
 
-Tier 0(스크립트) + Tier 1(테스트) + Tier 2(서브에이전트)를 자동 실행한다.
+## Parameters
 
-## 인자 처리
+| Parameter | Type | Values | Default |
+|-----------|------|--------|---------|
+| `AgentType` | enum | `parallel`, `sequential` | `parallel` |
+| `reportMode` | bool | `true`, `false` | `false` |
+| `agents` | list | subset of `[A1, A2, A3, B, D]` | all 5 |
 
-`$ARGUMENTS` 값으로 실행할 에이전트를 결정:
+## Argument Parsing
 
-- 비어있거나 `all` → A1, A2, A3, B, D 전체
-- 에이전트 이름 나열 → 해당만 실행 (예: `A1 B`)
-- 유효 이름: `A1`, `A2`, `A3`, `B`, `D` (대소문자 무시)
+`$ARGUMENTS`를 공백 분리 → 소문자 변환 → 아래 순서로 처리:
+
+1. **`report` 토큰 추출**: 토큰에 `report` 포함 → `reportMode=true`, `AgentType=sequential`. 토큰에서 `report` 제거.
+2. **`report` 미포함**: `reportMode=false`, `AgentType=parallel`.
+3. **에이전트 필터링**: 남은 토큰 중 유효 이름(`A1`,`A2`,`A3`,`B`,`D`)만 수집 → `agents`. 무효 토큰은 무시.
+4. **`all` 또는 빈 목록**: 남은 토큰이 `all`이거나 `agents`가 빈 목록 → `agents=[A1,A2,A3,B,D]`.
+
+**예시**:
+
+| `$ARGUMENTS` | `AgentType` | `reportMode` | `agents` |
+|--------------|-------------|--------------|----------|
+| (빈값) | `parallel` | `false` | all 5 |
+| `all` | `parallel` | `false` | all 5 |
+| `A1 B` | `parallel` | `false` | `[A1, B]` |
+| `report` | `sequential` | `true` | all 5 |
+| `report A1 B` | `sequential` | `true` | `[A1, B]` |
+| `A1 xyz B` | `parallel` | `false` | `[A1, B]` (xyz 무시) |
+
+---
 
 ## Step 1: Tier 0 + Tier 1
 
-순차 실행:
+1. `npm run verify` → stdout JSON 캡처, `summary.allPassed` 확인
+2. `npm test` → 전체 PASS 확인, 테스트 수 파싱
 
-1. `npm run verify` — stdout JSON 캡처, `summary.allPassed` 확인
-2. `npm test` — 전체 PASS 여부 확인. stdout에서 테스트 수 파싱 (예: "23 tests passed", "72 tests passed")
+결과 변수:
 
-Tier 0 JSON 출력과 Tier 1 결과를 보관한다.
+| 변수 | 형식 | 사용처 |
+|------|------|--------|
+| `tier0Result` | `npm run verify` stdout JSON 전체 | Step 2: `{{TIER0_RESULT}}` 치환, Step 3: T0 그룹 조립 |
+| `tier1Result` | `{ cli: { passed: N, total: N }, dom: { passed: N, total: N } }` | Step 3: T1 그룹 조립 |
 
-## Step 2: 에이전트 프롬프트 로드 + Tier 2 생성
+## Step 2: Tier 2 디스패치
 
-각 에이전트의 프롬프트는 `docs/verification.md`에 `<agent-prompt id="X">` 태그로 내장되어 있다.
-유효 ID: `A1`, `A2`, `A3`, `B`, `D`
+### 프롬프트 로드 (공통)
 
-절차 (에이전트별 반복):
-1. `Grep("<agent-prompt id=\"X\">", path="docs/verification.md")` → 시작 줄 번호 획득
-2. `Grep("</agent-prompt>", path="docs/verification.md")` 결과에서 시작 줄 이후 첫 매치 → 종료 줄 번호 획득
-3. `Read(path="docs/verification.md", offset=시작줄+1, limit=종료줄-시작줄-1)` → 프롬프트 본문 추출
-4. 본문 내 `{{TIER0_RESULT}}`를 Step 1의 Tier 0 JSON으로 치환한다
-5. 치환된 본문을 `Task(subagent_type="general-purpose", model="sonnet", run_in_background=true)`의 prompt로 전달한다
-6. **선택된 에이전트를 모두 한 번에 병렬 생성**한다
+소스: `docs/verification.md` → `<agent-prompt id="{ID}">` 태그
 
-## Step 3: 결과 취합 + JSON 저장
+1. `Grep("<agent-prompt id=\"{ID}\">", path="docs/verification.md")` → 시작 줄
+2. `Grep("</agent-prompt>", path="docs/verification.md")` → 결과 중 **줄 번호 > 시작줄**인 첫 번째 매치 = 종료 줄
+3. `Read(path="docs/verification.md", offset=시작줄+1, limit=종료줄-시작줄-1)` → 본문
+4. `{{TIER0_RESULT}}` → `tier0Result`로 치환
 
-모든 에이전트 완료 후:
+### 디스패치
 
-1. 각 에이전트 반환값을 수집
-2. **JSON 파싱**: 각 에이전트 반환값에서 ` ```json ` 블록을 찾아 파싱
-   - fallback: JSON 블록 미발견 시 텍스트에서 `"ALL PASS"` → `status: "pass"` / `"불일치: N건"` → `status: "fail"` 파싱
-3. **결과 JSON 조립** (`temp/verify-results.json`):
+| `AgentType` | Prompt ID | 실행 방식 |
+|-------------|-----------|----------|
+| `parallel` | `agents` 각각 (`A1`, `A2`, …) | `Agent(subagent_type="general-purpose", model="sonnet", run_in_background=true)` — **전체 한 번에 병렬 생성** |
+| `sequential` | `agents` 각각 (`A1`, `A2`, …) | 메인 에이전트가 각 프롬프트를 **순차 로드 → 직접 수행** |
+
+### `sequential` 모드 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| **파일 재 Read 금지** | 이전 프롬프트에서 이미 Read한 파일은 컨텍스트에 유지된다. 동일 파일을 다시 Read하지 않는다. |
+| **서브에이전트 전용 규칙 무시** | 프롬프트 내 "재위임 금지", "임시 파일 RAII"는 서브에이전트 전용이므로 무시한다. |
+
+출력: 에이전트별 JSON 블록 `{ agent, status, mismatchCount, mismatches, detail }`
+
+## Step 3: 결과 JSON 조립
+
+### 3-1. JSON 수집
+
+| `AgentType` | 수집 방식 |
+|-------------|----------|
+| `parallel` | 서브에이전트 반환값에서 `` ```json `` 블록 파싱. 아래 fallback 참조 |
+
+**`parallel` fallback** — `` ```json `` 블록이 반환값에 **존재하지 않을 때** 발동:
+
+| 조건 (contains, 대소문자 무시) | 판정 |
+|-------------------------------|------|
+| 반환값에 `"ALL PASS"` 포함 | `status: "pass"` |
+| 반환값에 `"불일치"` 포함 | `status: "fail"` |
+| 위 어디에도 해당 안 됨 | `status: "fail"`, `detail: "파싱 실패"` |
+| `sequential` | Step 2에서 직접 생성한 JSON 블록 사용 |
+
+### 3-2. 조립 (`temp/verify-results.json`)
 
 ```json
 {
-  "meta": { "date": "YYYY-MM-DD", "type": "verify", "commitHash": "abc1234", "agents": ["A1","A2","A3","B","D"] },
+  "meta": { "date": "YYYY-MM-DD", "type": "verify", "commitHash": "<git log --oneline -1>", "agents": ["A1","A2","A3","B","D"] },
   "groups": [
     {
       "group": "T0", "groupName": "Tier 0 — 스크립트 체크",
@@ -75,30 +122,29 @@ Tier 0 JSON 출력과 Tier 1 결과를 보관한다.
 }
 ```
 
-조립 로직:
-- **Tier 0**: `npm run verify` stdout의 `checks[]` 배열 → ID는 `T0-01`~`T0-14`, name은 체크명, status/detail 매핑
-- **Tier 1**: `npm test` 결과 → `T1-CLI`(test:logic), `T1-DOM`(test:dom) 2개 항목
-- **Tier 2**: 에이전트당 1개 항목 (ID = 에이전트명). 미실행 에이전트는 `status: "skipped"`
-- **overall**: 전체 그룹의 pass/fail/total 합산
+조립 규칙:
+- **T0**: `tier0Result.checks[]` → `T0-01`~, name=체크명, status/detail 매핑
+- **T1**: `tier1Result` → `T1-CLI`(cli), `T1-DOM`(dom). detail=`"{passed}/{total}"`
+- **T2**: 에이전트당 1항목 (ID = 에이전트명). 미실행 → `status: "skipped"`
+- **overall**: 전체 pass/fail/total 합산
 
-4. `git log --oneline -1`로 커밋 해시 획득 → `meta.commitHash`에 저장
-5. `temp/verify-results.json` 파일로 저장
-
-6. 결과 보고:
+### 3-3. 결과 보고
 
 | Tier | 에이전트 | 결과 | 비고 |
 |------|---------|------|------|
 | 0 | verify.js | PASS/FAIL | 상세 |
 | 1 | npm test | PASS/FAIL | 상세 |
-| 2 | A1~D | ALL PASS / Warning N건 | 불일치 요약 |
+| 2 | A1~D | ALL PASS / 불일치 N건 | 불일치 요약 |
 
-7. 불일치 있으면 수정 제안도 제시
+불일치 있으면 항목별로 수정 대상(코드 or 문서)과 위치(파일:줄)를 1줄 이내로 제시.
 
-## Step 4: PDF 리포트 생성
+## Step 4: PDF 리포트
 
-1. `Bash("node scripts/verify-report.js --html-only")` → `temp/verify-report-temp.html` 생성
-2. Playwright MCP로 HTML 열기: `browser_navigate({ url: "file:///절대경로/temp/verify-report-temp.html" })`
-3. `browser_run_code`로 PDF 생성:
+> **조건**: `reportMode=true`일 때만 실행. `reportMode=false`이면 건너뛴다.
+
+1. `Bash("node scripts/verify-report.js --html-only")` → `temp/verify-report-temp.html`
+2. `browser_navigate({ url: "file:///{CWD}/temp/verify-report-temp.html" })` — `{CWD}`는 에이전트가 알고 있는 작업 디렉토리. 경로 구분자는 `/` 사용 (예: `file:///C:/Users/.../temp/...`)
+3. `browser_run_code`:
    ```js
    async (page) => {
      await page.pdf({ path: 'temp/verify-report.pdf', format: 'A4', printBackground: true });
@@ -106,21 +152,19 @@ Tier 0 JSON 출력과 Tier 1 결과를 보관한다.
    }
    ```
 4. 브라우저 페이지 닫기
-5. 임시 HTML 삭제: `Bash("rm temp/verify-report-temp.html")`
+5. `Bash("rm temp/verify-report-temp.html")`
 
-## Step 5: verification.md 업데이트
+## Step 5: verification.md 갱신
 
-`docs/verification.md` 하단 "strong_verify 결과" 섹션을 현재 세션 결과로 갱신:
+`docs/verification.md` 하단 "strong_verify 결과" 섹션 갱신:
 
 1. 헤더: `> 마지막 verify: {날짜} ({해시}) — {결과 요약}`
-2. 체크 항목 테이블 + 성능 지표 테이블 갱신
-3. **미실행 에이전트는 `—`으로 표기**, 이전 값 유지 금지
+2. 체크 항목 테이블 + 성능 지표 테이블
+3. 미실행 에이전트는 `—` 표기 (이전 값 유지 금지)
 
 ## Step 6: 보고
 
-사용자에게 최종 보고:
-
-1. 결과 요약 테이블 (Tier 0/1/2 각각)
-2. PDF 리포트 경로: `temp/verify-report.pdf`
+1. 결과 요약 테이블 (Tier 0/1/2)
+2. `reportMode=true` → PDF 경로 안내 (`temp/verify-report.pdf`)
 3. 불일치 항목 상세 (있는 경우)
 4. 커밋 여부 확인
