@@ -144,10 +144,6 @@ h1 {
   .header {
     justify-content: space-between;
   }
-  .theme-toggle {
-    position: static;
-    flex-shrink: 0;
-  }
 }
 
 @media (max-width: 360px) {
@@ -187,6 +183,8 @@ h1 {
 
 @media (max-width: 480px) {
   .theme-toggle {
+    position: static;
+    flex-shrink: 0;
     width: 34px;
     height: 34px;
     font-size: 16px;
