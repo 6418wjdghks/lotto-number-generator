@@ -76,9 +76,9 @@
 ├── .worksets/              # Workset 기반 동시 작업 관리
 │   ├── README.md           # Workset 체계 안내
 │   ├── _template/          # 새 workset 생성 템플릿
-│   ├── _archive/           # 완료된 workset 아카이브
-│   │   └── phase4-supabase/  # Phase 4 아키텍처 설계
-│   └── verify-report/      # /verify 리포트 파이프라인
+│   └── _archive/           # 완료된 workset 아카이브
+│       ├── phase4-supabase/  # Phase 4 아키텍처 설계
+│       └── verify-report/    # /verify 리포트 파이프라인
 └── docs/                   # 프로젝트 문서
     ├── _context.md         # Phase 진행률/블로커
     ├── spec.md             # 기능 명세서
