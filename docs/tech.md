@@ -3,9 +3,9 @@
 **버전**: 3.3.0 | **최종 수정**: 2026-02-13 | **상태**: Phase 4 진행 중
 
 > **섹션 인덱스** — `Read(offset, limit)` 참고
-> 기술스택 L12 | 파일구조 L21 | 아키텍처 L56 | CSS L64 | HTML-ID L130 | JS-API L143
-> └ 핵심생성 L148 | 표시 L164 | 이력 L177 | 제외 L200 | 방어 L216 | 유틸 L226 | 테마 L234 | 인증 L252 | 메인진입점 L260
-> Supabase L279 | 데이터구조 L301 | Exports L362 | 알고리즘 L387 | 보안 L415 | 성능 L424
+> 기술스택 L12 | 파일구조 L21 | 아키텍처 L68 | CSS L76 | HTML-ID L146 | JS-API L159
+> └ 핵심생성 L173 | 표시 L189 | 이력 L202 | 제외 L225 | 방어 L243 | 유틸 L253 | 테마 L261 | 인증 L279 | 메인진입점 L287
+> Supabase L307 | 데이터구조 L329 | Exports L390 | 알고리즘 L422 | 보안 L450 | 성능 L459
 
 ---
 
@@ -42,6 +42,7 @@ HelloClaude/
 │   ├── adr-archive.js      # ADR 아카이브
 │   ├── e2e-report.js       # E2E 테스트 JSON→HTML 보고서
 │   ├── verify-report.js    # strong_verify JSON→HTML 보고서
+│   ├── temp-server.js      # 임시 HTTP 서버 (PID 추적 + idle 자동 종료)
 │   └── hooks/
 │       └── pre-commit      # pre-commit hook (아카이브 + verify)
 ├── .worksets/              # Workset 기반 동시 작업 관리
