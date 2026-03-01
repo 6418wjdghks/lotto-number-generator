@@ -114,7 +114,7 @@ css/style.css
 ├── Base Layout               /* body + @media */
 ├── Container                 /* .container + @media */
 ├── Header                    /* .header */
-├── Typography                /* h1 + @media */
+├── Typography                /* h1 + @media(480px, 360px) */
 ├── Theme Toggle              /* + @media */
 ├── Info Text                 /* .info */
 ├── Number Badge              /* + @media */
@@ -133,7 +133,7 @@ css/style.css
 └── Utility Classes            /* .hidden, .sr-only */
 ```
 
-**미디어쿼리 인라인 배치**: 각 컴포넌트 바로 아래에 해당 모바일 `@media (max-width: 480px)` 배치. 수정 시 관련 스타일을 한 곳에서 확인 가능.
+**미디어쿼리 인라인 배치**: 각 컴포넌트 바로 아래에 해당 모바일 `@media (max-width: 480px)` 배치. 수정 시 관련 스타일을 한 곳에서 확인 가능. 극소형 디바이스 대응을 위한 `@media (max-width: 360px)` 추가 분기점 존재 (h1 폰트 축소).
 
 ---
 

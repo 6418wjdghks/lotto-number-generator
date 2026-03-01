@@ -190,8 +190,8 @@ main.container
 | `.history-controls` | flex, space-between, gap 10, mb 15 | — | — | — | — | — |
 | `.history-item:last-child` | mb 0 | — | — | — | — | — |
 | `.auth-user-info span` | — | — | — | — | — | bold, primary-start, overflow ellipsis |
-| `.header` | relative, flex center | — | — | — | — | — |
-| `.theme-toggle` | abs right, 40×40 | 2px border-color | 50% | — | none | 20px |
+| `.header` | relative, flex center (mobile: space-between) | — | — | — | — | — |
+| `.theme-toggle` | abs right, 40×40 (mobile: static, flex-shrink 0) | 2px border-color | 50% | — | none | 20px |
 
 ---
 
@@ -337,8 +337,9 @@ main.container
 
 | 디바이스 | 범위 | 주요 변경 |
 |----------|------|----------|
-| 모바일 | < 480px | 아래 상세 테이블 참조 |
-| 태블릿 | 480-768px | 기본 유지 |
+| 극소형 모바일 | ≤ 360px | 아래 상세 + h1 `1.25em` |
+| 모바일 | ≤ 480px | 아래 상세 테이블 참조 |
+| 태블릿 | 481-768px | 기본 유지 |
 | 데스크톱 | > 768px | 기본 (최적화됨) |
 
 ### 모바일 (< 480px) 변경 항목
@@ -346,8 +347,9 @@ main.container
 | 컴포넌트 | 변경 사항 |
 |----------|----------|
 | `.container` | `padding: 30px 20px` |
-| `h1` | `font-size: 1.5em` |
-| `.theme-toggle` | `34×34px`, `font-size: 16px` |
+| `h1` | `font-size: 1.5em` (≤360px: `1.25em`) |
+| `.header` | `justify-content: space-between` |
+| `.theme-toggle` | `position: static`, `flex-shrink: 0`, `34×34px`, `font-size: 16px` |
 | `.number` | `50×50px`, `font-size: 20px` |
 | `.btn-primary` | `padding: 12px 30px`, `font-size: 16px` |
 | `.set-selector` | `flex-direction: column`, `align-items: flex-start` |

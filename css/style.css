@@ -141,6 +141,19 @@ h1 {
   h1 {
     font-size: 1.5em;
   }
+  .header {
+    justify-content: space-between;
+  }
+  .theme-toggle {
+    position: static;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  h1 {
+    font-size: 1.25em;
+  }
 }
 
 /* Theme Toggle */

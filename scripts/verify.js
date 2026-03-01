@@ -355,7 +355,10 @@ function main() {
 
   check('css.keyframes', keyframes.length === docKeyframes.length && docKeyframes.length > 0,
     { css: keyframes.length, doc: docKeyframes.length, cssNames: keyframes, docNames: docKeyframes });
-  check('css.breakpoints', breakpoints.unique.length === 1 && breakpoints.unique[0] === 'max-width: 480px',
+  check('css.breakpoints',
+    breakpoints.unique.length === 2 &&
+    breakpoints.unique.includes('max-width: 480px') &&
+    breakpoints.unique.includes('max-width: 360px'),
     { unique: breakpoints.unique, mediaQueryCount: breakpoints.total });
 
   // CLAUDE.md 모듈 목록 ↔ js/ 실제 파일
