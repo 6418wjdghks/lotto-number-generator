@@ -55,6 +55,14 @@ Data: `config/constants.json` | `config/supabase.json`
 
 상세: `docs/verification.md`
 
+## 임시 HTTP 서버 정책
+
+- 임시 파일 서빙이 필요하면 **반드시** `node scripts/temp-server.js --root <dir> --port <n>` 사용
+- `npx serve`, `npx http-server`, `node -e "http.createServer..."` 등 ad-hoc 서버 **금지**
+- 작업 완료 후 `node scripts/temp-server.js --cleanup` 실행
+- idle 5분 후 자동 종료됨 (변경: `--timeout <sec>`, 무제한: `--timeout 0`)
+- 서버 시작 시 stdout 첫 줄 `READY http://localhost:{port}` 출력 → 파싱하여 URL 사용
+
 ## 문서 인덱스
 
 | 정보 | 파일 | 읽기 |

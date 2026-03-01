@@ -14,7 +14,7 @@ const MIME = {
   '.ico': 'image/x-icon',
 };
 
-http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   let url = req.url.split('?')[0];
   if (url === '/') url = '/index.html';
   const filePath = path.join(ROOT, url);
@@ -28,6 +28,24 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
     res.end(data);
   });
-}).listen(PORT, () => {
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`포트 ${PORT}이 이미 사용 중입니다.`);
+  } else {
+    console.error(`서버 오류: ${err.message}`);
+  }
+  process.exit(1);
+});
+
+function shutdown() {
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 1000).unref();
+}
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
