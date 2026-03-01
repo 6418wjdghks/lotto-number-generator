@@ -182,6 +182,15 @@ app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L143~) 참조.
 
 미테스트 (Supabase 연동 필요). 프로젝트 설정 완료 후 통합 테스트 추가 예정.
 
+| 함수 | 모듈 | 비고 |
+|------|------|------|
+| `loadConfig` | config.js | JSON 설정 로더 |
+| `toggleAuthForm` | auth.js | 인증 폼 토글 |
+| `handleSignIn` | auth.js | 로그인 처리 |
+| `handleSignUp` | auth.js | 회원가입 처리 |
+| `handleSignOut` | auth.js | 로그아웃 처리 |
+| `updateAuthUI` | auth.js | 인증 UI 갱신 |
+
 ---
 
 ## E2E 반응형 테스트 (e2e-responsive.md, 63항목)

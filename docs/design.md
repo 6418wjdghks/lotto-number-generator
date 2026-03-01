@@ -74,6 +74,7 @@
 | `--shadow-high` | `0 20px 60px rgba(0,0,0,0.3)` | `0 20px 60px rgba(0,0,0,0.5)` |
 | `--shadow-medium` | `0 10px 20px rgba(0,0,0,0.2)` | `0 10px 20px rgba(0,0,0,0.4)` |
 | body 배경 | 보라 그라데이션 | `#2a2d4a → #1a1a2e` |
+| `.number` color | `var(--white)` | `#ffffff` (명시 오버라이드) |
 
 ---
 
