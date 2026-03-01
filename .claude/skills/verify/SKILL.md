@@ -73,8 +73,9 @@ argument-hint: "[all | A1 A2 A3 B D | report]"
 |------|------|
 | **파일 재 Read 금지** | 이전 프롬프트에서 이미 Read한 파일은 컨텍스트에 유지된다. 동일 파일을 다시 Read하지 않는다. |
 | **서브에이전트 전용 규칙 무시** | 프롬프트 내 "재위임 금지", "임시 파일 RAII"는 서브에이전트 전용이므로 무시한다. |
+| **에이전트별 시간 측정** | 각 에이전트 프롬프트 수행 직전 `Bash("date +%s")` → 시작 시각, 수행 직후 `Bash("date +%s")` → 종료 시각. `elapsed = 종료 - 시작` (초 단위). JSON 블록의 `elapsed` 필드에 기록. |
 
-출력: 에이전트별 JSON 블록 `{ agent, status, mismatchCount, mismatches, detail }`
+출력: 에이전트별 JSON 블록 `{ agent, status, mismatchCount, mismatches, detail, elapsed }`
 
 ## Step 3: 결과 JSON 조립
 
@@ -114,7 +115,7 @@ argument-hint: "[all | A1 A2 A3 B D | report]"
     },
     {
       "group": "T2-XX", "groupName": "Tier 2 — XX (설명)",
-      "items": [{ "id": "XX", "name": "에이전트명", "status": "pass|fail|skipped", "detail": "요약", "mismatches": [] }],
+      "items": [{ "id": "XX", "name": "에이전트명", "status": "pass|fail|skipped", "detail": "요약", "mismatches": [], "elapsed": 45 }],
       "summary": { "total": 1, "pass": 1, "fail": 0 }
     }
   ],
@@ -125,7 +126,7 @@ argument-hint: "[all | A1 A2 A3 B D | report]"
 조립 규칙:
 - **T0**: `tier0Result.checks[]` → `T0-01`~, name=체크명, status/detail 매핑
 - **T1**: `tier1Result` → `T1-CLI`(cli), `T1-DOM`(dom). detail=`"{passed}/{total}"`
-- **T2**: 에이전트당 1항목 (ID = 에이전트명). 미실행 → `status: "skipped"`
+- **T2**: 에이전트당 1항목 (ID = 에이전트명). 미실행 → `status: "skipped"`. `elapsed`는 초 단위 정수 (미측정 시 `null`)
 - **overall**: 전체 pass/fail/total 합산
 
 ### 3-3. 결과 보고

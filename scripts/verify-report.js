@@ -128,6 +128,41 @@ function generateHtml(data) {
       </div>`;
   }
 
+  // 성능 지표 (Tier 2 에이전트별 elapsed)
+  const t2Groups = groups.filter(g => g.group.startsWith('T2-'));
+  let perfHtml = '';
+  if (t2Groups.length > 0) {
+    let perfRows = '';
+    for (const g of t2Groups) {
+      const item = g.items[0];
+      if (!item) continue;
+      const elapsed = item.elapsed != null ? `${item.elapsed}s` : '—';
+      perfRows += `
+            <tr>
+              <td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold">${escapeHtml(item.id)}</td>
+              <td style="padding:8px;border-bottom:1px solid #eee">${statusBadge(item.status)}</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums">${elapsed}</td>
+            </tr>`;
+    }
+    perfHtml = `
+      <div style="page-break-inside:avoid;margin-bottom:32px">
+        <h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:4px;margin-bottom:12px">
+          성능 지표 (Tier 2)
+        </h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+          <thead>
+            <tr style="background:#f1f5f9">
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #ddd;width:80px">에이전트</th>
+              <th style="padding:8px;text-align:center;border-bottom:2px solid #ddd;width:70px">결과</th>
+              <th style="padding:8px;text-align:right;border-bottom:2px solid #ddd;width:100px">경과 시간</th>
+            </tr>
+          </thead>
+          <tbody>${perfRows}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -181,6 +216,8 @@ function generateHtml(data) {
   </div>
 
   ${groupsHtml}
+
+  ${perfHtml}
 
   <div style="margin-top:32px;padding-top:16px;border-top:2px solid #1e40af;page-break-inside:avoid">
     <h2 style="color:#1e40af;margin-bottom:8px">종합 결론</h2>
