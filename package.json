@@ -13,6 +13,7 @@
     "test:dom:screenshot": "node test/test-dom.js --screenshot",
     "serve": "node scripts/serve.js",
     "verify": "node scripts/verify.js",
+    "e2e:report": "node scripts/e2e-report.js",
     "prepare": "git config core.hooksPath scripts/hooks"
   },
   "devDependencies": {

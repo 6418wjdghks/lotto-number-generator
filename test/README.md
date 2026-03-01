@@ -183,4 +183,28 @@ app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L141~) 참조.
 
 ---
 
+## E2E 반응형 테스트 (e2e-responsive.md, 63항목)
+
+Playwright MCP 기반 실제 브라우저 E2E 테스트. `/e2e-test` 스킬로 자동 실행.
+
+| 그룹 | 대상 | 뷰포트 | 항목 수 |
+|------|------|--------|---------|
+| **A. 기능** | 추첨, 다크모드, 제외, 이력, 복사, 인증, 통합 시나리오 | 375x667 | 27 |
+| **B. 뷰포트** | CSS 브레이크포인트별 레이아웃 | 320~1920px (6종) | 34 |
+| **C. 교차** | 다크 모드 + 뷰포트 조합 | 320, 1920 | 2 |
+| | **합계** | | **63** |
+
+### 실행 방법
+
+```bash
+/e2e-test              # 전체 63항목 + PDF 리포트
+/e2e-test --quick      # 핵심 ~15항목 + PDF 리포트
+/e2e-test --report-only # 기존 결과로 리포트만 재생성
+npm run e2e:report      # HTML 보고서만 생성 (scripts/e2e-report.js)
+```
+
+상세 항목: `test/e2e-responsive.md` 참조
+
+---
+
 정밀 검증 결과: `docs/verification.md` 하단 참조
