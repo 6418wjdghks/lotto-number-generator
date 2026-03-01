@@ -11,4 +11,4 @@
 
 ## 활성 Workset
 
-- 없음 (`.worksets/` 참조)
+- `responsive-test` — 반응성 테스트 체계 구축 (상태: 대기)
