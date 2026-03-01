@@ -68,6 +68,7 @@
 │   ├── check-deps.js       # 의존성 설치 여부 체크 (pretest/preverify)
 │   ├── verify.js           # strong_verify 전처리 (Tier 0, 15항목)
 │   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
+│   ├── temp-server.js      # 임시 HTTP 서버 수명주기 관리
 │   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
 │   ├── e2e-report.js       # E2E 테스트 JSON→HTML 보고서 생성
 │   ├── verify-report.js    # strong_verify JSON→HTML 보고서 생성
