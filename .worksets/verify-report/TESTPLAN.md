@@ -1,6 +1,6 @@
 # verify-report — Test Plan
 
-## 검증 항목
+## 체크 항목
 
 - [ ] verify-report.js: 샘플 JSON → HTML 생성 정상
 - [ ] HTML 렌더링: 헤더/요약/Tier별 테이블/종합결론 표시

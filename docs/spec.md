@@ -79,7 +79,7 @@
 - **삭제 흐름**: `confirm()` → 삭제 실행 → `displayHistory()` 갱신 → `alert('이력이 삭제되었습니다.')`
 - **자동 갱신**: 저장(`saveToHistory`) 후 이력 영역이 열려있으면(`hidden` 미포함) `displayHistory()` 자동 호출
 - **날짜 표시 형식**: `YYYY-MM-DD HH:mm` (padStart로 2자리 보장), 다중세트일 때 `" (N세트 중)"` 접미사 추가
-- **데이터 version 검증**: `loadHistoryLocal()`에서 `version !== '1.0'`이면 빈 배열 반환 (콘솔 경고)
+- **데이터 version 확인**: `loadHistoryLocal()`에서 `version !== '1.0'`이면 빈 배열 반환 (콘솔 경고)
 
 **데이터 구조/API**: `docs/tech.md` 참조
 

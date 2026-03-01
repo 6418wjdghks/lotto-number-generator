@@ -4,7 +4,7 @@
 
 ## 테스트 3계층 구조
 
-| 계층 | 파일 | 실행 환경 | 대상 | 검증 수 |
+| 계층 | 파일 | 실행 환경 | 대상 | 테스트 수 |
 |------|------|----------|------|---------|
 | **순수 로직** | `test-logic.js` | Node.js (CLI) | 순수 함수, localStorage 로직 | 23개 |
 | **DOM/UI (CLI)** | `test-dom.js` | Node.js + Edge headless | DOM 렌더링, 토스트, 클립보드 등 | 72개 |
@@ -45,21 +45,21 @@ open test/test.html   # macOS
 
 ### generateSingleSet() — 9개
 
-| # | 검증 내용 | 반복 |
+| # | 테스트 내용 | 반복 |
 |---|-----------|------|
 | 1 | 6개 숫자 생성 | 1회 |
 | 2 | 숫자 범위 1-45 | 100회 |
 | 3 | 중복 없음 | 100회 |
 | 4 | 오름차순 정렬 | 100회 |
 | 5 | 랜덤성 (90%+ 고유 조합) | 100회 |
-| 6 | 분포 균등성 (표준편차 검증) | 1000회 |
+| 6 | 분포 균등성 (표준편차 확인) | 1000회 |
 | 7 | 제외 번호 미출현 | 100회 |
 | 8 | 빈 제외 배열 = 기존 동작 | 1회 |
 | 9 | 제외 후 6개 생성, 정렬, 중복 없음 | 1회 |
 
 ### generateMultipleSets() — 3개
 
-| # | 검증 내용 |
+| # | 테스트 내용 |
 |---|-----------|
 | 1 | 요청 세트 수만큼 생성 (1, 3, 5) |
 | 2 | 모든 세트 유효 (6개, 범위, 정렬, 중복) |
@@ -67,14 +67,14 @@ open test/test.html   # macOS
 
 ### generateUUID() — 2개
 
-| # | 검증 내용 |
+| # | 테스트 내용 |
 |---|-----------|
 | 1 | UUID v4 형식 정규식 |
 | 2 | 100개 생성 시 모두 고유 |
 
 ### loadHistory() — 4개
 
-| # | 검증 내용 |
+| # | 테스트 내용 |
 |---|-----------|
 | 1 | 빈 저장소 → 빈 배열 |
 | 2 | 정상 데이터 로드 |
@@ -83,7 +83,7 @@ open test/test.html   # macOS
 
 ### saveToHistory() — 5개
 
-| # | 검증 내용 |
+| # | 테스트 내용 |
 |---|-----------|
 | 1 | 저장 후 로드 가능 |
 | 2 | id, timestamp, setCount 자동 생성 |
@@ -93,9 +93,9 @@ open test/test.html   # macOS
 
 ---
 
-## DOM/UI 테스트 항목 (test.html + test-dom.js, 14그룹 72개 검증)
+## DOM/UI 테스트 항목 (test.html + test-dom.js, 14그룹 72개 테스트)
 
-| # | 테스트 그룹 | 검증 수 | 의존 |
+| # | 테스트 그룹 | 테스트 수 | 의존 |
 |---|------------|---------|------|
 | 1 | `clearHistory()` — 빈 이력 경고, confirm 승인/거부, 완료 알림 | 4 | alert/confirm |
 | 2 | `getSelectedSetCount()` — 기본값, 최대값, 반환 타입 | 3 | DOM |
@@ -113,9 +113,9 @@ open test/test.html   # macOS
 | 14 | 제외 번호 영속성 — save/load/clear + 에러 방어 | 6 | DOM + localStorage |
 | | **합계** | **72** | |
 
-> Test 3: Clipboard API 미지원 시 INFO 로그 후 스킵 (PASS 미계상). CLI 러너는 CDP로 클립보드 권한을 부여하여 3개 모두 실행. 브라우저에서 readText 권한이 없으면 내용 검증을 스킵하고 2개 실행.
+> Test 3: Clipboard API 미지원 시 INFO 로그 후 스킵 (PASS 미계상). CLI 러너는 CDP로 클립보드 권한을 부여하여 3개 모두 실행. 브라우저에서 readText 권한이 없으면 내용 확인을 스킵하고 2개 실행.
 
-추가로 분포 통계 시각화(1000회)를 참고 도구로 제공합니다 (테스트 검증 아님).
+추가로 분포 통계 시각화(1000회)를 참고 도구로 제공합니다 (테스트 항목 아님).
 
 ---
 
@@ -157,7 +157,7 @@ app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L141~) 참조.
 | `updateExcludeCount` | | ✅ |
 | `resetExcludedNumbers` | | ✅ |
 | `generateLottoNumbers` | | ✅ |
-| `initApp` | | ✅ (이벤트 바인딩 검증) |
+| `initApp` | | ✅ (이벤트 바인딩 확인) |
 
 ### 테마 함수 (5개 — 전수 테스트)
 
@@ -207,4 +207,4 @@ npm run e2e:report      # HTML 보고서만 생성 (scripts/e2e-report.js)
 
 ---
 
-정밀 검증 결과: `docs/verification.md` 하단 참조
+strong_verify 결과: `docs/verification.md` 하단 참조

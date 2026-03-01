@@ -2,7 +2,7 @@
 
 ## 목적
 
-`/verify` 정밀 검증 결과를 구조화된 JSON → HTML → PDF 리포트 파이프라인으로 생성한다.
+`/verify` strong_verify 결과를 구조화된 JSON → HTML → PDF 리포트 파이프라인으로 생성한다.
 
 ## 요구사항
 

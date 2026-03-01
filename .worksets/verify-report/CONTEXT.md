@@ -25,11 +25,11 @@
 - [x] package.json verify:report 추가
 - [x] verification.md 에이전트 프롬프트 수정 (5개)
 - [x] SKILL.md 4-Step → 6-Step 확장
-- [x] 검증: 샘플 JSON → HTML 생성 확인
+- [x] 확인: 샘플 JSON → HTML 생성 확인
 
 ## 세션 로그
 
 ### 2026-03-01 — verify-report 구현
 - 수행: 전체 구현 완료 (스크립트, 프롬프트, SKILL, package.json)
-- 검증: 샘플 JSON (PASS/FAIL/SKIP 혼합) → HTML 렌더링 정상 확인 (Playwright MCP)
+- 확인: 샘플 JSON (PASS/FAIL/SKIP 혼합) → HTML 렌더링 정상 확인 (Playwright MCP)
 - 이슈: (없음)

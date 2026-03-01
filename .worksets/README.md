@@ -23,7 +23,7 @@ Feature 단위의 작업 컨텍스트를 관리하는 디렉토리입니다.
 
 1. **생성**: `_template/`을 복사하여 새 디렉토리 생성 → SPEC.md 작성
 2. **작업**: 코드는 `dev` 브랜치에 구현, CONTEXT.md에 진행상황 갱신
-3. **완료**: TESTPLAN.md 검증 후 아카이브로 이동
+3. **완료**: TESTPLAN.md 확인 후 아카이브로 이동
    - `_archive/<카테고리>/` 존재 여부 확인
    - 없으면 카테고리 디렉토리 + SUMMARY.md 생성
    - workset을 `_archive/<카테고리>/<phase명>/`으로 이동

@@ -66,13 +66,13 @@
 │   └── README.md           # 테스트 문서
 ├── scripts/                # 자동화 스크립트
 │   ├── check-deps.js       # 의존성 설치 여부 체크 (pretest/preverify)
-│   ├── verify.js           # 정밀 검증 전처리 (Tier 0, 15항목)
+│   ├── verify.js           # strong_verify 전처리 (Tier 0, 15항목)
 │   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
 │   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
 │   ├── e2e-report.js       # E2E 테스트 JSON→HTML 보고서 생성
-│   ├── verify-report.js    # 정밀 검증 JSON→HTML 보고서 생성
+│   ├── verify-report.js    # strong_verify JSON→HTML 보고서 생성
 │   └── hooks/
-│       └── pre-commit      # pre-commit hook (아카이브 + 검증)
+│       └── pre-commit      # pre-commit hook (아카이브 + verify)
 ├── .worksets/              # Workset 기반 동시 작업 관리
 │   ├── README.md           # Workset 체계 안내
 │   ├── _template/          # 새 workset 생성 템플릿
@@ -84,7 +84,7 @@
     ├── tech.md             # 기술 명세서
     ├── design.md           # 디자인 명세서
     ├── plan.md             # 프로젝트 계획서
-    ├── verification.md     # 검증 체계 + 검증 결과
+    ├── verification.md     # verify 체계 + verify 결과
     ├── decisions.md        # ADR (활성)
     ├── decisions_001_010.md # ADR 아카이브 (001~010)
     ├── decisions_011_020.md # ADR 아카이브 (011~020)

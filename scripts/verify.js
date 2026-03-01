@@ -1,12 +1,12 @@
 /**
- * 정밀 검증 전처리 스크립트
+ * strong_verify 전처리 스크립트
  *
- * 기계적/정량적 검증을 자동화하여 에이전트 부하를 줄인다.
+ * 기계적/정량적 체크를 자동화하여 에이전트 부하를 줄인다.
  * CSS 변수 비교, 함수 카운트, 테스트 카운트, 파일 존재 확인을 수행하고
  * 구조화된 JSON 리포트를 출력한다.
  *
  * 매직 넘버 없음: 기대값은 문서(design.md, CLAUDE.md, spec.md,
- * README.md)에서 동적 파싱하고, 테스트 수는 소스 실측으로 검증한다.
+ * README.md)에서 동적 파싱하고, 테스트 수는 소스 실측으로 확인한다.
  *
  * 실행: node scripts/verify.js
  * 출력: stdout (JSON)
@@ -420,7 +420,7 @@ function main() {
 
   // Human-readable summary to stderr
   const log = (...args) => process.stderr.write(args.join(' ') + '\n');
-  log('\n=== 정밀 검증 전처리 ===');
+  log('\n=== strong_verify 전처리 ===');
   for (const c of checks) {
     log(`  ${c.pass ? 'PASS' : 'FAIL'} ${c.name}: ${typeof c.detail === 'string' ? c.detail : JSON.stringify(c.detail)}`);
   }

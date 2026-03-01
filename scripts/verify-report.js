@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Verify 정밀 검증 보고서 생성기
+ * strong_verify 보고서 생성기
  * 결과 JSON → HTML 보고서
  *
  * Usage:
@@ -132,7 +132,7 @@ function generateHtml(data) {
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Verify 정밀 검증 리포트</title>
+  <title>strong_verify 리포트</title>
   <style>
     @page { size: A4; margin: 20mm 15mm; }
     * { box-sizing: border-box; }
@@ -142,7 +142,7 @@ function generateHtml(data) {
 </head>
 <body>
   <div style="text-align:center;margin-bottom:32px;padding-bottom:16px;border-bottom:3px solid #1e40af">
-    <h1 style="margin:0 0 8px;color:#1e40af">Verify 정밀 검증 리포트</h1>
+    <h1 style="margin:0 0 8px;color:#1e40af">strong_verify 리포트</h1>
     <p style="margin:0;color:#64748b">로또번호 추첨기 | ${escapeHtml(date)} | ${escapeHtml(commitHash)}</p>
   </div>
 
@@ -173,7 +173,7 @@ function generateHtml(data) {
     <h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:4px">환경 정보</h2>
     <table style="width:100%;border-collapse:collapse;font-size:14px">
       <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold;width:140px">테스트 대상</td><td style="padding:6px 8px;border-bottom:1px solid #eee">로또번호 추첨기</td></tr>
-      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold">검증 유형</td><td style="padding:6px 8px;border-bottom:1px solid #eee">정밀 검증 (Tier 0 + Tier 1 + Tier 2)</td></tr>
+      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold">Verify 유형</td><td style="padding:6px 8px;border-bottom:1px solid #eee">strong_verify (Tier 0 + Tier 1 + Tier 2)</td></tr>
       <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold">커밋 해시</td><td style="padding:6px 8px;border-bottom:1px solid #eee"><code>${escapeHtml(commitHash)}</code></td></tr>
       <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold">실행 에이전트</td><td style="padding:6px 8px;border-bottom:1px solid #eee">${agents.length > 0 ? escapeHtml(agents.join(', ')) : '(없음)'}</td></tr>
       <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold">실행 날짜</td><td style="padding:6px 8px;border-bottom:1px solid #eee">${escapeHtml(date)}</td></tr>

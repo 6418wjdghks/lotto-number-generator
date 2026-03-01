@@ -1,6 +1,6 @@
 # [Workspace 이름] — Test Plan
 
-## 검증 항목
+## 체크 항목
 
 - [ ]
 

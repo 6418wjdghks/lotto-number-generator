@@ -1,11 +1,11 @@
 ---
 name: verify
-description: 정밀 검증(Tier 0+1+2) 자동 오케스트레이션. 5개 서브에이전트로 문서↔소스코드 전수 비교.
+description: strong_verify(Tier 0+1+2) 자동 오케스트레이션. 5개 서브에이전트로 문서↔소스코드 전수 비교.
 disable-model-invocation: true
 argument-hint: "[all | A1 A2 A3 B D]"
 ---
 
-# 정밀 검증 오케스트레이션
+# strong_verify 오케스트레이션
 
 Tier 0(스크립트) + Tier 1(테스트) + Tier 2(서브에이전트)를 자동 실행한다.
 
@@ -53,7 +53,7 @@ Tier 0 JSON 출력과 Tier 1 결과를 보관한다.
   "meta": { "date": "YYYY-MM-DD", "type": "verify", "commitHash": "abc1234", "agents": ["A1","A2","A3","B","D"] },
   "groups": [
     {
-      "group": "T0", "groupName": "Tier 0 — 스크립트 검증",
+      "group": "T0", "groupName": "Tier 0 — 스크립트 체크",
       "items": [{ "id": "T0-01", "name": "항목명", "status": "pass", "detail": "상세" }],
       "summary": { "total": 14, "pass": 14, "fail": 0 }
     },
@@ -110,10 +110,10 @@ Tier 0 JSON 출력과 Tier 1 결과를 보관한다.
 
 ## Step 5: verification.md 업데이트
 
-`docs/verification.md` 하단 "정밀 검증 결과" 섹션을 현재 세션 결과로 갱신:
+`docs/verification.md` 하단 "strong_verify 결과" 섹션을 현재 세션 결과로 갱신:
 
-1. 헤더: `> 마지막 검증: {날짜} ({해시}) — {결과 요약}`
-2. 검증 항목 테이블 + 성능 지표 테이블 갱신
+1. 헤더: `> 마지막 verify: {날짜} ({해시}) — {결과 요약}`
+2. 체크 항목 테이블 + 성능 지표 테이블 갱신
 3. **미실행 에이전트는 `—`으로 표기**, 이전 값 유지 금지
 
 ## Step 6: 보고

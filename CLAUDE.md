@@ -42,13 +42,15 @@ Data: `config/constants.json` | `config/supabase.json`
 | **bb_test** | 코드를 읽지 않고 동작/명세 기준 확인 | `npm test`, serve.js E2E |
 | **wb_test** | 소스코드를 파싱/비교하여 확인 | `npm run verify`, Tier 2 에이전트 |
 
-### 검증 수준 (strong ⊃ func ⊃ weak)
+### Verify 수준 (strong ⊃ func ⊃ weak)
 
 | 수준 | 누적 구성 | 용도 |
 |------|----------|------|
 | **weak_verify** | Tier 0 + `npm test:logic` | 로직 변경 빠른 확인 |
 | **func_verify** | **weak 전체** + `npm test:dom` + serve.js E2E (MCP) | 기능/UI 변경 확인 |
 | **strong_verify** | **func 전체** + **Tier 2 에이전트** | 문서 변경 / 릴리스 전 |
+
+사용자가 "약한 검증", "기능 검증", "강한 검증"으로 요청하면 각각 weak_verify, func_verify, strong_verify로 해석한다.
 
 상세: `docs/verification.md`
 
@@ -62,5 +64,5 @@ Data: `config/constants.json` | `config/supabase.json`
 | UI/디자인 | `docs/design.md` | 섹션 단위 |
 | Phase 계획 | `docs/plan.md` | 직접 |
 | 설계 결정 (ADR) | `docs/decisions.md` | 섹션 단위 |
-| 검증 체계 | `docs/verification.md` | 서브에이전트 |
+| Verify 체계 | `docs/verification.md` | 서브에이전트 |
 | 테스트 명세 | `test/README.md` | 섹션 단위 |

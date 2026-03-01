@@ -37,7 +37,7 @@ HelloClaude/
 │   └── app.js              # 진입점 (메인 함수 + 초기화 + 이벤트)
 ├── scripts/
 │   ├── check-deps.js       # 의존성 체크
-│   ├── verify.js           # Tier 0 검증
+│   ├── verify.js           # Tier 0 체크
 │   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
 │   └── adr-archive.js      # ADR 아카이브
 ├── .worksets/              # Workset 기반 동시 작업 관리
@@ -237,7 +237,7 @@ css/style.css
 | 함수 | 방어 로직 |
 |------|----------|
 | `copyToClipboard` | `navigator.clipboard` 존재 확인 (미지원 시 토스트 에러), catch에서 `error.name === 'NotAllowedError'` 분기 처리 |
-| `loadHistoryLocal` | `version !== '1.0'` 검증, 불일치 시 콘솔 경고 + 빈 배열 반환 |
+| `loadHistoryLocal` | `version !== '1.0'` 확인, 불일치 시 콘솔 경고 + 빈 배열 반환 |
 | `clearHistory` | 빈 이력 사전 확인 → `alert('삭제할 이력이 없습니다.')`, 이후 `confirm()` → 삭제 → `alert('이력이 삭제되었습니다.')` |
 | `saveToHistory` | 저장 후 `#historyList`가 `hidden` 미포함이면 `displayHistory()` 자동 호출 |
 | `handleSignIn/Up/Out` | `window.supabase` 존재 확인 후 호출, 미존재 시 토스트 에러 |
@@ -442,7 +442,7 @@ for (let i = array.length - 1; i > 0; i--) {
 ## 보안
 
 - **XSS 방지**: `textContent` 사용 (innerHTML 금지). 컨테이너 초기화(`innerHTML = ''`)만 예외
-- **입력 검증**: LocalStorage JSON 파싱 시 try-catch
+- **입력 확인**: LocalStorage JSON 파싱 시 try-catch
 - **랜덤**: `Math.random()` — 오락용 충분. 실제 도박에는 `crypto.getRandomValues()` 필요
 - **세션**: access_token을 LocalStorage 저장 (Supabase SDK와 동일 방식)
 
