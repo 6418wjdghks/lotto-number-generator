@@ -13,6 +13,7 @@
 | # | 결정 | 상태 | 날짜 |
 |---|------|------|------|
 | 041 | pre-commit hook Windows null 디바이스 정책 | 승인 | 2026-02-15 |
+| 042 | 임시 HTTP 서버 수명주기 관리 (temp-server.js) | 승인 | 2026-03-01 |
 
 ---
 
@@ -88,3 +89,59 @@ $ cd /tmp/clean && echo "test" > NUL && ls -la nul
 1. **Windows Git Bash에서 `/dev/null`과 `NUL`은 다르다**: MSYS2는 `/dev/null`을 가상 디바이스로 매핑하지만, `NUL`은 POSIX 파일명으로 처리
 2. **수정 전 실행 컨텍스트 확인 필수**: pre-commit hook이 어떤 셸에서 실행되는지 확인하지 않고 플랫폼 분기를 도입하면 역효과
 3. **PowerShell에서 `> nul` 주의**: cmd.exe와 달리 PowerShell은 `nul`을 파일로 생성. `> $null` 사용 필요
+
+---
+
+## ADR-042: 임시 HTTP 서버 수명주기 관리 (temp-server.js)
+
+**상태**: 승인
+**날짜**: 2026-03-01
+
+### 배경
+
+CLI 에이전트가 HTML 보고서 PDF 변환, E2E 테스트 등에서 임시 HTTP 서버가 필요할 때 `npx serve`, `npx http-server`, ad-hoc `http.createServer` 등을 `run_in_background`로 실행하면 작업 종료 후에도 프로세스가 남아 좀비 프로세스가 되는 문제가 반복 발생했다.
+
+#### 문제 상세
+
+1. **좀비 프로세스**: `run_in_background`로 시작된 서버는 에이전트 세션 종료 후에도 살아있어 포트를 점유
+2. **포트 충돌**: 이전 세션의 좀비 서버가 포트를 점유하면 다음 세션에서 같은 포트 사용 불가
+3. **추적 불가**: ad-hoc 실행은 어떤 프로세스가 어떤 용도로 떠 있는지 식별 불가
+4. **수동 정리 부담**: 사용자가 매번 `tasklist`/`taskkill`로 직접 정리해야 함
+
+### 결정
+
+**`scripts/temp-server.js` 단일 진입점으로 임시 HTTP 서버 수명주기를 관리한다. 다른 ad-hoc 서버 실행 방식은 금지한다.**
+
+#### 구현
+
+| 기능 | 설명 |
+|------|------|
+| PID 파일 (`temp/.temp-server.json`) | 활성 서버의 PID, 포트, 시작 시각을 JSON으로 추적 |
+| 자동 정리 (idle timeout) | 기본 5분 무요청 시 자동 종료 (`--timeout` 조정 가능) |
+| 중복 방지 | 같은 포트에 이전 인스턴스가 있으면 자동 교체 (kill → start) |
+| 일괄 정리 (`--cleanup`) | 모든 활성 인스턴스 종료 + PID 파일 초기화 |
+| Graceful shutdown | SIGINT/SIGTERM 핸들링 + PID 파일 자동 해제 |
+| 준비 신호 | stdout 첫 줄 `READY http://localhost:{port}` → 호출자가 파싱 |
+
+#### 프롬프트 규칙 (CLAUDE.md)
+
+```
+- 임시 파일 서빙이 필요하면 반드시 node scripts/temp-server.js 사용
+- npx serve, npx http-server, node -e "http.createServer..." 등 ad-hoc 서버 금지
+- 작업 완료 후 node scripts/temp-server.js --cleanup 실행
+```
+
+### 대안 검토
+
+| 대안 | 장점 | 채택하지 않은 이유 |
+|------|------|-------------------|
+| `npx serve` / `npx http-server` | 설치 없이 즉시 사용 | PID 추적 불가, 좀비 프로세스 원인, idle timeout 없음 |
+| ad-hoc `http.createServer` 인라인 | 유연함 | 매번 구현 필요, 수명주기 관리 코드 누락 가능 |
+| OS 레벨 프로세스 그룹 관리 | 확실한 정리 | Windows/POSIX 차이로 복잡, 과잉 엔지니어링 |
+| PID 파일 + 전용 스크립트 | 추적·정리·재사용 통합 | **채택** |
+
+### 교훈
+
+1. **`run_in_background` 서버는 반드시 수명주기 관리 필요**: 에이전트 세션은 프로세스 정리를 보장하지 않으므로, 서버 자체가 자동 종료 메커니즘을 가져야 한다
+2. **PID 파일은 단순하지만 효과적**: JSON 기반 PID 파일로 다중 인스턴스 추적이 가능하고, prune 로직으로 죽은 프로세스 자동 정리
+3. **프롬프트에 정책을 명시해야 준수됨**: 도구만 만들어두면 에이전트가 여전히 ad-hoc 방식을 사용할 수 있으므로, CLAUDE.md에 금지 규칙을 명시
