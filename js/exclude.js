@@ -17,7 +17,33 @@ function getExcludedNumbers() {
 }
 
 /**
- * 번호 제외 패널 표시/숨김 토글
+ * 45개 버튼 그리드 생성, 저장된 제외 번호 복원, 클릭 핸들러 바인딩
+ */
+function createExcludeGrid() {
+  const grid = document.getElementById('excludeGrid');
+  if (!grid) return;
+
+  const saved = loadExcludedNumbers();
+  for (let i = 1; i <= 45; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'exclude-btn';
+    if (saved.includes(i)) {
+      btn.classList.add('excluded');
+    }
+    btn.textContent = i;
+    btn.type = 'button';
+    btn.onclick = function() {
+      this.classList.toggle('excluded');
+      updateExcludeCount();
+      saveExcludedNumbers();
+    };
+    grid.appendChild(btn);
+  }
+  updateExcludeCount();
+}
+
+/**
+ * 번호 제외 패널 표시/숨김 토글, 최초 열기 시 createExcludeGrid() 호출
  */
 function toggleExcludeView() {
   const panel = document.getElementById('excludePanel');
@@ -28,25 +54,8 @@ function toggleExcludeView() {
     panel.classList.remove('hidden');
     toggleText.textContent = '번호 제외 설정 ▲';
 
-    // 그리드가 비어있으면 초기 생성
     if (grid.children.length === 0) {
-      const saved = loadExcludedNumbers();
-      for (let i = 1; i <= 45; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'exclude-btn';
-        if (saved.includes(i)) {
-          btn.classList.add('excluded');
-        }
-        btn.textContent = i;
-        btn.type = 'button';
-        btn.onclick = function() {
-          this.classList.toggle('excluded');
-          updateExcludeCount();
-          saveExcludedNumbers();
-        };
-        grid.appendChild(btn);
-      }
-      updateExcludeCount();
+      createExcludeGrid();
     }
   } else {
     panel.classList.add('hidden');
@@ -121,6 +130,7 @@ function clearExcludedNumbers() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     getExcludedNumbers,
+    createExcludeGrid,
     toggleExcludeView,
     updateExcludeCount,
     resetExcludedNumbers,

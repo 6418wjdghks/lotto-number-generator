@@ -133,6 +133,7 @@ css/style.css
 ├── Copy Button               /* + @media */
 ├── Toast Message             /* + @media */
 ├── Exclude Section           /* + @media */
+├── Secondary Button          /* + @media */
 ├── History Section           /* + @media */
 └── Utility Classes            /* .hidden, .sr-only */
 ```
@@ -224,7 +225,9 @@ css/style.css
 
 **`getExcludedNumbers()`** → `Array<number>` — `.exclude-btn.excluded` 버튼의 숫자 수집
 
-**`toggleExcludeView()`** — 패널 토글, 최초 열기 시 45개 버튼 그리드 생성
+**`createExcludeGrid()`** — 45개 버튼 그리드 생성, 저장된 제외 번호 복원, 클릭 핸들러 바인딩
+
+**`toggleExcludeView()`** — 패널 토글, 최초 열기 시 `createExcludeGrid()` 호출
 
 **`updateExcludeCount()`** — 제외/남은 카운터 업데이트, 경고 표시
 
