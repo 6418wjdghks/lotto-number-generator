@@ -32,7 +32,9 @@
       "Bash(awk:*)",
       "Bash(sort:*)",
       "Bash(head:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(npx --version)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
