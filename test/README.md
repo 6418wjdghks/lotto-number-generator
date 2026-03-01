@@ -133,7 +133,7 @@ open test/test.html   # macOS
 
 app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L143~) 참조.
 
-### Phase 1~3 함수 (21개 — 전수 테스트)
+### Phase 1~3 함수 (22개 — 전수 테스트)
 
 | 함수 | CLI | 브라우저 |
 |------|-----|---------|
@@ -153,6 +153,7 @@ app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L143~) 참조.
 | `copyToClipboard` | | ✅ |
 | `showToast` | | ✅ |
 | `getExcludedNumbers` | | ✅ |
+| `createExcludeGrid` | | ✅ |
 | `toggleExcludeView` | | ✅ |
 | `updateExcludeCount` | | ✅ |
 | `resetExcludedNumbers` | | ✅ |

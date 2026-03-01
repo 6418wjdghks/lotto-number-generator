@@ -159,7 +159,7 @@ css/style.css
 ## JavaScript API (9개 모듈)
 
 > 함수 요약: CLAUDE.md 모듈 구조 참조. 아래는 상세 명세.
-> 모듈 분할: `config.js` → `utils.js` → `theme.js` → `exclude.js` → `lottery.js` → `history.js` → `auth.js` → `app.js` + `supabase-config.js` (ADR-021)
+> 모듈 분할: `config.js` → `supabase-config.js` → `utils.js` → `theme.js` → `exclude.js` → `lottery.js` → `history.js` → `auth.js` → `app.js` (ADR-021)
 
 ### 설정 로더 (`config.js`)
 
