@@ -449,7 +449,7 @@ for (let i = array.length - 1; i > 0; i--) {
 
 ## 보안
 
-- **XSS 방지**: `textContent` 사용 (innerHTML 금지). 컨테이너 초기화(`innerHTML = ''`)만 예외
+- **XSS 방지**: `textContent` 사용 (innerHTML 금지). 컨테이너 초기화(`innerHTML = ''`) 및 정적 HTML 리터럴 대입(`displayHistory` 빈 이력 메시지)만 예외
 - **입력 확인**: LocalStorage JSON 파싱 시 try-catch
 - **랜덤**: `Math.random()` — 오락용 충분. 실제 도박에는 `crypto.getRandomValues()` 필요
 - **세션**: access_token을 LocalStorage 저장 (Supabase SDK와 동일 방식)
