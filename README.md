@@ -62,12 +62,15 @@
 │   ├── test-dom.js         # DOM/UI CLI 러너 (Edge headless)
 │   ├── test.html           # 브라우저 테스트 (72개)
 │   ├── screenshot.png      # DOM 테스트 스크린샷 (자동 생성)
+│   ├── e2e-responsive.md   # E2E 반응형 테스트 정의서 (63항목)
 │   └── README.md           # 테스트 문서
 ├── scripts/                # 자동화 스크립트
 │   ├── check-deps.js       # 의존성 설치 여부 체크 (pretest/preverify)
 │   ├── verify.js           # 정밀 검증 전처리 (Tier 0, 15항목)
 │   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
 │   ├── adr-archive.js      # ADR 자동 아카이브 (>10개 시)
+│   ├── e2e-report.js       # E2E 테스트 JSON→HTML 보고서 생성
+│   ├── verify-report.js    # 정밀 검증 JSON→HTML 보고서 생성
 │   └── hooks/
 │       └── pre-commit      # pre-commit hook (아카이브 + 검증)
 ├── .worksets/              # Workset 기반 동시 작업 관리
