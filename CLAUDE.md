@@ -28,6 +28,7 @@ Data: `config/constants.json` | `config/supabase.json`
 4. 문서 인덱스의 **읽기 방식**을 따를 것 — 직접 / 섹션 단위 / 서브에이전트
 5. 단일 소스: 함수 목록 → `docs/tech.md` | 테스트 항목 → `test/README.md`
 6. 새 workset 생성 시 `_archive/`에서 동일 카테고리 이력 확인
+7. 아카이브 요약 → `_archive/*/SUMMARY.md`만 읽기 (CONTEXT.md 불필요), 요청 범위(summary vs 상세)를 판단하고 최소 문서만 읽을 것
 
 ## 워크플로우
 
