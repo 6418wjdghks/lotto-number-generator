@@ -131,7 +131,7 @@ open test/test.html   # macOS
 
 ## 함수 커버리지
 
-app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L141~) 참조.
+app.js 함수 목록은 `docs/tech.md` JS-API 섹션(L143~) 참조.
 
 ### Phase 1~3 함수 (21개 — 전수 테스트)
 
