@@ -14,6 +14,7 @@
     "serve": "node scripts/serve.js",
     "verify": "node scripts/verify.js",
     "e2e:report": "node scripts/e2e-report.js",
+    "verify:report": "node scripts/verify-report.js",
     "prepare": "git config core.hooksPath scripts/hooks"
   },
   "devDependencies": {

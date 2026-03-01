@@ -11,4 +11,4 @@
 
 ## 활성 Workset
 
-- `responsive-test` — 반응성 테스트 체계 구축 (상태: 대기)
+- `verify-report` — /verify 테스트 리포트 생성 (상태: 완료)
