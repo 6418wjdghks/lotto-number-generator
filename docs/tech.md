@@ -39,7 +39,11 @@ HelloClaude/
 │   ├── check-deps.js       # 의존성 체크
 │   ├── verify.js           # Tier 0 체크
 │   ├── serve.js            # 로컬 개발 서버 (E2E 테스트용, port 8080)
-│   └── adr-archive.js      # ADR 아카이브
+│   ├── adr-archive.js      # ADR 아카이브
+│   ├── e2e-report.js       # E2E 테스트 JSON→HTML 보고서
+│   ├── verify-report.js    # strong_verify JSON→HTML 보고서
+│   └── hooks/
+│       └── pre-commit      # pre-commit hook (아카이브 + verify)
 ├── .worksets/              # Workset 기반 동시 작업 관리
 │   ├── _template/          # 새 workset 생성 템플릿
 │   └── _archive/           # 완료된 workset 아카이브
